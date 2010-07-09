@@ -18,6 +18,9 @@ class Blog {
 		
 		$this->mojo->load->database();
 		// $this->mojo->load->model('blog_model', 'blog');
+		
+		// Check that we're setup and the DB table exists
+		$this->_install();
 	}
 	
 	/**
@@ -45,21 +48,21 @@ class Blog {
 		$this->template_data['template'] = str_replace($tags, '', $this->template_data['template']);
 		
 		// Blog time!
-		$this->db->where('blog', $blog);
+		$this->mojo->db->where('blog', $blog);
 		
 		// Limit
 		if ($limit) {
-			$this->db->limit($limit);
+			$this->mojo->db->limit($limit);
 		}
 		
 		// Orderby and sort
 		$orderby = ($orderby) ? $orderby : 'date';
 		$sort = ($sort) ? strtoupper($sort) : 'DESC';
 		
-		$this->db->order_by("$orderby $sort");
+		$this->mojo->db->order_by("$orderby $sort");
 		
 		// Get the posts
-		$posts = $this->db->get('blog_entries');
+		$posts = $this->mojo->db->get('blog_entries')->result();
 		
 		// Any posts?
 		if (!$posts) {
@@ -101,5 +104,38 @@ class Blog {
 	 */
 	private function _param($key) {
 		return (isset($this->template_data['parameters'][$key])) ? $this->template_data['parameters'][$key] : FALSE;
+	}
+	
+	/**
+	 * Creates the blog table if it doesn't exist
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	private function _install() {
+		$this->mojo->load->dbforge();
+		$this->mojo->dbforge->add_field(array(
+			'id' => array(
+				'type' => 'INT',
+				'unsigned' => TRUE,
+				'auto_increment' => TRUE
+			),
+			'blog' => array(
+				'type' => 'VARCHAR',
+				'constraint' => '100'
+			),
+			'title' => array(
+				'type' => 'VARCHAR',
+				'constraint' => '250'
+			),
+			'content' => array(
+				'type' => 'TEXT'
+			),
+			'date' => array(
+				'type' => 'DATETIME'
+			)
+		));
+		$this->mojo->dbforge->add_key('id', TRUE);
+		$this->mojo->dbforge->create_table('blog_entries', TRUE);
 	}
 }
