@@ -17,6 +17,8 @@ class Blog {
 		$this->mojo =& get_instance();
 		
 		$this->mojo->load->database();
+		$this->mojo->load->model('member_model');
+		$this->mojo->load->library('auth');
 		// $this->mojo->load->model('blog_model', 'blog');
 		
 		// Check that we're setup and the DB table exists
@@ -105,9 +107,8 @@ class Blog {
 	 */
 	public function entry_form($template_data) {
 		// Only display the entry form if we're logged in
-		$this->mojo->load->library('auth');
 		if (!$this->mojo->auth->is_editor()) {
-			return 'WOO';
+			return '';
 		}
 		
 		// Set up a few variables
@@ -155,6 +156,43 @@ class Blog {
 		
 		// Done!
 		return $html;
+	}
+	
+	/**
+	 * Submit a new entry via the AJAX POST form.
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function entry_submit() {
+		// Are we allowed to do this?
+		if (!$this->mojo->auth->is_editor()) {
+			die('Unauthorised access!');
+		}
+		
+		// Get the POST vars
+		$blog = $this->mojo->input->post('mojo_blog_blog');
+		$title = $this->mojo->input->post('mojo_blog_title');
+		$content = $this->mojo->input->post('mojo_blog_content');
+		$date = date('Y-m-d H:i:s', time());
+		
+		// Create the new post
+		$this->mojo->db->insert('blog_entries', array(
+			'blog' => $blog,
+			'title' => $title,
+			'content' => $content,
+			'date' => $date
+		));
+		
+		// Then re-retrive it!
+		$post = $this->mojo->db->where('id', $this->mojo->db->insert_id())->get('blog_entries')->row();
+		
+		// Return it as JSON
+		header('Content-type: application/json');
+		echo json_encode($post);
+		
+		// And we're done!
+		exit;
 	}
 	
 	/**
