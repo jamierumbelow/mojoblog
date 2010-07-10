@@ -96,6 +96,68 @@ class Blog {
 	}
 	
 	/**
+	 * Shows the entry form at the location specified.
+	 *
+	 * {mojo:blog:entry_form blog="blog"}
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function entry_form($template_data) {
+		// Only display the entry form if we're logged in
+		$this->mojo->load->library('auth');
+		if (!$this->mojo->auth->is_editor()) {
+			return 'WOO';
+		}
+		
+		// Set up a few variables
+		$this->template_data = $template_data;
+		$url = site_url('addons/blog/entry_submit');
+		$blog = $this->_param('blog');
+		
+		// Check we've got a blog parameter!
+		if (!$blog) {
+			return 'Blog Parameter Required';
+		}
+		
+		// Start preparing the entry form
+		$html = "<div id='mojo_blog_entry_form'>";
+			$html .= "<input type='hidden' name='mojo_blog_blog' id='mojo_blog_blog' value='$blog' />";
+			$html .= "<h1>New Blog Entry</h1>";
+			$html .= "<p><input type='text' name='mojo_blog_title' id='mojo_blog_title' value='Title' /></p>";
+			$html .= "<p><textarea name='mojo_blog_content' id='mojo_blog_content'></textarea></p>";
+			$html .= "<p><input type='submit' name='mojo_blog_submit' id='mojo_blog_submit' value='Create New Entry' /></p>";
+		$html .= "</div>";
+		
+		// Write the CKEditor JS...
+		$js = 'window.onload = function(){ jQuery("#mojo_blog_content").ckeditor(function(){}, {';
+			$js .= '"skin": "mojo,"+Mojo.URL.editor_skin_path,';
+			$js .= '"startupMode": Mojo.edit_mode,';
+			$js .= '"toolbar": Mojo.toolbar,';
+			$js .= '"removePlugins": "save",';
+			$js .= '"toolbarCanCollapse": false,';
+			$js .= '"toolbarStartupExpanded": true,';
+			$js .= '"resize_enabled": true,';
+			$js .= 'filebrowserBrowseUrl : Mojo.URL.site_path+"editor/browse",';
+			$js .= 'filebrowserWindowWidth : "780",';
+			$js .= 'filebrowserWindowHeight : "500",';
+			$js .= 'filebrowserUploadUrl : Mojo.URL.site_path+"editor/upload"';
+		$js .= '});';
+		
+		// Handle the entry submission
+		$js .= 'jQuery("#mojo_blog_submit").click(function(){ jQuery.ajax({ type: "POST", url: "'.$url.'", ';
+		$js .= 'data: { mojo_blog_title: jQuery("#mojo_blog_title").val(), mojo_blog_content: jQuery("#mojo_blog_content").val(), mojo_blog_blog: jQuery("#mojo_blog_blog").val() },';
+		$js .= 'complete: function () { alert("Hurrah!") }';
+		$js .= '}); }); }';
+		
+		// Push out the appropriate JavaScript
+		$html .= "<script type='text/javascript'>$js</script>";
+		
+		// Done!
+		return $html;
+	}
+	
+	/**
 	 * Fetch a parameter
 	 *
 	 * @param string $key 
