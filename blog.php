@@ -44,7 +44,7 @@ class Blog {
 		$no_posts = $this->_param('no_posts');
 		
 		// Strip the template tags
-		$tags = array($this->template_data['tag_open'], '{/mojo::blog:entries}');
+		$tags = array('{mojo::blog:entries}', '{/mojo::blog:entries}');
 		$this->template_data['template'] = str_replace($tags, '', $this->template_data['template']);
 		
 		// Blog time!
@@ -75,15 +75,15 @@ class Blog {
 				$tmp = $this->template_data['template'];
 				
 				// Start off with the basic variables
-				$tmp = preg_replace("{id}", $post->id, $tmp);
-				$tmp = preg_replace("{title}", $post->title, $tmp);
-				$tmp = preg_replace("{content}", $post->content, $tmp);
+				$tmp = preg_replace("/{id}/", $post->id, $tmp);
+				$tmp = preg_replace("/{title}/", $post->title, $tmp);
+				$tmp = preg_replace("/{content}/", $post->content, $tmp);
 				
 				// Then to the date!
 				if ($date_format) {
-					$tmp = preg_replace("{date}", date($date_format, strtotime($post->date)), $tmp);
+					$tmp = preg_replace("/{date}/", date($date_format, strtotime($post->date)), $tmp);
 				} else {
-					$tmp = preg_replace("{date}", date('d/m/Y', strtotime($post->date)), $tmp);
+					$tmp = preg_replace("/{date}/", date('d/m/Y', strtotime($post->date)), $tmp);
 				}
 				
 				// Finally, add it to the buffer
