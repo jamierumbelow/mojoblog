@@ -148,7 +148,7 @@ class Blog {
 		// Handle the entry submission
 		$js .= 'jQuery("#mojo_blog_submit").click(function(){ jQuery.ajax({ type: "POST", url: "'.$url.'", ';
 		$js .= 'data: { mojo_blog_title: jQuery("#mojo_blog_title").val(), mojo_blog_content: jQuery("#mojo_blog_content").val(), mojo_blog_blog: jQuery("#mojo_blog_blog").val() },';
-		$js .= 'complete: function () { alert("Hurrah!") }';
+		$js .= 'complete: function () { window.location.reload() }';
 		$js .= '}); }); }';
 		
 		// Push out the appropriate JavaScript
