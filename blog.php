@@ -161,6 +161,12 @@ class Blog {
 		// Special magic title autofiller thing
 		$js .= 'jQuery("#mojo_blog_title_'.$hash.'").focus(function(){ if(jQuery(this).val() == "Title") { jQuery(this).val(""); } });
 				jQuery("#mojo_blog_title_'.$hash.'").blur(function(){ if(jQuery(this).val() == "") { jQuery(this).val("Title"); } });';
+				
+		// Editing regions
+		$js .= 'function handle_mojo_blog_regions() { if (mojoEditor.is_open) { jQuery(".mojo_blog_entry_region").each(function() { mod_editable_layer = jQuery("<div class=\'mojo_editable_layer\'></div>").css({"border": "3px solid green", opacity: 0.4, width: jQuery(this).width(), height: jQuery(this).outerHeight()}).fadeIn(\'fast\');
+		jQuery(this).prepend(jQuery("<div class=\'mojo_editable_layer_header\'><p>Blog : Entry ID "+jQuery(this).attr(\'data-post-id\')+"</p></div>")).prepend(mod_editable_layer); }); } else { jQuery(".mojo_blog_entry_region").each(function() { jQuery(".mojo_editable_layer_header, .mojo_editable_layer").fadeOut(\'fast\', function(){jQuery(this).remove();}); }); }; }';
+		$js .= 'jQuery("#mojo_bar_view_mode, #collapse_tab").click(function(){ handle_mojo_blog_regions(); return false; });';
+		$js .= 'handle_mojo_blog_regions();';
 		$js .= '}';
 		
 		// Push out the appropriate JavaScript
