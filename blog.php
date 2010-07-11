@@ -124,15 +124,15 @@ class Blog {
 		
 		// Start preparing the entry form
 		$html = "<div class='mojo_blog_entry_form' data-random-id='$hash'>";
-			$html .= "<input type='hidden' name='mojo_blog_blog' id='mojo_blog_blog' value='$blog' />";
+			$html .= "<input type='hidden' name='mojo_blog_blog' id='mojo_blog_blog_$hash' value='$blog' />";
 			$html .= "<h1>New Blog Entry</h1>";
-			$html .= "<p><input type='text' name='mojo_blog_title' id='mojo_blog_title' value='Title' /></p>";
-			$html .= "<p><textarea name='mojo_blog_content' id='mojo_blog_content'></textarea></p>";
-			$html .= "<p><input type='submit' name='mojo_blog_submit' id='mojo_blog_submit' value='Create New Entry' /></p>";
+			$html .= "<p><input style='padding: 5px; font-size: 14px; width: 90%' type='text' name='mojo_blog_title' id='mojo_blog_title_$hash' value='Title' /></p>";
+			$html .= "<p><textarea name='mojo_blog_content' id='mojo_blog_content_$hash'></textarea></p>";
+			$html .= "<p><input type='submit' name='mojo_blog_submit' id='mojo_blog_submit_$hash' value='Create New Entry' /></p>";
 		$html .= "</div>";
 		
 		// Write the CKEditor JS...
-		$js = 'window.onload = function(){ jQuery("#mojo_blog_content").ckeditor(function(){}, {';
+		$js = 'window.onload = function(){ jQuery("#mojo_blog_content_'.$hash.'").ckeditor(function(){}, {';
 			$js .= '"skin": "mojo,"+Mojo.URL.editor_skin_path,';
 			$js .= '"startupMode": Mojo.edit_mode,';
 			$js .= '"toolbar": Mojo.toolbar,';
@@ -147,8 +147,8 @@ class Blog {
 		$js .= '});';
 		
 		// Handle the entry submission
-		$js .= 'jQuery("#mojo_blog_submit").click(function(){ jQuery.ajax({ type: "POST", url: "'.$url.'", ';
-		$js .= 'data: { mojo_blog_title: jQuery("#mojo_blog_title").val(), mojo_blog_content: jQuery("#mojo_blog_content").val(), mojo_blog_blog: jQuery("#mojo_blog_blog").val() },';
+		$js .= 'jQuery("#mojo_blog_submit_'.$hash.'").click(function(){ jQuery.ajax({ type: "POST", url: "'.$url.'", ';
+		$js .= 'data: { mojo_blog_title: jQuery("#mojo_blog_title_'.$hash.'").val(), mojo_blog_content: jQuery("#mojo_blog_content_'.$hash.'").val(), mojo_blog_blog: jQuery("#mojo_blog_blog_'.$hash.'").val() },';
 		$js .= 'complete: function () { window.location.reload() }';
 		$js .= '}); });';
 		
