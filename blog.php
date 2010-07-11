@@ -115,6 +115,7 @@ class Blog {
 		$this->template_data = $template_data;
 		$url = site_url('addons/blog/entry_submit');
 		$blog = $this->_param('blog');
+		$hash = sha1(time()+rand(0,500));
 		
 		// Check we've got a blog parameter!
 		if (!$blog) {
@@ -122,7 +123,7 @@ class Blog {
 		}
 		
 		// Start preparing the entry form
-		$html = "<div id='mojo_blog_entry_form'>";
+		$html = "<div class='mojo_blog_entry_form' data-random-id='$hash'>";
 			$html .= "<input type='hidden' name='mojo_blog_blog' id='mojo_blog_blog' value='$blog' />";
 			$html .= "<h1>New Blog Entry</h1>";
 			$html .= "<p><input type='text' name='mojo_blog_title' id='mojo_blog_title' value='Title' /></p>";
@@ -149,7 +150,12 @@ class Blog {
 		$js .= 'jQuery("#mojo_blog_submit").click(function(){ jQuery.ajax({ type: "POST", url: "'.$url.'", ';
 		$js .= 'data: { mojo_blog_title: jQuery("#mojo_blog_title").val(), mojo_blog_content: jQuery("#mojo_blog_content").val(), mojo_blog_blog: jQuery("#mojo_blog_blog").val() },';
 		$js .= 'complete: function () { window.location.reload() }';
-		$js .= '}); }); }';
+		$js .= '}); });';
+		
+		// Make sure the form slides up and down with the MojoBar
+		$js .= 'if (!mojoEditor.is_open) { jQuery(".mojo_blog_entry_form[data-random-id=\''.$hash.'\']").hide(); }';
+		$js .= 'jQuery("#mojo_bar_view_mode, #collapse_tab").click(function(){ if (mojoEditor.is_open) { jQuery(".mojo_blog_entry_form[data-random-id=\''.$hash.'\']").slideDown(); } else { jQuery(".mojo_blog_entry_form[data-random-id=\''.$hash.'\']").slideUp(); }; return false; });';
+		$js .= '}';
 		
 		// Push out the appropriate JavaScript
 		$html .= "<script type='text/javascript'>$js</script>";
