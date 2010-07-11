@@ -44,11 +44,7 @@ class Blog {
 		$sort = $this->_param('sort');
 		$date_format = $this->_param('date_format');
 		$no_posts = $this->_param('no_posts');
-		
-		// Strip the template tags
-		$tags = array('{mojo::blog:entries}', '{/mojo::blog:entries}');
-		$this->template_data['template'] = str_replace($tags, '', $this->template_data['template']);
-		
+				
 		// Blog time!
 		$this->mojo->db->where('blog', $blog);
 		
@@ -88,6 +84,12 @@ class Blog {
 					$tmp = preg_replace("/{date}/", date('d/m/Y', strtotime($post->date)), $tmp);
 				}
 				
+				// Strip the template tags and replace with MojoBlog divs
+				$tags = array('{mojo::blog:entries}', '{/mojo::blog:entries}');
+				$divs = array('<div class="mojo_blog_entry_region" data-post-id="'.$post->id.'">', '</div>');
+			
+				$tmp = str_replace($tags, $divs, $tmp);
+
 				// Finally, add it to the buffer
 				$parsed .= $tmp;
 			}
