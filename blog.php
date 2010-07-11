@@ -117,7 +117,6 @@ class Blog {
 		$this->template_data = $template_data;
 		$url = site_url('addons/blog/entry_submit');
 		$blog = $this->_param('blog');
-		$hash = sha1(time()+rand(0,500));
 		
 		// Check we've got a blog parameter!
 		if (!$blog) {
@@ -125,16 +124,20 @@ class Blog {
 		}
 		
 		// Start preparing the entry form
-		$html = "<div class='mojo_blog_entry_form' data-random-id='$hash'>";
-			$html .= "<input type='hidden' name='mojo_blog_blog' id='mojo_blog_blog_$hash' value='$blog' />";
+		$html = "<div class='mojo_blog_entry_form'>";
+			$html .= "<input type='hidden' name='mojo_blog_blog' class='mojo_blog_blog' value='$blog' />";
 			$html .= "<h1>New Blog Entry</h1>";
-			$html .= "<p><input style='padding: 5px; font-size: 14px; width: 90%' type='text' name='mojo_blog_title' id='mojo_blog_title_$hash' value='Title' /></p>";
-			$html .= "<p><textarea name='mojo_blog_content' id='mojo_blog_content_$hash'></textarea></p>";
-			$html .= "<p><input type='submit' name='mojo_blog_submit' id='mojo_blog_submit_$hash' value='Create New Entry' /></p>";
+			$html .= "<p><input style='padding: 5px; font-size: 14px; width: 90%' type='text' name='mojo_blog_title' class='mojo_blog_title' value='Title' /></p>";
+			$html .= "<p><textarea class='mojo_blog_content'></textarea></p>";
+			$html .= "<p><input type='submit' name='mojo_blog_submit' class='mojo_blog_submit' value='Create New Entry' /></p>";
 		$html .= "</div>";
 		
 		// Write the CKEditor JS...
-		$js = 'window.onload = function(){ jQuery("#mojo_blog_content_'.$hash.'").ckeditor(function(){}, {';
+		$js = 'window.onload = function(){';
+		
+		$js .= 'function ckeditorise() { jQuery(".mojo_blog_content").each(function() { ';
+			$js .= '/* Add a unique class */ var d = new Date(), t = d.getTime(), r = Math.random()*20000, u = Math.floor(t + r); jQuery(this).addClass("random_class_"+u);';				
+			$js .= '/* CKify */ jQuery(".random_class_"+u).ckeditor(function(){}, {';
 			$js .= '"skin": "mojo,"+Mojo.URL.editor_skin_path,';
 			$js .= '"startupMode": Mojo.edit_mode,';
 			$js .= '"toolbar": Mojo.toolbar,';
@@ -146,27 +149,37 @@ class Blog {
 			$js .= 'filebrowserWindowWidth : "780",';
 			$js .= 'filebrowserWindowHeight : "500",';
 			$js .= 'filebrowserUploadUrl : Mojo.URL.site_path+"editor/upload"';
-		$js .= '});';
+		$js .= '}); }); }; ckeditorise(); ';
 		
 		// Handle the entry submission
-		$js .= 'jQuery("#mojo_blog_submit_'.$hash.'").click(function(){ jQuery.ajax({ type: "POST", url: "'.$url.'", ';
-		$js .= 'data: { mojo_blog_title: jQuery("#mojo_blog_title_'.$hash.'").val(), mojo_blog_content: jQuery("#mojo_blog_content_'.$hash.'").val(), mojo_blog_blog: jQuery("#mojo_blog_blog_'.$hash.'").val() },';
+		$js .= 'jQuery("input.mojo_blog_submit").click(function(){ var par = jQuery(this).parent().parent(); jQuery.ajax({ type: "POST", url: "'.$url.'", ';
+		$js .= 'data: { mojo_blog_title: jQuery(par).children(".mojo_blog_title").val(), mojo_blog_content: jQuery(par).children(".mojo_blog_content").val(), mojo_blog_blog: jQuery(par).children(".mojo_blog_blog").val() },';
 		$js .= 'complete: function () { window.location.reload() }';
 		$js .= '}); });';
 		
 		// Make sure the form slides up and down with the MojoBar
-		$js .= 'if (!mojoEditor.is_open) { jQuery(".mojo_blog_entry_form[data-random-id=\''.$hash.'\']").hide(); }';
-		$js .= 'jQuery("#mojo_bar_view_mode, #collapse_tab").click(function(){ if (mojoEditor.is_open) { jQuery(".mojo_blog_entry_form[data-random-id=\''.$hash.'\']").slideDown(); } else { jQuery(".mojo_blog_entry_form[data-random-id=\''.$hash.'\']").slideUp(); }; return false; });';
+		$js .= 'if (!mojoEditor.is_open) { jQuery(".mojo_blog_entry_form").hide(); }';
+		$js .= 'jQuery("#mojo_bar_view_mode, #collapse_tab").click(function(){ if (mojoEditor.is_open) { jQuery(".mojo_blog_entry_form").slideDown(); } else { jQuery(".mojo_blog_entry_form").slideUp(); }; return false; });';
 		
 		// Special magic title autofiller thing
-		$js .= 'jQuery("#mojo_blog_title_'.$hash.'").focus(function(){ if(jQuery(this).val() == "Title") { jQuery(this).val(""); } });
-				jQuery("#mojo_blog_title_'.$hash.'").blur(function(){ if(jQuery(this).val() == "") { jQuery(this).val("Title"); } });';
+		$js .= 'jQuery(".mojo_blog_title").focus(function(){ if(jQuery(this).val() == "Title") { jQuery(this).val(""); } });
+				jQuery(".mojo_blog_title").blur(function(){ if(jQuery(this).val() == "") { jQuery(this).val("Title"); } });';
 				
 		// Editing regions
-		$js .= 'function handle_mojo_blog_edit(entry) { jQuery.get("'.site_url('addons/blog/ajax_get_post/').'/"+jQuery(entry).attr("data-post-id"), {}, function(data) {
+		$js .= 'function handle_mojo_blog_edit(entry) { jQuery.get("'.site_url('addons/blog/entry_get').'/"+jQuery(entry).attr("data-post-id"), {}, function(data) {
 			var title = data["title"], blog = data["blog"], content = data["content"];
-			
-		} ); };';
+			jQuery(entry).html("<input type=\'hidden\' name=\'mojo_blog_id\' class=\'mojo_blog_id\' value=\'"+data["id"]+"\' /><input type=\'hidden\' name=\'mojo_blog_blog\' class=\'mojo_blog_blog\' value=\'"+data["blog"]+"\' /><p><input style=\'padding: 5px; font-size: 14px; width: 90%\' type=\'text\' name=\'mojo_blog_title\' class=\'mojo_blog_title\' value=\'"+data["title"]+"\' /></p><p><textarea class=\'mojo_blog_content\'>"+data["content"]+"</textarea></p><p><input type=\'submit\' class=\'mojo_blog_update\' name=\'mojo_blog_update\' class=\'mojo_blog_update\' value=\'Update Entry\' /></p>");
+			ckeditorise();
+			jQuery(".mojo_blog_update").click(function(){
+				alert("Hello!");
+				var par = jQuery(this).parent().parent();
+				var blogdata = { mojo_blog_id: jQuery(par).children(".mojo_blog_id"), mojo_blog_title: jQuery(par).children(".mojo_blog_title").val(), mojo_blog_content: jQuery(par).children(".mojo_blog_content").val(), mojo_blog_blog: jQuery(par).children(".mojo_blog_blog").val() };
+				jQuery.ajax({ type: "POST", url: "'.site_url('addons/blog/entry_update').'", data: blogdata, complete: function() {
+					window.location.reload();
+				}});
+				
+				return false;
+		} ); })};';
 		$js .= 'function handle_mojo_blog_regions() { if (mojoEditor.is_open) { jQuery(".mojo_blog_entry_region").each(function() { mod_editable_layer = jQuery("<div class=\'mojo_editable_layer\'></div>").css({"border": "3px solid green", opacity: 0.4, width: jQuery(this).width(), height: jQuery(this).outerHeight()}).fadeIn(\'fast\');
 		jQuery(this).prepend(jQuery("<div class=\'mojo_editable_layer_header\'><p>Blog : Entry ID "+jQuery(this).attr(\'data-post-id\')+"</p></div>")).prepend(mod_editable_layer); }); } else { jQuery(".mojo_blog_entry_region").each(function() { jQuery(".mojo_editable_layer_header, .mojo_editable_layer").fadeOut(\'fast\', function(){jQuery(this).remove();}); }); }; 
 		jQuery(".mojo_blog_entry_region").click(function(){
@@ -222,7 +235,13 @@ class Blog {
 		exit;
 	}
 	
-	public function ajax_get_post() {
+	/**
+	 * Get a specific entry in JSON format
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function entry_get() {
 		// Get the post
 		$id = $this->mojo->uri->segment(4);
 		$post = $this->mojo->db->where('id', $id)->get('blog_entries')->row();
@@ -232,6 +251,25 @@ class Blog {
 		echo json_encode($post);
 		
 		// And we're done!
+		exit;
+	}
+	
+	/**
+	 * Update a entry
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function entry_update() {
+		$id = $this->mojo->input->post('mojo_blog_id');
+		$title = $this->mojo->input->post('mojo_blog_title');
+		$content = $this->mojo->input->post('mojo_blog_content');
+		
+		// Update the title and content
+		$this->mojo->db->set('title', $title)->set('content', $content)->where('id', $id);
+		$this->mojo->db->update('blog_entries');
+		
+		// Done!
 		exit;
 	}
 	
