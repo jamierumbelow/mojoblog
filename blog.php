@@ -163,8 +163,17 @@ class Blog {
 				jQuery("#mojo_blog_title_'.$hash.'").blur(function(){ if(jQuery(this).val() == "") { jQuery(this).val("Title"); } });';
 				
 		// Editing regions
+		$js .= 'function handle_mojo_blog_edit(entry) { jQuery.get("'.site_url('addons/blog/ajax_get_post/').'/"+jQuery(entry).attr("data-post-id"), {}, function(data) {
+			var title = data["title"], blog = data["blog"], content = data["content"];
+			
+		} ); };';
 		$js .= 'function handle_mojo_blog_regions() { if (mojoEditor.is_open) { jQuery(".mojo_blog_entry_region").each(function() { mod_editable_layer = jQuery("<div class=\'mojo_editable_layer\'></div>").css({"border": "3px solid green", opacity: 0.4, width: jQuery(this).width(), height: jQuery(this).outerHeight()}).fadeIn(\'fast\');
-		jQuery(this).prepend(jQuery("<div class=\'mojo_editable_layer_header\'><p>Blog : Entry ID "+jQuery(this).attr(\'data-post-id\')+"</p></div>")).prepend(mod_editable_layer); }); } else { jQuery(".mojo_blog_entry_region").each(function() { jQuery(".mojo_editable_layer_header, .mojo_editable_layer").fadeOut(\'fast\', function(){jQuery(this).remove();}); }); }; }';
+		jQuery(this).prepend(jQuery("<div class=\'mojo_editable_layer_header\'><p>Blog : Entry ID "+jQuery(this).attr(\'data-post-id\')+"</p></div>")).prepend(mod_editable_layer); }); } else { jQuery(".mojo_blog_entry_region").each(function() { jQuery(".mojo_editable_layer_header, .mojo_editable_layer").fadeOut(\'fast\', function(){jQuery(this).remove();}); }); }; 
+		jQuery(".mojo_blog_entry_region").click(function(){
+			if (mojoEditor.is_open && mojoEditor.is_active === false) {
+				handle_mojo_blog_edit(this);
+			}
+		}); }';
 		$js .= 'jQuery("#mojo_bar_view_mode, #collapse_tab").click(function(){ handle_mojo_blog_regions(); return false; });';
 		$js .= 'handle_mojo_blog_regions();';
 		$js .= '}';
@@ -204,6 +213,19 @@ class Blog {
 		
 		// Then re-retrive it!
 		$post = $this->mojo->db->where('id', $this->mojo->db->insert_id())->get('blog_entries')->row();
+		
+		// Return it as JSON
+		header('Content-type: application/json');
+		echo json_encode($post);
+		
+		// And we're done!
+		exit;
+	}
+	
+	public function ajax_get_post() {
+		// Get the post
+		$id = $this->mojo->uri->segment(4);
+		$post = $this->mojo->db->where('id', $id)->get('blog_entries')->row();
 		
 		// Return it as JSON
 		header('Content-type: application/json');
