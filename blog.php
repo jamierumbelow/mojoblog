@@ -155,6 +155,10 @@ class Blog {
 		// Make sure the form slides up and down with the MojoBar
 		$js .= 'if (!mojoEditor.is_open) { jQuery(".mojo_blog_entry_form[data-random-id=\''.$hash.'\']").hide(); }';
 		$js .= 'jQuery("#mojo_bar_view_mode, #collapse_tab").click(function(){ if (mojoEditor.is_open) { jQuery(".mojo_blog_entry_form[data-random-id=\''.$hash.'\']").slideDown(); } else { jQuery(".mojo_blog_entry_form[data-random-id=\''.$hash.'\']").slideUp(); }; return false; });';
+		
+		// Special magic title autofiller thing
+		$js .= 'jQuery("#mojo_blog_title_'.$hash.'").focus(function(){ if(jQuery(this).val() == "Title") { jQuery(this).val(""); } });
+				jQuery("#mojo_blog_title_'.$hash.'").blur(function(){ if(jQuery(this).val() == "") { jQuery(this).val("Title"); } });';
 		$js .= '}';
 		
 		// Push out the appropriate JavaScript
