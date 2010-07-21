@@ -153,7 +153,7 @@ class Blog {
 		
 		// Handle the entry submission
 		$js .= 'jQuery("input.mojo_blog_submit").click(function(){ var par = jQuery(this).parent().parent(); jQuery.ajax({ type: "POST", url: "'.$url.'", ';
-		$js .= 'data: { mojo_blog_title: jQuery(par).children(".mojo_blog_title").val(), mojo_blog_content: jQuery(par).children(".mojo_blog_content").val(), mojo_blog_blog: jQuery(par).children(".mojo_blog_blog").val() },';
+		$js .= 'data: { mojo_blog_title: jQuery(par).find(".mojo_blog_title").val(), mojo_blog_content: jQuery(par).find(".mojo_blog_content").val(), mojo_blog_blog: jQuery(par).find(".mojo_blog_blog").val() },';
 		$js .= 'complete: function () { window.location.reload() }';
 		$js .= '}); });';
 		
