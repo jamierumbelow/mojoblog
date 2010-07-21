@@ -86,7 +86,7 @@ class Blog {
 				
 				// Strip the template tags and replace with MojoBlog divs
 				$tags = array('{mojo::blog:entries}', '{/mojo::blog:entries}');
-				$divs = array('<div class="mojo_blog_entry_region" data-post-id="'.$post->id.'">', '</div>');
+				$divs = array('<div class="mojo_blog_entry_region" data-active="false" data-post-id="'.$post->id.'">', '</div>');
 			
 				$tmp = str_replace($tags, $divs, $tmp);
 
@@ -169,22 +169,27 @@ class Blog {
 		$js .= 'function handle_mojo_blog_edit(entry) { jQuery.get("'.site_url('addons/blog/entry_get').'/"+jQuery(entry).attr("data-post-id"), {}, function(data) {
 			var title = data["title"], blog = data["blog"], content = data["content"];
 			jQuery(entry).html("<input type=\'hidden\' name=\'mojo_blog_id\' class=\'mojo_blog_id\' value=\'"+data["id"]+"\' /><input type=\'hidden\' name=\'mojo_blog_blog\' class=\'mojo_blog_blog\' value=\'"+data["blog"]+"\' /><p><input style=\'padding: 5px; font-size: 14px; width: 90%\' type=\'text\' name=\'mojo_blog_title\' class=\'mojo_blog_title\' value=\'"+data["title"]+"\' /></p><p><textarea class=\'mojo_blog_content\'>"+data["content"]+"</textarea></p><p><input type=\'submit\' class=\'mojo_blog_update\' name=\'mojo_blog_update\' class=\'mojo_blog_update\' value=\'Update Entry\' /></p>");
+			
 			ckeditorise();
+			jQuery(entry).attr("data-active", "true");
+			
 			jQuery(".mojo_blog_update").click(function(){
-				alert("Hello!");
 				var par = jQuery(this).parent().parent();
-				var blogdata = { mojo_blog_id: jQuery(par).children(".mojo_blog_id"), mojo_blog_title: jQuery(par).children(".mojo_blog_title").val(), mojo_blog_content: jQuery(par).children(".mojo_blog_content").val(), mojo_blog_blog: jQuery(par).children(".mojo_blog_blog").val() };
-				jQuery.ajax({ type: "POST", url: "'.site_url('addons/blog/entry_update').'", data: blogdata, complete: function() {
+				var blogdata = { mojo_blog_id: jQuery(par).find(".mojo_blog_id"), mojo_blog_title: jQuery(par).find(".mojo_blog_title").val(), mojo_blog_content: jQuery(par).find(".mojo_blog_content").val(), mojo_blog_blog: jQuery(par).find(".mojo_blog_blog").val() };
+				
+				jQuery.post("'.site_url('addons/blog/entry_update').'", blogdata, function() {
 					window.location.reload();
-				}});
+				});
 				
 				return false;
 		} ); })};';
 		$js .= 'function handle_mojo_blog_regions() { if (mojoEditor.is_open) { jQuery(".mojo_blog_entry_region").each(function() { mod_editable_layer = jQuery("<div class=\'mojo_editable_layer\'></div>").css({"border": "3px solid green", opacity: 0.4, width: jQuery(this).width(), height: jQuery(this).outerHeight()}).fadeIn(\'fast\');
 		jQuery(this).prepend(jQuery("<div class=\'mojo_editable_layer_header\'><p>Blog : Entry ID "+jQuery(this).attr(\'data-post-id\')+"</p></div>")).prepend(mod_editable_layer); }); } else { jQuery(".mojo_blog_entry_region").each(function() { jQuery(".mojo_editable_layer_header, .mojo_editable_layer").fadeOut(\'fast\', function(){jQuery(this).remove();}); }); }; 
 		jQuery(".mojo_blog_entry_region").click(function(){
-			if (mojoEditor.is_open && mojoEditor.is_active === false) {
-				handle_mojo_blog_edit(this);
+			if (jQuery(this).attr("data-active") !== "true") {
+				if (mojoEditor.is_open && mojoEditor.is_active === false) {
+					handle_mojo_blog_edit(this);
+				}
 			}
 		}); }';
 		$js .= 'jQuery("#mojo_bar_view_mode, #collapse_tab").click(function(){ handle_mojo_blog_regions(); return false; });';
