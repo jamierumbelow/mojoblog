@@ -175,7 +175,7 @@ class Blog {
 			
 			jQuery(".mojo_blog_update").click(function(){
 				var par = jQuery(this).parent().parent();
-				var blogdata = { mojo_blog_id: jQuery(par).find(".mojo_blog_id"), mojo_blog_title: jQuery(par).find(".mojo_blog_title").val(), mojo_blog_content: jQuery(par).find(".mojo_blog_content").val(), mojo_blog_blog: jQuery(par).find(".mojo_blog_blog").val() };
+				var blogdata = { mojo_blog_id: jQuery(par).find(".mojo_blog_id").val(), mojo_blog_title: jQuery(par).find(".mojo_blog_title").val(), mojo_blog_content: jQuery(par).find(".mojo_blog_content").val(), mojo_blog_blog: jQuery(par).find(".mojo_blog_blog").val() };
 				
 				jQuery.post("'.site_url('addons/blog/entry_update').'", blogdata, function() {
 					window.location.reload();
