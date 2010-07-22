@@ -150,6 +150,7 @@ class Blog {
 			$js .= '"startupMode": Mojo.edit_mode,';
 			$js .= '"toolbar": Mojo.toolbar,';
 			$js .= '"extraPlugins": "cancel,mojoimage",';
+			$js .= '"removePlugins": "save",';
 			$js .= '"toolbarCanCollapse": false,';
 			$js .= '"toolbarStartupExpanded": true,';
 			$js .= '"resize_enabled": true,';
@@ -165,14 +166,32 @@ class Blog {
 						var command = editor.addCommand( "cancel", {
 							modes : { wysiwyg:1, source:1 },
 							exec : function( editor ) {
-								var par = jQuery("#cke_"+editor.name).parent().parent();
-								var html = unescape(jQuery(par).find(".mojo_blog_orig_html").val());
+								var par = jQuery("#cke_"+editor.name).parent();
+								var html = unescape(jQuery(par).parent().find(".mojo_blog_orig_html").val());
 								
-								editor.destroy();
-								jQuery(par).html(html);
-								jQuery(par).attr("data-active", "false");
-								jQuery(par).addClass("mojo_blog_entry_region");
-							}});
+								if (jQuery(par).attr("id") == "mojo_region_update_form") {
+									editor.setData(mojoEditor.original_contents, function () {
+										mojoEditor.remove_editor(editor);
+									});
+									
+									handle_mojo_blog_regions();
+								} else {
+									editor.destroy();
+									
+									jQuery(par).parent().attr("data-active", "false");
+									jQuery(par).parent().attr("data-is-editable-region", "false");
+									jQuery(par).parent().html(html);
+									
+									jQuery(".mojo_blog_entry_region").live("click", function(){
+										if (jQuery(this).attr("data-active") !== "true") {
+											if (mojoEditor.is_open && mojoEditor.is_active === false) {
+												handle_mojo_blog_edit(this);
+											}
+										}
+									});
+								}
+						}});
+						
 						editor.ui.addButton("Cancel", {label : "Cancel", command : "cancel", icon : CKEDITOR.plugins.registered.cancel.path + "images/cancel.png"});
 					}
 				}';
@@ -211,8 +230,11 @@ class Blog {
 				
 				return false;
 		} ); })};';
-		$js .= 'function handle_mojo_blog_regions() { if (mojoEditor.is_open) { jQuery(".mojo_blog_entry_region").each(function() { mod_editable_layer = jQuery("<div class=\'mojo_editable_layer\'></div>").css({"border": "3px solid green", opacity: 0.4, width: jQuery(this).width(), height: jQuery(this).outerHeight()}).fadeIn(\'fast\');
-		jQuery(this).prepend(jQuery("<div class=\'mojo_editable_layer_header\'><p>Blog : Entry ID "+jQuery(this).attr(\'data-post-id\')+"</p></div>")).prepend(mod_editable_layer); }); } else { jQuery(".mojo_blog_entry_region").each(function() { jQuery(".mojo_editable_layer_header, .mojo_editable_layer").fadeOut(\'fast\', function(){jQuery(this).remove();}); }); }; 
+		$js .= 'function handle_mojo_blog_regions() { if (mojoEditor.is_open) { jQuery(".mojo_blog_entry_region").each(function() {
+			if (!jQuery(this).attr("data-is-editable-region")) {
+				mod_editable_layer = jQuery("<div class=\'mojo_blog_editable_region\'></div>").css({"background": "#FFEB72", "border-radius": "6px", "-moz-border-radius": "6px", "-webkit-border-radius": "6px", "margin": "-3px -6px", "padding": "0px", "position": "absolute", "border": "3px solid green", opacity: 0.4, width: jQuery(this).width(), height: jQuery(this).outerHeight()}).fadeIn(\'fast\');
+				jQuery(this).attr("data-is-editable-region", "true");
+				jQuery(this).prepend(jQuery("<div class=\'mojo_editable_layer_header\'><p>Blog : Entry ID "+jQuery(this).attr(\'data-post-id\')+"</p></div>")).prepend(mod_editable_layer); } }); } else { jQuery(".mojo_blog_entry_region").each(function() { jQuery(".mojo_editable_layer_header, .mojo_editable_layer").fadeOut(\'fast\', function(){jQuery(this).remove();}); }); }; 
 		jQuery(".mojo_blog_entry_region").live("click", function(){
 			if (jQuery(this).attr("data-active") !== "true") {
 				if (mojoEditor.is_open && mojoEditor.is_active === false) {
