@@ -171,14 +171,7 @@ class Blog {
 								editor.destroy();
 								jQuery(par).html(html);
 								jQuery(par).attr("data-active", "false");
-								
-								jQuery(".mojo_blog_entry_region").click(function(){
-									if (jQuery(this).attr("data-active") !== "true") {
-										if (mojoEditor.is_open && mojoEditor.is_active === false) {
-											handle_mojo_blog_edit(this);
-										}
-									}
-								});
+								jQuery(par).addClass("mojo_blog_entry_region");
 							}});
 						editor.ui.addButton("Cancel", {label : "Cancel", command : "cancel", icon : CKEDITOR.plugins.registered.cancel.path + "images/cancel.png"});
 					}
@@ -206,6 +199,7 @@ class Blog {
 			
 			ckeditorise();
 			jQuery(entry).attr("data-active", "true");
+			jQuery(entry).removeClass("mojo_blog_entry_region");
 			
 			jQuery(".mojo_blog_update").click(function(){
 				var par = jQuery(this).parent().parent();
