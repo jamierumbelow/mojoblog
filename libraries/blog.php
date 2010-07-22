@@ -28,7 +28,7 @@ class Blog {
 	/**
 	 * Loops through a blog's entries and displays them
 	 *
-	 * {mojo:blog:entries blog="blog" limit="5" orderby="date" sort="desc" date_format="Y-m-d" no_posts="No posts!"}
+	 * {mojo:blog:entries blog="blog" editable="no" limit="5" orderby="date" sort="desc" date_format="Y-m-d" no_posts="No posts!"}
 	 *     <h1>{title}</h1>
 	 *     <p>{content}</p>
 	 * {/mojo:blog:entries}
@@ -39,6 +39,7 @@ class Blog {
 	public function entries($template_data) {
 		$this->template_data = $template_data;
 		$blog = $this->_param('blog');
+		$editable = $this->_param('editable');
 		$limit = $this->_param('limit');
 		$orderby = $this->_param('orderby');
 		$sort = $this->_param('sort');
@@ -84,9 +85,16 @@ class Blog {
 					$tmp = preg_replace("/{date}/", date('d/m/Y', strtotime($post->date)), $tmp);
 				}
 				
-				// Strip the template tags and replace with MojoBlog divs
+				// Strip the template tags
 				$tags = array('{mojo::blog:entries}', '{/mojo::blog:entries}');
-				$divs = array('<div class="mojo_blog_entry_region" data-active="false" data-post-id="'.$post->id.'">', '</div>');
+				
+				if ($editable == "no") { 
+					// ...and replace with nothing
+					$divs = '';
+				} else {
+					// ...and replace with MojoBlog divs
+					$divs = array('<div class="mojo_blog_entry_region" data-active="false" data-post-id="'.$post->id.'">', '</div>');
+				}
 			
 				$tmp = str_replace($tags, $divs, $tmp);
 
@@ -141,7 +149,7 @@ class Blog {
 			$js .= '"skin": "mojo,"+Mojo.URL.editor_skin_path,';
 			$js .= '"startupMode": Mojo.edit_mode,';
 			$js .= '"toolbar": Mojo.toolbar,';
-			$js .= '"removePlugins": "save",';
+			$js .= '"extraPlugins": "cancel,mojoimage",';
 			$js .= '"toolbarCanCollapse": false,';
 			$js .= '"toolbarStartupExpanded": true,';
 			$js .= '"resize_enabled": true,';
@@ -150,6 +158,32 @@ class Blog {
 			$js .= 'filebrowserWindowHeight : "500",';
 			$js .= 'filebrowserUploadUrl : Mojo.URL.site_path+"editor/upload"';
 		$js .= '}); }); }; ckeditorise(); ';
+		
+		// Custom MojoBlog Save + Cancel
+		$js .= 'CKEDITOR.plugins.registered.cancel = {';
+			$js .= 'init: function(editor) {
+						var command = editor.addCommand( "cancel", {
+							modes : { wysiwyg:1, source:1 },
+							exec : function( editor ) {
+								var par = jQuery("#cke_"+editor.name).parent().parent();
+								var html = unescape(jQuery(par).find(".mojo_blog_orig_html").val());
+								
+								editor.destroy();
+								jQuery(par).html(html);
+								jQuery(par).attr("data-active", "false");
+								
+								jQuery(".mojo_blog_entry_region").click(function(){
+									if (jQuery(this).attr("data-active") !== "true") {
+										if (mojoEditor.is_open && mojoEditor.is_active === false) {
+											handle_mojo_blog_edit(this);
+										}
+									}
+								});
+							}});
+						editor.ui.addButton("Cancel", {label : "Cancel", command : "cancel", icon : CKEDITOR.plugins.registered.cancel.path + "images/cancel.png"});
+					}
+				}';
+		$js .= "\n";
 		
 		// Handle the entry submission
 		$js .= 'jQuery("input.mojo_blog_submit").click(function(){ var par = jQuery(this).parent().parent(); jQuery.ajax({ type: "POST", url: "'.$url.'", ';
@@ -166,9 +200,9 @@ class Blog {
 				jQuery(".mojo_blog_title").blur(function(){ if(jQuery(this).val() == "") { jQuery(this).val("Title"); } });';
 				
 		// Editing regions
-		$js .= 'function handle_mojo_blog_edit(entry) { jQuery.get("'.site_url('addons/blog/entry_get').'/"+jQuery(entry).attr("data-post-id"), {}, function(data) {
+		$js .= 'function handle_mojo_blog_edit(entry) { var origHTML = jQuery(entry).html(); jQuery.get("'.site_url('addons/blog/entry_get').'/"+jQuery(entry).attr("data-post-id"), {}, function(data) {
 			var title = data["title"], blog = data["blog"], content = data["content"];
-			jQuery(entry).html("<input type=\'hidden\' name=\'mojo_blog_id\' class=\'mojo_blog_id\' value=\'"+data["id"]+"\' /><input type=\'hidden\' name=\'mojo_blog_blog\' class=\'mojo_blog_blog\' value=\'"+data["blog"]+"\' /><p><input style=\'padding: 5px; font-size: 14px; width: 90%\' type=\'text\' name=\'mojo_blog_title\' class=\'mojo_blog_title\' value=\'"+data["title"]+"\' /></p><p><textarea class=\'mojo_blog_content\'>"+data["content"]+"</textarea></p><p><input type=\'submit\' class=\'mojo_blog_update\' name=\'mojo_blog_update\' class=\'mojo_blog_update\' value=\'Update Entry\' /></p>");
+			jQuery(entry).html("<input type=\'hidden\' class=\'mojo_blog_orig_html\' value=\'"+escape(origHTML)+"\' /><input type=\'hidden\' name=\'mojo_blog_id\' class=\'mojo_blog_id\' value=\'"+data["id"]+"\' /><input type=\'hidden\' name=\'mojo_blog_blog\' class=\'mojo_blog_blog\' value=\'"+data["blog"]+"\' /><p><input style=\'padding: 5px; font-size: 14px; width: 90%\' type=\'text\' name=\'mojo_blog_title\' class=\'mojo_blog_title\' value=\'"+data["title"]+"\' /></p><p><textarea class=\'mojo_blog_content\'>"+data["content"]+"</textarea></p><p><input type=\'submit\' class=\'mojo_blog_update\' name=\'mojo_blog_update\' class=\'mojo_blog_update\' value=\'Update Entry\' /></p>");
 			
 			ckeditorise();
 			jQuery(entry).attr("data-active", "true");
@@ -185,7 +219,7 @@ class Blog {
 		} ); })};';
 		$js .= 'function handle_mojo_blog_regions() { if (mojoEditor.is_open) { jQuery(".mojo_blog_entry_region").each(function() { mod_editable_layer = jQuery("<div class=\'mojo_editable_layer\'></div>").css({"border": "3px solid green", opacity: 0.4, width: jQuery(this).width(), height: jQuery(this).outerHeight()}).fadeIn(\'fast\');
 		jQuery(this).prepend(jQuery("<div class=\'mojo_editable_layer_header\'><p>Blog : Entry ID "+jQuery(this).attr(\'data-post-id\')+"</p></div>")).prepend(mod_editable_layer); }); } else { jQuery(".mojo_blog_entry_region").each(function() { jQuery(".mojo_editable_layer_header, .mojo_editable_layer").fadeOut(\'fast\', function(){jQuery(this).remove();}); }); }; 
-		jQuery(".mojo_blog_entry_region").click(function(){
+		jQuery(".mojo_blog_entry_region").live("click", function(){
 			if (jQuery(this).attr("data-active") !== "true") {
 				if (mojoEditor.is_open && mojoEditor.is_active === false) {
 					handle_mojo_blog_edit(this);
