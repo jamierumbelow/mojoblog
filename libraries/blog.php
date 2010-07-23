@@ -17,9 +17,12 @@ class Blog {
 		$this->mojo =& get_instance();
 		
 		$this->mojo->load->database();
+		
 		$this->mojo->load->model('member_model');
-		$this->mojo->load->library('auth');
+		$this->mojo->load->model('site_model');
 		// $this->mojo->load->model('blog_model', 'blog');
+		
+		$this->mojo->load->library('auth');
 		
 		// Check that we're setup and the DB table exists
 		$this->_install();
@@ -28,7 +31,7 @@ class Blog {
 	/**
 	 * Loops through a blog's entries and displays them
 	 *
-	 * {mojo:blog:entries blog="blog" editable="no" limit="5" orderby="date" sort="desc" date_format="Y-m-d" no_posts="No posts!"}
+	 * {mojo:blog:entries blog="blog" editable="no" page="about|home" global="yes" limit="5" orderby="date" sort="desc" date_format="Y-m-d" no_posts="No posts!"}
 	 *     <h1>{title}</h1>
 	 *     <p>{content}</p>
 	 * {/mojo:blog:entries}
@@ -39,6 +42,8 @@ class Blog {
 	public function entries($template_data) {
 		$this->template_data = $template_data;
 		$blog = $this->_param('blog');
+		$page = $this->_param('page');
+		$global = $this->_param('global');
 		$editable = $this->_param('editable');
 		$limit = $this->_param('limit');
 		$orderby = $this->_param('orderby');
@@ -46,6 +51,11 @@ class Blog {
 		$date_format = $this->_param('date_format');
 		$no_posts = $this->_param('no_posts');
 				
+		// Limit access by page
+		if (!$this->_limited_access_by_page($page)) {
+			return '';
+		}
+			
 		// Blog time!
 		$this->mojo->db->where('blog', $blog);
 		
@@ -110,7 +120,7 @@ class Blog {
 	/**
 	 * Shows the entry form at the location specified.
 	 *
-	 * {mojo:blog:entry_form blog="blog"}
+	 * {mojo:blog:entry_form blog="blog" page="about|contact"}
 	 *
 	 * @return void
 	 * @author Jamie Rumbelow
@@ -120,11 +130,17 @@ class Blog {
 		if (!$this->mojo->auth->is_editor()) {
 			return '';
 		}
-		
+
 		// Set up a few variables
 		$this->template_data = $template_data;
 		$url = site_url('addons/blog/entry_submit');
 		$blog = $this->_param('blog');
+		$page = $this->_param('page');
+				
+		// Limit access by page
+		if (!$this->_limited_access_by_page($page)) {
+			return '';
+		}
 		
 		// Check we've got a blog parameter!
 		if (!$blog) {
@@ -337,6 +353,52 @@ class Blog {
 	 */
 	private function _param($key) {
 		return (isset($this->template_data['parameters'][$key])) ? $this->template_data['parameters'][$key] : FALSE;
+	}
+	
+	/**
+	 * Limit the access by page name, or bar separated list 
+	 * of page names.
+	 *
+	 * @param string $page 
+	 * @param boolean $global 
+	 * @return boolean
+	 * @author Jamie Rumbelow
+	 */
+	private function _limited_access_by_page($page, $global = FALSE) {
+		// Let's check the page variable, because
+		// we don't want to show anything if we're
+		// not on the right page.
+		// 
+		// ignore this if it's global.
+		if ($global !== 'yes') {
+			if ($page) {
+				// Allow for bar|separated|pages
+				if (strpos('|', $page)) {
+					$pages = explode('|', $page);
+				} else {
+					$pages = array($page);
+				}
+				
+				// Let's use a boolean to check for permissions
+				$yo_brother_can_i_access_your_blog = FALSE;
+				$default_page = $this->mojo->site_model->default_page();
+				
+				// Loop through the pages and check
+				foreach ($pages as $possible_page) {
+					if ($possible_page == $this->mojo->uri->rsegment(3) || $possible_page == $default_page) {
+						$yo_brother_can_i_access_your_blog = TRUE;
+					}
+				}
+				
+				// Are we on the right page? No? Well leave!
+				if (!$yo_brother_can_i_access_your_blog) {
+					return FALSE;
+				}
+			}
+		}
+		
+		// I'm glad we got that over with
+		return TRUE;
 	}
 	
 	/**
