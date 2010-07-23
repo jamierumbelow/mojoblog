@@ -32,8 +32,10 @@ class Blog {
 	 * Loops through a blog's entries and displays them
 	 *
 	 * {mojo:blog:entries blog="blog" editable="no" page="about|home" global="yes" limit="5" orderby="date" sort="desc" date_format="Y-m-d" no_posts="No posts!"}
-	 *     <h1>{title}</h1>
-	 *     <p>{content}</p>
+	 *	   	{posts}
+	 *     		<h1>{title}</h1>
+	 *     		<p>{content}</p>
+	 * 		{/posts}
 	 * {/mojo:blog:entries}
 	 *
 	 * @return void
@@ -79,37 +81,45 @@ class Blog {
 		} else {
 			$parsed = "";
 			
-			// Loop through and parse
-			foreach ($posts as $post) {
-				$tmp = $this->template_data['template'];
-				
-				// Start off with the basic variables
-				$tmp = preg_replace("/{id}/", $post->id, $tmp);
-				$tmp = preg_replace("/{title}/", $post->title, $tmp);
-				$tmp = preg_replace("/{content}/", $post->content, $tmp);
-				
-				// Then to the date!
-				if ($date_format) {
-					$tmp = preg_replace("/{date}/", date($date_format, strtotime($post->date)), $tmp);
-				} else {
-					$tmp = preg_replace("/{date}/", date('d/m/Y', strtotime($post->date)), $tmp);
-				}
-				
-				// Strip the template tags
-				$tags = array('{mojo::blog:entries}', '{/mojo::blog:entries}');
-				
-				if ($editable == "no") { 
-					// ...and replace with nothing
-					$divs = '';
-				} else {
-					// ...and replace with MojoBlog divs
-					$divs = array('<div class="mojo_blog_entry_region" data-active="false" data-post-id="'.$post->id.'">', '</div>');
-				}
+			// Do we have the {posts} tag at all?
+			if (preg_match("/{posts}/", $this->template_data['template'])) {			
+				// Strip the template tags and replace with nothing
+				$divs = '';
+				$tags = array('{mojo::blog:entries}', '{/mojo::blog:entries}');		
+				$parsed = str_replace($tags, $divs, $this->template_data['template']);
 			
-				$tmp = str_replace($tags, $divs, $tmp);
-
-				// Finally, add it to the buffer
-				$parsed .= $tmp;
+				// Get the contents of the {posts}{/posts} tag
+				preg_match("/\{posts\}(.*)\{\/posts\}/is", $this->template_data['template'], $internal_template);
+				$internal_template = $internal_template[1];
+				
+				// The replace it
+				$parsed = preg_replace("/\{posts\}(.*)\{\/posts\}/is", "", $parsed);
+				
+				// Loop through and parse
+				foreach ($posts as $post) {
+					$tmp = $internal_template;
+				
+					// First, check that we're editable
+					if ($editable !== "no") { 
+						// ...and add the MojoBlog divs if we are
+						$tmp = "<div class=\"mojo_blog_entry_region\" data-active=\"false\" data-post-id=\"{$post->id}\">\n$tmp\n</div>";
+					}
+				
+					// Start off with the basic variables
+					$tmp = preg_replace("/{id}/", $post->id, $tmp);
+					$tmp = preg_replace("/{title}/", $post->title, $tmp);
+					$tmp = preg_replace("/{content}/", $post->content, $tmp);
+				
+					// Then to the date!
+					if ($date_format) {
+						$tmp = preg_replace("/{date}/", date($date_format, strtotime($post->date)), $tmp);
+					} else {
+						$tmp = preg_replace("/{date}/", date('d/m/Y', strtotime($post->date)), $tmp);
+					}
+				
+					// Finally, add it to the buffer
+					$parsed .= $tmp;
+				}
 			}
 			
 			// Return the parsed string!
