@@ -144,6 +144,7 @@ class Blog {
 		// Set up a few variables
 		$this->template_data = $template_data;
 		$url = site_url('addons/blog/entry_submit');
+		$delete_url = site_url('addons/blog/entry_delete');
 		$blog = $this->_param('blog');
 		$page = $this->_param('page');
 				
@@ -186,7 +187,7 @@ class Blog {
 			$js .= 'filebrowserUploadUrl : Mojo.URL.site_path+"editor/upload"';
 		$js .= '}); }); }; ckeditorise(); ';
 		
-		// Custom MojoBlog Save + Cancel
+		// Custom MojoBlog Cancel
 		$js .= 'CKEDITOR.plugins.registered.cancel = {';
 			$js .= 'init: function(editor) {
 						var command = editor.addCommand( "cancel", {
@@ -230,6 +231,9 @@ class Blog {
 		$js .= 'complete: function () { window.location.reload() }';
 		$js .= '}); });';
 		
+		// ...and entry deletion
+		$js .= 'jQuery(".mojo_blog_delete").live("click", function(){ var par = jQuery(this).parent().parent().parent(); jQuery.ajax({ type: "POST", url: "'.$delete_url.'", data: { entry_id: jQuery(par).find(".mojo_blog_id").val() }, complete: function() { window.location.reload() } }); return false; });';
+		
 		// Make sure the form slides up and down with the MojoBar
 		$js .= 'if (!mojoEditor.is_open) { jQuery(".mojo_blog_entry_form").hide(); }';
 		$js .= 'jQuery("#mojo_bar_view_mode, #collapse_tab").click(function(){ if (mojoEditor.is_open) { jQuery(".mojo_blog_entry_form").slideDown(); } else { jQuery(".mojo_blog_entry_form").slideUp(); }; return false; });';
@@ -241,7 +245,7 @@ class Blog {
 		// Editing regions
 		$js .= 'function handle_mojo_blog_edit(entry) { var origHTML = jQuery(entry).html(); jQuery.get("'.site_url('addons/blog/entry_get').'/"+jQuery(entry).attr("data-post-id"), {}, function(data) {
 			var title = data["title"], blog = data["blog"], content = data["content"];
-			jQuery(entry).html("<input type=\'hidden\' class=\'mojo_blog_orig_html\' value=\'"+escape(origHTML)+"\' /><input type=\'hidden\' name=\'mojo_blog_id\' class=\'mojo_blog_id\' value=\'"+data["id"]+"\' /><input type=\'hidden\' name=\'mojo_blog_blog\' class=\'mojo_blog_blog\' value=\'"+data["blog"]+"\' /><p><input style=\'padding: 5px; font-size: 14px; width: 90%\' type=\'text\' name=\'mojo_blog_title\' class=\'mojo_blog_title\' value=\'"+data["title"]+"\' /></p><p><textarea class=\'mojo_blog_content\'>"+data["content"]+"</textarea></p><p><input type=\'submit\' class=\'mojo_blog_update\' name=\'mojo_blog_update\' class=\'mojo_blog_update\' value=\'Update Entry\' /></p>");
+			jQuery(entry).html("<input type=\'hidden\' class=\'mojo_blog_orig_html\' value=\'"+escape(origHTML)+"\' /><input type=\'hidden\' name=\'mojo_blog_id\' class=\'mojo_blog_id\' value=\'"+data["id"]+"\' /><input type=\'hidden\' name=\'mojo_blog_blog\' class=\'mojo_blog_blog\' value=\'"+data["blog"]+"\' /><p><input style=\'padding: 5px; font-size: 14px; width: 90%\' type=\'text\' name=\'mojo_blog_title\' class=\'mojo_blog_title\' value=\'"+data["title"]+"\' /></p><p><textarea class=\'mojo_blog_content\'>"+data["content"]+"</textarea></p><p><input type=\'submit\' class=\'mojo_blog_update\' name=\'mojo_blog_update\' class=\'mojo_blog_update\' value=\'Update Entry\' /> <small><a href=\'#\' class=\'mojo_blog_delete\'>(delete post)</a></small></p>");
 			
 			ckeditorise();
 			jQuery(entry).attr("data-active", "true");
@@ -352,6 +356,21 @@ class Blog {
 		$this->mojo->db->update('blog_entries');
 		
 		// Done!
+		exit;
+	}
+	
+	/**
+	 * Delete an entry
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function entry_delete() {
+		// Delete the post
+		$id = $this->mojo->input->post('entry_id');
+		$this->mojo->db->where('id', $id)->delete('blog_entries');
+		
+		// Wicked
 		exit;
 	}
 	
