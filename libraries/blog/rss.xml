@@ -1,0 +1,16 @@
+<?php echo '<?xml version="1.0" encoding="UTF-8" ?>'; ?>
+<rss version="2.0">
+	<channel>
+		<title><?=$site_name?> - <?=$blog_pretty_name?></title>
+		<link><?=$rss_url?></link>
+
+		<?php foreach($posts as $post): ?>
+		<item>
+			<title><?=$post->title?></title>
+			<link><?=base_url()?></link>
+			<description><?=htmlentities($post->content)?></description>
+			<pubDate><?=$post->date?></pubDate>
+		</item>
+		<?php endforeach; ?>
+	</channel>
+</rss>

@@ -322,6 +322,60 @@ class Blog {
 	}
 	
 	/**
+	 * Display an RSS feed from the supplied blog,
+	 * with an optional limit parameter (defaulting to 10)
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function rss() {
+		// Get the variables, brother
+		$blog = $this->mojo->uri->segment(4);
+		$limit = $this->mojo->uri->segment(5);
+		
+		// Make sure we've got a blog variable
+		if (!$blog) {
+			show_error("You're missing the blog name!");
+		}
+		
+		// Do we have a limit?
+		$limit = ($limit) ? (int)$limit : 10;
+		
+		// Get the posts, my friend
+		$data['posts'] = $this->mojo->db->where('blog', $blog)->order_by('date DESC')->limit($limit)->get('blog_entries')->result();
+		$data['site_name'] = $this->mojo->site_model->get_setting('site_name');
+		$data['blog_name'] = $blog;
+		$data['blog_pretty_name'] = ucwords(str_replace("_", " ", $blog));
+		$data['rss_url'] = site_url('addons/blog/rss/'.$data['blog_name']);
+		
+		// Set mime types and extract variables
+		header("Content-type: text/xml");
+		extract($data);
+		
+		// And output the RSS!
+		include('blog/rss.xml');
+	}
+	
+	/**
+	 * Outputs the URL to the RSS feed. Takes two parameters,
+	 * the required 'blog' and an optional 'limit'.
+	 *
+	 * {mojo:blog:rss_url blog="blog" limit="15"}
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function rss_url($template_data) {
+		// Gather the variables
+		$this->template_data = $template_data;
+		$blog = $this->_param('blog');
+		$limit = $this->_param('limit');
+		
+		// Output the URL, basically
+		return site_url("addons/blog/rss/$blog/$limit");
+	}
+	
+	/**
 	 * Get a specific entry in JSON format
 	 *
 	 * @return void
