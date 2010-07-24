@@ -206,6 +206,7 @@ class Blog {
 									
 									jQuery(par).parent().attr("data-active", "false");
 									jQuery(par).parent().attr("data-is-editable-region", "false");
+									jQuery(par).parent().addClass("mojo_blog_entry_region");
 									jQuery(par).parent().html(html);
 									
 									jQuery(".mojo_blog_entry_region").live("click", function(){
