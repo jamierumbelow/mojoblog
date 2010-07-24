@@ -20,7 +20,7 @@ class Blog {
 		
 		$this->mojo->load->model('member_model');
 		$this->mojo->load->model('site_model');
-		// $this->mojo->load->model('blog_model', 'blog');
+		$this->mojo->load->model('blog_model');
 		
 		$this->mojo->load->library('auth');
 		
@@ -59,21 +59,21 @@ class Blog {
 		}
 			
 		// Blog time!
-		$this->mojo->db->where('blog', $blog);
+		$this->mojo->blog_model->where('blog', $blog);
 		
 		// Limit
 		if ($limit) {
-			$this->mojo->db->limit($limit);
+			$this->mojo->blog_model->limit($limit);
 		}
 		
 		// Orderby and sort
 		$orderby = ($orderby) ? $orderby : 'date';
 		$sort = ($sort) ? strtoupper($sort) : 'DESC';
 		
-		$this->mojo->db->order_by("$orderby $sort");
+		$this->mojo->blog_model->order_by("$orderby $sort");
 		
 		// Get the posts
-		$posts = $this->mojo->db->get('blog_entries')->result();
+		$posts = $this->mojo->blog_model->get();
 		
 		// Any posts?
 		if (!$posts) {
@@ -302,16 +302,17 @@ class Blog {
 		$content = $this->mojo->input->post('mojo_blog_content');
 		$date = date('Y-m-d H:i:s', time());
 		
-		// Create the new post
-		$this->mojo->db->insert('blog_entries', array(
+		// Setup the post array
+		$post = array(
 			'blog' => $blog,
 			'title' => $title,
 			'content' => $content,
 			'date' => $date
-		));
+		);
 		
-		// Then re-retrive it!
-		$post = $this->mojo->db->where('id', $this->mojo->db->insert_id())->get('blog_entries')->row();
+		// Create the new post
+		$id = $this->mojo->blog_model->insert($post);
+		$post['id'] = $id;
 		
 		// Return it as JSON
 		header('Content-type: application/json');
@@ -342,7 +343,7 @@ class Blog {
 		$limit = ($limit) ? (int)$limit : 10;
 		
 		// Get the posts, my friend
-		$data['posts'] = $this->mojo->db->where('blog', $blog)->order_by('date DESC')->limit($limit)->get('blog_entries')->result();
+		$data['posts'] = $this->mojo->blog_model->where('blog', $blog)->order_by('date DESC')->limit($limit)->get();
 		$data['site_name'] = $this->mojo->site_model->get_setting('site_name');
 		$data['blog_name'] = $blog;
 		$data['blog_pretty_name'] = ucwords(str_replace("_", " ", $blog));
@@ -384,7 +385,7 @@ class Blog {
 	public function entry_get() {
 		// Get the post
 		$id = $this->mojo->uri->segment(4);
-		$post = $this->mojo->db->where('id', $id)->get('blog_entries')->row();
+		$post = $this->mojo->blog_model->where('id', $id)->get(TRUE);
 		
 		// Return it as JSON
 		header('Content-type: application/json');
@@ -406,8 +407,8 @@ class Blog {
 		$content = $this->mojo->input->post('mojo_blog_content');
 		
 		// Update the title and content
-		$this->mojo->db->set('title', $title)->set('content', $content)->where('id', $id);
-		$this->mojo->db->update('blog_entries');
+		$this->mojo->blog_model->set('title', $title)->set('content', $content)->where('id', $id);
+		$this->mojo->blog_model->update();
 		
 		// Done!
 		exit;
@@ -422,7 +423,7 @@ class Blog {
 	public function entry_delete() {
 		// Delete the post
 		$id = $this->mojo->input->post('entry_id');
-		$this->mojo->db->where('id', $id)->delete('blog_entries');
+		$this->mojo->db->where('id', $id)->delete();
 		
 		// Wicked
 		exit;
