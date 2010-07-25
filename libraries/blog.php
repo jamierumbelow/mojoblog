@@ -167,118 +167,9 @@ class Blog {
 			$html .= "<p><input type='submit' name='mojo_blog_submit' class='mojo_blog_submit' value='Create New Entry' /></p>";
 		$html .= "</div>";
 		
-		// Write the CKEditor JS...
-		$js = 'window.onload = function(){';
-		
-		$js .= 'function ckeditorise() { jQuery(".mojo_blog_content").each(function() { ';
-			$js .= '/* Add a unique class */ var d = new Date(), t = d.getTime(), r = Math.random()*20000, u = Math.floor(t + r); jQuery(this).addClass("random_class_"+u);';				
-			$js .= '/* CKify */ jQuery(".random_class_"+u).ckeditor(function(){}, {';
-			$js .= '"skin": "mojo,"+Mojo.URL.editor_skin_path,';
-			$js .= '"startupMode": Mojo.edit_mode,';
-			$js .= '"toolbar": Mojo.toolbar,';
-			$js .= '"extraPlugins": "cancel,mojoimage",';
-			$js .= '"removePlugins": "save",';
-			$js .= '"toolbarCanCollapse": false,';
-			$js .= '"toolbarStartupExpanded": true,';
-			$js .= '"resize_enabled": true,';
-			$js .= 'filebrowserBrowseUrl : Mojo.URL.site_path+"editor/browse",';
-			$js .= 'filebrowserWindowWidth : "780",';
-			$js .= 'filebrowserWindowHeight : "500",';
-			$js .= 'filebrowserUploadUrl : Mojo.URL.site_path+"editor/upload"';
-		$js .= '}); }); }; ckeditorise(); ';
-		
-		// Custom MojoBlog Cancel
-		$js .= 'CKEDITOR.plugins.registered.cancel = {';
-			$js .= 'init: function(editor) {
-						var command = editor.addCommand( "cancel", {
-							modes : { wysiwyg:1, source:1 },
-							exec : function( editor ) {
-								var par = jQuery("#cke_"+editor.name).parent();
-								var html = unescape(jQuery(par).parent().find(".mojo_blog_orig_html").val());
-								
-								if (jQuery(par).attr("id") == "mojo_region_update_form") {
-									editor.setData(mojoEditor.original_contents, function () {
-										mojoEditor.remove_editor(editor);
-									});
-									
-									handle_mojo_blog_regions();
-								} else {
-									editor.destroy();
-									
-									jQuery(par).parent().attr("data-active", "false");
-									jQuery(par).parent().attr("data-is-editable-region", "false");
-									jQuery(par).parent().addClass("mojo_blog_entry_region");
-									jQuery(par).parent().html(html);
-									
-									jQuery(".mojo_blog_entry_region").live("click", function(){
-										if (jQuery(this).attr("data-active") !== "true") {
-											if (mojoEditor.is_open && mojoEditor.is_active === false) {
-												handle_mojo_blog_edit(this);
-											}
-										}
-									});
-								}
-						}});
-						
-						editor.ui.addButton("Cancel", {label : "Cancel", command : "cancel", icon : CKEDITOR.plugins.registered.cancel.path + "images/cancel.png"});
-					}
-				}';
-		$js .= "\n";
-		
-		// Handle the entry submission
-		$js .= 'jQuery("input.mojo_blog_submit").click(function(){ var par = jQuery(this).parent().parent(); jQuery.ajax({ type: "POST", url: "'.$url.'", ';
-		$js .= 'data: { mojo_blog_title: jQuery(par).find(".mojo_blog_title").val(), mojo_blog_content: jQuery(par).find(".mojo_blog_content").val(), mojo_blog_blog: jQuery(par).find(".mojo_blog_blog").val() },';
-		$js .= 'complete: function () { window.location.reload() }';
-		$js .= '}); });';
-		
-		// ...and entry deletion
-		$js .= 'jQuery(".mojo_blog_delete").live("click", function(){ var par = jQuery(this).parent().parent().parent(); jQuery.ajax({ type: "POST", url: "'.$delete_url.'", data: { entry_id: jQuery(par).find(".mojo_blog_id").val() }, complete: function() { window.location.reload() } }); return false; });';
-		
-		// Make sure the form slides up and down with the MojoBar
-		$js .= 'if (!mojoEditor.is_open) { jQuery(".mojo_blog_entry_form").hide(); }';
-		$js .= 'jQuery("#mojo_bar_view_mode, #collapse_tab").click(function(){ if (mojoEditor.is_open) { jQuery(".mojo_blog_entry_form").slideDown(); } else { jQuery(".mojo_blog_entry_form").slideUp(); }; return false; });';
-		
-		// Special magic title autofiller thing
-		$js .= 'jQuery(".mojo_blog_title").focus(function(){ if(jQuery(this).val() == "Title") { jQuery(this).val(""); } });
-				jQuery(".mojo_blog_title").blur(function(){ if(jQuery(this).val() == "") { jQuery(this).val("Title"); } });';
-				
-		// Editing regions
-		$js .= 'function handle_mojo_blog_edit(entry) { var origHTML = jQuery(entry).html(); jQuery.get("'.site_url('addons/blog/entry_get').'/"+jQuery(entry).attr("data-post-id"), {}, function(data) {
-			var title = data["title"], blog = data["blog"], content = data["content"];
-			jQuery(entry).html("<input type=\'hidden\' class=\'mojo_blog_orig_html\' value=\'"+escape(origHTML)+"\' /><input type=\'hidden\' name=\'mojo_blog_id\' class=\'mojo_blog_id\' value=\'"+data["id"]+"\' /><input type=\'hidden\' name=\'mojo_blog_blog\' class=\'mojo_blog_blog\' value=\'"+data["blog"]+"\' /><p><input style=\'padding: 5px; font-size: 14px; width: 90%\' type=\'text\' name=\'mojo_blog_title\' class=\'mojo_blog_title\' value=\'"+data["title"]+"\' /></p><p><textarea class=\'mojo_blog_content\'>"+data["content"]+"</textarea></p><p><input type=\'submit\' class=\'mojo_blog_update\' name=\'mojo_blog_update\' class=\'mojo_blog_update\' value=\'Update Entry\' /> <small><a href=\'#\' class=\'mojo_blog_delete\'>(delete post)</a></small></p>");
-			
-			ckeditorise();
-			jQuery(entry).attr("data-active", "true");
-			jQuery(entry).removeClass("mojo_blog_entry_region");
-			
-			jQuery(".mojo_blog_update").click(function(){
-				var par = jQuery(this).parent().parent();
-				var blogdata = { mojo_blog_id: jQuery(par).find(".mojo_blog_id").val(), mojo_blog_title: jQuery(par).find(".mojo_blog_title").val(), mojo_blog_content: jQuery(par).find(".mojo_blog_content").val(), mojo_blog_blog: jQuery(par).find(".mojo_blog_blog").val() };
-				
-				jQuery.post("'.site_url('addons/blog/entry_update').'", blogdata, function() {
-					window.location.reload();
-				});
-				
-				return false;
-		} ); })};';
-		$js .= 'function handle_mojo_blog_regions() { if (mojoEditor.is_open) { jQuery(".mojo_blog_entry_region").each(function() {
-			if (!jQuery(this).attr("data-is-editable-region")) {
-				mod_editable_layer = jQuery("<div class=\'mojo_blog_editable_region\'></div>").css({"background": "#FFEB72", "border-radius": "6px", "-moz-border-radius": "6px", "-webkit-border-radius": "6px", "margin": "-3px -6px", "padding": "0px", "position": "absolute", "border": "3px solid green", opacity: 0.4, width: jQuery(this).width(), height: jQuery(this).outerHeight()}).fadeIn(\'fast\');
-				jQuery(this).attr("data-is-editable-region", "true");
-				jQuery(this).prepend(jQuery("<div class=\'mojo_editable_layer_header\'><p>Blog : Entry ID "+jQuery(this).attr(\'data-post-id\')+"</p></div>")).prepend(mod_editable_layer); } }); } else { jQuery(".mojo_blog_entry_region").each(function() { jQuery(".mojo_editable_layer_header, .mojo_editable_layer").fadeOut(\'fast\', function(){jQuery(this).remove();}); }); }; 
-		jQuery(".mojo_blog_entry_region").live("click", function(){
-			if (jQuery(this).attr("data-active") !== "true") {
-				if (mojoEditor.is_open && mojoEditor.is_active === false) {
-					handle_mojo_blog_edit(this);
-				}
-			}
-		}); }';
-		$js .= 'jQuery("#mojo_bar_view_mode, #collapse_tab").click(function(){ handle_mojo_blog_regions(); return false; });';
-		$js .= 'handle_mojo_blog_regions();';
-		$js .= '}';
-		
 		// Push out the appropriate JavaScript
-		$html .= "<script type='text/javascript'>$js</script>";
+		$html .= "<script type='text/javascript' src='".site_url('javascript/load/jquery')."'></script>";
+		$html .= "<script type='text/javascript' src='".site_url('addons/blog/javascript')."'></script>";
 		
 		// Done!
 		return $html;
@@ -427,6 +318,17 @@ class Blog {
 		
 		// Wicked
 		exit;
+	}
+	
+	/**
+	 * Load the MojoBlog JavaScript
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function javascript() {
+		$this->mojo->output->set_header("Content-Type: text/javascript");
+		exit(file_get_contents(APPPATH.'third_party/blog/javascript/mojoblog.js'));
 	}
 	
 	/**
