@@ -15,6 +15,33 @@ class Blog_model extends CI_Model {
 		parent::CI_Model();
 	}
 	
+	public function install() {
+		$this->load->dbforge();
+		$this->dbforge->add_field(array(
+			'id' => array(
+				'type' => 'INT',
+				'unsigned' => TRUE,
+				'auto_increment' => TRUE
+			),
+			'blog' => array(
+				'type' => 'VARCHAR',
+				'constraint' => '100'
+			),
+			'title' => array(
+				'type' => 'VARCHAR',
+				'constraint' => '250'
+			),
+			'content' => array(
+				'type' => 'TEXT'
+			),
+			'date' => array(
+				'type' => 'DATETIME'
+			)
+		));
+		$this->dbforge->add_key('id', TRUE);
+		$this->dbforge->create_table('blog_entries', TRUE);
+	}
+	
 	public function get($row = FALSE) {
 		if (!$row) {
 			return $this->db->get('blog_entries')->result();

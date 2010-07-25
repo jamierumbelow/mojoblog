@@ -25,7 +25,7 @@ class Blog {
 		$this->mojo->load->library('auth');
 		
 		// Check that we're setup and the DB table exists
-		$this->_install();
+		$this->mojo->blog_model->install();
 	}
 	
 	/**
@@ -386,38 +386,5 @@ class Blog {
 		
 		// I'm glad we got that over with
 		return TRUE;
-	}
-	
-	/**
-	 * Creates the blog table if it doesn't exist
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
-	 */
-	private function _install() {
-		$this->mojo->load->dbforge();
-		$this->mojo->dbforge->add_field(array(
-			'id' => array(
-				'type' => 'INT',
-				'unsigned' => TRUE,
-				'auto_increment' => TRUE
-			),
-			'blog' => array(
-				'type' => 'VARCHAR',
-				'constraint' => '100'
-			),
-			'title' => array(
-				'type' => 'VARCHAR',
-				'constraint' => '250'
-			),
-			'content' => array(
-				'type' => 'TEXT'
-			),
-			'date' => array(
-				'type' => 'DATETIME'
-			)
-		));
-		$this->mojo->dbforge->add_key('id', TRUE);
-		$this->mojo->dbforge->create_table('blog_entries', TRUE);
 	}
 }
