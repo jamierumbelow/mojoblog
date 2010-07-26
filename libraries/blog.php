@@ -180,10 +180,7 @@ class Blog {
 		// Entry submission, close the div
 		$html .= "<p><input type='submit' name='mojo_blog_submit' class='mojo_blog_submit' value='Create New Entry' /></p>";
 		$html .= "</div>";
-		
-		// Push out the appropriate JavaScript
-		$html .= "<script type='text/javascript' src='".site_url('addons/blog/javascript')."'></script>";
-		
+				
 		// Done!
 		return $html;
 	}
@@ -343,6 +340,30 @@ class Blog {
 	public function javascript() {
 		$this->mojo->output->set_header("Content-Type: text/javascript");
 		exit(file_get_contents(APPPATH.'third_party/blog/javascript/mojoblog.js'));
+	}
+	
+	/**
+	 * Returns the correct URL to the MojoBlog JavaScript
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function javascript_url() {
+		return site_url('addons/blog/javascript');
+	}
+	
+	/**
+	 * Returns a JavaScript tag to the JS if we're an editor
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function javascript_tag() {
+		if ($this->mojo->auth->is_editor()) {
+			return "<script type='text/javascript' src='".$this->javascript_url()."'></script>";
+		} else {
+			return '';
+		}
 	}
 	
 	/**
