@@ -45,6 +45,11 @@ class Blog_model extends CI_Model {
 		$this->dbforge->create_table('blog_entries', TRUE);
 	}
 	
+	public function uninstall() {
+		$this->load->dbforge();
+		$this->dbforge->drop_table('blog_entries');
+	}
+	
 	public function get($row = FALSE) {
 		if (!$row) {
 			return $this->db->get('blog_entries')->result();

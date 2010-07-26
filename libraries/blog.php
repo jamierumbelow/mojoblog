@@ -346,6 +346,23 @@ class Blog {
 	}
 	
 	/**
+	 * Uninstalls MojoBlog.
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function uninstall() {
+		// Are we allowed to do this?
+		if (!$this->mojo->auth->is_admin()) {
+			die('Unauthorised access!');
+		}
+		
+		// Bye!
+		$this->mojo->blog_model->uninstall();
+		die('MojoBlog is uninstalled. Please remove the blog/ folder from mojomotor/third_party without loading another page or refreshing.');
+	}
+	
+	/**
 	 * Fetch a parameter
 	 *
 	 * @param string $key 
