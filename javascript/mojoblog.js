@@ -82,7 +82,7 @@ window.onload = function(){
     function handle_mojo_blog_regions() {
         if (mojoEditor.is_open) {
             jQuery(".mojo_blog_entry_region").each(function() {
-                if (!jQuery(this).attr("data-is-editable-region")) {
+                if (jQuery(this).attr("data-is-editable-region") == "false") {
                     mod_editable_layer = jQuery("<div class='mojo_blog_editable_region'></div>").css({
                         "background": "#FFEB72",
                         "border-radius": "6px",
@@ -102,7 +102,9 @@ window.onload = function(){
             });
         } else {
             jQuery(".mojo_blog_entry_region").each(function() {
-                jQuery(".mojo_editable_layer_header, .mojo_editable_layer").fadeOut('fast',
+                jQuery(this).attr("data-is-editable-region", "false");
+                
+                jQuery(".mojo_editable_layer_header, .mojo_blog_editable_region").fadeOut('fast',
                 function() {
                     jQuery(this).remove();
                 });

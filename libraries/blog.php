@@ -102,7 +102,7 @@ class Blog {
 					// First, check that we're editable
 					if ($editable !== "no") { 
 						// ...and add the MojoBlog divs if we are
-						$tmp = "<div class=\"mojo_blog_entry_region\" data-active=\"false\" data-post-id=\"{$post->id}\">\n$tmp\n</div>";
+						$tmp = "<div class=\"mojo_blog_entry_region\" data-is-editable-region=\"false\" data-active=\"false\" data-post-id=\"{$post->id}\">\n$tmp\n</div>";
 					}
 				
 					// Start off with the basic variables
@@ -130,7 +130,7 @@ class Blog {
 	/**
 	 * Shows the entry form at the location specified.
 	 *
-	 * {mojo:blog:entry_form blog="blog" page="about|contact"}
+	 * {mojo:blog:entry_form blog="blog" page="about|contact" editor="no" field="textarea"}
 	 *
 	 * @return void
 	 * @author Jamie Rumbelow
@@ -147,6 +147,8 @@ class Blog {
 		$delete_url = site_url('addons/blog/entry_delete');
 		$blog = $this->_param('blog');
 		$page = $this->_param('page');
+		$editor = $this->_param('editor');
+		$field = $this->_param('field');
 				
 		// Limit access by page
 		if (!$this->_limited_access_by_page($page)) {
@@ -168,7 +170,6 @@ class Blog {
 		$html .= "</div>";
 		
 		// Push out the appropriate JavaScript
-		$html .= "<script type='text/javascript' src='".site_url('javascript/load/jquery')."'></script>";
 		$html .= "<script type='text/javascript' src='".site_url('addons/blog/javascript')."'></script>";
 		
 		// Done!
