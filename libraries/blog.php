@@ -363,6 +363,31 @@ class Blog {
 	}
 	
 	/**
+	 * Export everything for the EE importer
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function export() {
+		// Are we allowed to do this?
+		if (!$this->mojo->auth->is_admin()) {
+			die('Unauthorised access!');
+		}
+		
+		// Get all the posts
+		$blogs = $this->mojo->blog_model->select("DISTINCT(blog)")->get();
+		$posts = array();
+		
+		foreach ($blogs as $blog) {
+			$posts[$blog->blog] = $this->mojo->blog_model->where('blog', $blog->blog)->get();
+		}
+		
+		// Content type...
+		$this->mojo->output->set_header("Content-Type: application/json");
+		exit(json_encode($posts));
+	}
+	
+	/**
 	 * Fetch a parameter
 	 *
 	 * @param string $key 
