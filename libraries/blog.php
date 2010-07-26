@@ -165,8 +165,20 @@ class Blog {
 			$html .= "<input type='hidden' name='mojo_blog_blog' class='mojo_blog_blog' value='$blog' />";
 			$html .= "<h1>New Blog Entry</h1>";
 			$html .= "<p><input style='padding: 5px; font-size: 14px; width: 90%' type='text' name='mojo_blog_title' class='mojo_blog_title' value='Title' /></p>";
-			$html .= "<p><textarea class='mojo_blog_content'></textarea></p>";
-			$html .= "<p><input type='submit' name='mojo_blog_submit' class='mojo_blog_submit' value='Create New Entry' /></p>";
+			
+		// Textarea or input	
+		if ($field == 'input') {
+			$html .= "<p><input type='text' class='mojo_blog_content' /></p>";
+		} else {
+			if ($editor == "no") {
+				$html .= "<p><textarea class='mojo_blog_content' data-editor='no'></textarea></p>";
+			} else {
+				$html .= "<p><textarea class='mojo_blog_content'></textarea></p>";
+			}
+		}
+		
+		// Entry submission, close the div
+		$html .= "<p><input type='submit' name='mojo_blog_submit' class='mojo_blog_submit' value='Create New Entry' /></p>";
 		$html .= "</div>";
 		
 		// Push out the appropriate JavaScript

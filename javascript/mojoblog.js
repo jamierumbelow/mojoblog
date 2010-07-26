@@ -17,7 +17,7 @@ window.onload = function(){
      * and turn into a CKEditor instance
      */
     function ckeditorise() {
-        jQuery(".mojo_blog_content").each(function() {
+        jQuery(".mojo_blog_content:not([data-editor='no'])").each(function() {
             /* Add a unique class */
             var d = new Date(),
             t = d.getTime(),
