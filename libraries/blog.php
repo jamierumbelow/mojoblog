@@ -209,6 +209,7 @@ class Blog {
 		// Setup the post array
 		$post = array(
 			'blog' => $blog,
+			'author_id' => $this->mojo->session->userdata('id'),
 			'title' => $title,
 			'content' => $content,
 			'date' => $date
@@ -327,7 +328,7 @@ class Blog {
 	public function entry_delete() {
 		// Delete the post
 		$id = $this->mojo->input->post('entry_id');
-		$this->mojo->db->where('id', $id)->delete();
+		$this->mojo->blog_model->where('id', $id)->delete();
 		
 		// Wicked
 		exit;

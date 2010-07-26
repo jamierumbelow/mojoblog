@@ -23,6 +23,9 @@ class Blog_model extends CI_Model {
 				'unsigned' => TRUE,
 				'auto_increment' => TRUE
 			),
+			'author_id' => array(
+				'type' => 'INT'
+			),
 			'blog' => array(
 				'type' => 'VARCHAR',
 				'constraint' => '100'
