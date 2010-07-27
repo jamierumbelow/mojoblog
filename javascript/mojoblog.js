@@ -26,21 +26,39 @@ MojoBlog = function(){
             jQuery(this).addClass("random_class_" + u);
             
             /* CKify */
-            jQuery(".random_class_" + u).ckeditor(function() {},
-            {
-                "skin": "mojo," + Mojo.URL.editor_skin_path,
-                "startupMode": Mojo.edit_mode,
-                "toolbar": Mojo.toolbar,
-                "extraPlugins": "cancel,mojoimage",
-                "removePlugins": "save",
-                "toolbarCanCollapse": false,
-                "toolbarStartupExpanded": true,
-                "resize_enabled": true,
-                filebrowserBrowseUrl: Mojo.URL.site_path + "editor/browse",
-                filebrowserWindowWidth: "780",
-                filebrowserWindowHeight: "500",
-                filebrowserUploadUrl: Mojo.URL.site_path + "editor/upload"
-            });
+            if (!jQuery(".random_class_" + u).hasClass("mojo_blog_new_entry")) {
+                jQuery(".random_class_" + u).ckeditor(function() {},
+                {
+                    "skin": "mojo," + Mojo.URL.editor_skin_path,
+                    "startupMode": Mojo.edit_mode,
+                    "toolbar": Mojo.toolbar,
+                    "extraPlugins": "cancel,mojoimage",
+                    "removePlugins": "save",
+                    "toolbarCanCollapse": false,
+                    "toolbarStartupExpanded": true,
+                    "resize_enabled": true,
+                    filebrowserBrowseUrl: Mojo.URL.site_path + "editor/browse",
+                    filebrowserWindowWidth: "780",
+                    filebrowserWindowHeight: "500",
+                    filebrowserUploadUrl: Mojo.URL.site_path + "editor/upload"
+                });
+            } else {
+                jQuery(".random_class_" + u).ckeditor(function() {},
+                {
+                    "skin": "mojo," + Mojo.URL.editor_skin_path,
+                    "startupMode": Mojo.edit_mode,
+                    "toolbar": Mojo.toolbar,
+                    "extraPlugins": "mojoimage",
+                    "removePlugins": "save",
+                    "toolbarCanCollapse": false,
+                    "toolbarStartupExpanded": true,
+                    "resize_enabled": true,
+                    filebrowserBrowseUrl: Mojo.URL.site_path + "editor/browse",
+                    filebrowserWindowWidth: "780",
+                    filebrowserWindowHeight: "500",
+                    filebrowserUploadUrl: Mojo.URL.site_path + "editor/upload"
+                });
+            }
         });
     };
     

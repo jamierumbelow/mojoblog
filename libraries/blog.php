@@ -168,12 +168,12 @@ class Blog {
 			
 		// Textarea or input	
 		if ($field == 'input') {
-			$html .= "<p><input type='text' class='mojo_blog_content' /></p>";
+			$html .= "<p><input type='text' class='mojo_blog_content mojo_blog_new_entry' /></p>";
 		} else {
 			if ($editor == "no") {
-				$html .= "<p><textarea class='mojo_blog_content' data-editor='no'></textarea></p>";
+				$html .= "<p><textarea class='mojo_blog_content mojo_blog_new_entry' data-editor='no'></textarea></p>";
 			} else {
-				$html .= "<p><textarea class='mojo_blog_content'></textarea></p>";
+				$html .= "<p><textarea class='mojo_blog_content mojo_blog_new_entry'></textarea></p>";
 			}
 		}
 		
