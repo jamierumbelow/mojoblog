@@ -360,10 +360,12 @@ class Blog {
 	 */
 	public function javascript_tag() {
 		if ($this->mojo->auth->is_editor()) {
-			return "<script type='text/javascript' src='".$this->javascript_url()."'></script>";
+			$js = "<script type='text/javascript' src='".$this->javascript_url()."'></script>";
 		} else {
-			return '';
+			$js = '';
 		}
+		
+		return $js;
 	}
 	
 	/**
@@ -380,7 +382,7 @@ class Blog {
 		
 		// Bye!
 		$this->mojo->blog_model->uninstall();
-		die('MojoBlog is uninstalled. Please remove the blog/ folder from mojomotor/third_party without loading another page or refreshing.');
+		die('MojoBlog is uninstalled. Please remove the blog/ folder from mojomotor/third_party <strong>without</strong> loading another page or refreshing.');
 	}
 	
 	/**

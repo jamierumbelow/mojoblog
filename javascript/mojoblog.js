@@ -9,8 +9,8 @@
  * @copyright (c)2010 Jamie Rumbelow
  */
 
-// We wait for all the Mojo JS to load
-window.onload = function(){
+// Our main function
+MojoBlog = function(){
     
     /**
      * Loop through all .mojo_blog_content elements
@@ -267,3 +267,16 @@ window.onload = function(){
     ckeditorise();
     handle_mojo_blog_regions();
 };
+
+/**
+ * Because Mr. Allard finds it appropriate to waste my time
+ * by loading the CKEditor scripts AFTER everything else, I'm
+ * having to load everything twice. I'll get my revenge, mark
+ * my words... bloody Canadians...
+ */
+ 
+window.onload = function(){
+    jQuery.getScript(Mojo.URL.site_path + 'javascript/load_ckeditor', function(){
+        MojoBlog();
+    });
+}
