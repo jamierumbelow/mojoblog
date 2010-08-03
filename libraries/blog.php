@@ -439,7 +439,7 @@ class Blog {
 		if ($global !== 'yes') {
 			if ($page) {
 				// Allow for bar|separated|pages
-				if (strpos('|', $page)) {
+				if (strpos($page, '|')) {
 					$pages = explode('|', $page);
 				} else {
 					$pages = array($page);
