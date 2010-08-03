@@ -81,19 +81,19 @@ class Blog {
 		} else {
 			$parsed = "";
 			
-			// Do we have the {posts} tag at all?
-			if (preg_match("/{posts}/", $this->template_data['template'])) {			
+			// Do we have the {entries} tag at all?
+			if (preg_match("/{entries}/", $this->template_data['template'])) {			
 				// Strip the template tags and replace with nothing
 				$divs = '';
 				$tags = array('{mojo::blog:entries}', '{/mojo::blog:entries}');		
 				$parsed = str_replace($tags, $divs, $this->template_data['template']);
 			
 				// Get the contents of the {posts}{/posts} tag
-				preg_match("/\{posts\}(.*)\{\/posts\}/is", $this->template_data['template'], $internal_template);
+				preg_match("/\{entries\}(.*)\{\/entries\}/is", $this->template_data['template'], $internal_template);
 				$internal_template = $internal_template[1];
 				
 				// The replace it
-				$parsed = preg_replace("/\{posts\}(.*)\{\/posts\}/is", "", $parsed);
+				$parsed = preg_replace("/\{entries\}(.*)\{\/entries\}/is", "", $parsed);
 				
 				// Loop through and parse
 				foreach ($posts as $post) {
