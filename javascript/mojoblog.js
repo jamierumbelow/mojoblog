@@ -32,15 +32,15 @@ MojoBlog = function(){
                     "skin": "mojo," + Mojo.URL.editor_skin_path,
                     "startupMode": Mojo.edit_mode,
                     "toolbar": Mojo.toolbar,
-                    "extraPlugins": "cancel,mojoimage",
+                    "extraPlugins": "cancel",
                     "removePlugins": "save",
                     "toolbarCanCollapse": false,
                     "toolbarStartupExpanded": true,
                     "resize_enabled": true,
-                    filebrowserBrowseUrl: Mojo.URL.site_path + "editor/browse",
+                    filebrowserBrowseUrl: Mojo.URL.site_path + "/editor/browse",
                     filebrowserWindowWidth: "780",
                     filebrowserWindowHeight: "500",
-                    filebrowserUploadUrl: Mojo.URL.site_path + "editor/upload"
+                    filebrowserUploadUrl: Mojo.URL.site_path + "/editor/upload"
                 });
             } else {
                 jQuery(".random_class_" + u).ckeditor(function() {},
@@ -48,15 +48,14 @@ MojoBlog = function(){
                     "skin": "mojo," + Mojo.URL.editor_skin_path,
                     "startupMode": Mojo.edit_mode,
                     "toolbar": Mojo.toolbar,
-                    "extraPlugins": "mojoimage",
                     "removePlugins": "save",
                     "toolbarCanCollapse": false,
                     "toolbarStartupExpanded": true,
                     "resize_enabled": true,
-                    filebrowserBrowseUrl: Mojo.URL.site_path + "editor/browse",
+                    filebrowserBrowseUrl: Mojo.URL.site_path + "/editor/browse",
                     filebrowserWindowWidth: "780",
                     filebrowserWindowHeight: "500",
-                    filebrowserUploadUrl: Mojo.URL.site_path + "editor/upload"
+                    filebrowserUploadUrl: Mojo.URL.site_path + "/editor/upload"
                 });
             }
         });
@@ -68,7 +67,7 @@ MojoBlog = function(){
      */
     function handle_mojo_blog_edit(entry) {
         var origHTML = jQuery(entry).html();
-        jQuery.get(Mojo.URL.site_path + "addons/blog/entry_get/" + jQuery(entry).attr("data-post-id"), {},
+        jQuery.get(Mojo.URL.site_path + "/addons/blog/entry_get/" + jQuery(entry).attr("data-post-id"), {},
         function(data) {
             var title = data["title"],
             blog = data["blog"],
@@ -85,7 +84,7 @@ MojoBlog = function(){
                     mojo_blog_content: jQuery(par).find(".mojo_blog_content").val(),
                     mojo_blog_blog: jQuery(par).find(".mojo_blog_blog").val()
                 };
-                jQuery.post(Mojo.URL.site_path + "addons/blog/entry_update", blogdata,
+                jQuery.post(Mojo.URL.site_path + "/addons/blog/entry_update", blogdata,
                 function() {
                     window.location.reload();
                 });
@@ -217,7 +216,7 @@ MojoBlog = function(){
         var par = jQuery(this).parent().parent();
         jQuery.ajax({
             type: "POST",
-            url: Mojo.URL.site_path + "addons/blog/entry_submit",
+            url: Mojo.URL.site_path + "/addons/blog/entry_submit",
             data: {
                 mojo_blog_title: jQuery(par).find(".mojo_blog_title").val(),
                 mojo_blog_content: jQuery(par).find(".mojo_blog_content").val(),
@@ -236,7 +235,7 @@ MojoBlog = function(){
         var par = jQuery(this).parent().parent().parent();
         jQuery.ajax({
             type: "POST",
-            url: Mojo.URL.site_path + "addons/blog/entry_delete",
+            url: Mojo.URL.site_path + "/addons/blog/entry_delete",
             data: {
                 entry_id: jQuery(par).find(".mojo_blog_id").val()
             },
@@ -294,7 +293,7 @@ MojoBlog = function(){
  */
  
 window.onload = function(){
-    jQuery.getScript(Mojo.URL.site_path + 'javascript/load_ckeditor', function(){
+    jQuery.getScript(Mojo.URL.site_path + '/javascript/load_ckeditor', function(){
         MojoBlog();
     });
 }
