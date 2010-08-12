@@ -193,11 +193,11 @@ MojoBlog = function(){
          if (jQuery("#mojo_admin_utilities").hasClass('mojo_admin_utilities_active')) {
              var blogExportContent = "<h3>Export MojoBlog data to ExpressionEngine</h3>";
              blogExportContent += "<p class='shun'>MojoBlog allows you to export your blog data into ExpressionEngine 2, just like MojoMotor itself. The resulting file can be imported through the MojoBlog ExpressionEngine Importer, which can be found in your download. Remember to read the <a href='http://getsparkplugs.com/mojoblog/docs/export'>Export documentation</a>.</p>";
-             blogExportContent += "<p class='mojo_shift_right'><a href='"+Mojo.URL.site_path+"addons/blog/export'><button class='button'>Export MojoBlog to ExpressionEngine 2</button></a></p>";
+             blogExportContent += "<p class='mojo_shift_right'><a href='"+Mojo.URL.site_path+"/addons/blog/export'><button class='button'>Export MojoBlog to ExpressionEngine 2</button></a></p>";
              
              var blogUninstalContent = "<h3>Uninstall MojoBlog</h3>";
              blogUninstalContent += "<p class='shun'>If you wish to uninstall MojoBlog, you can do so with this utility. <strong>BEWARE, YOU WILL LOSE ALL YOUR DATA. REMEMBER TO BACK UP.</strong></p>";
-             blogUninstalContent += "<p class='mojo_shift_right'><a href='"+Mojo.URL.site_path+"addons/blog/uninstall' onclick='if (!confirm(\"Are you sure you want to do this? You will lose all your data!\")) { return false; }'><button class='button'>Uninstall MojoBlog.</button></a></p>";
+             blogUninstalContent += "<p class='mojo_shift_right'><a href='"+Mojo.URL.site_path+"/addons/blog/uninstall' onclick='if (!confirm(\"Are you sure you want to do this? You will lose all your data!\")) { return false; }'><button class='button'>Uninstall MojoBlog.</button></a></p>";
              
              jQuery("#mojo_reveal_page_content").append("<div id='mojo_blog_export_utility_container'>"+blogExportContent+"</div>");
              jQuery("#mojo_reveal_page_content").append("<div id='mojo_blog_uninstall_utility_container'>"+blogUninstalContent+"</div>");
