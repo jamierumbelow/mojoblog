@@ -417,9 +417,17 @@ class Blog {
 		$export_data['mojo_blog_export'] = TRUE;
 		$export_data['blogs'] = $posts;
 		$export_data['members'] = $membs;
+		$data = serialize($export_data);
+		$filename = "mojoblog_export_".date('Y-m-d');
 		
-		$this->mojo->load->helper('download');
-		force_download();
+		header('Content-Type: application/php');
+		header('Content-Disposition: attachment; filename="'.$filename.'"');
+		header("Content-Transfer-Encoding: binary");
+		header('Expires: 0');
+		header('Pragma: no-cache');
+		header("Content-Length: ".strlen($data));
+		
+		exit($data);
 	}
 	
 	/**
