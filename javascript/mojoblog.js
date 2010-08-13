@@ -82,7 +82,8 @@ MojoBlog = function(){
                     mojo_blog_id: jQuery(par).find(".mojo_blog_id").val(),
                     mojo_blog_title: jQuery(par).find(".mojo_blog_title").val(),
                     mojo_blog_content: jQuery(par).find(".mojo_blog_content").val(),
-                    mojo_blog_blog: jQuery(par).find(".mojo_blog_blog").val()
+                    mojo_blog_blog: jQuery(par).find(".mojo_blog_blog").val(),
+                    ci_csrf_token: Mojo.Vars.csrf
                 };
                 jQuery.post(Mojo.URL.site_path + "/addons/blog/entry_update", blogdata,
                 function() {
@@ -220,7 +221,8 @@ MojoBlog = function(){
             data: {
                 mojo_blog_title: jQuery(par).find(".mojo_blog_title").val(),
                 mojo_blog_content: jQuery(par).find(".mojo_blog_content").val(),
-                mojo_blog_blog: jQuery(par).find(".mojo_blog_blog").val()
+                mojo_blog_blog: jQuery(par).find(".mojo_blog_blog").val(),
+                ci_csrf_token: Mojo.Vars.csrf
             },
             complete: function() {
                 window.location.reload()
@@ -237,7 +239,8 @@ MojoBlog = function(){
             type: "POST",
             url: Mojo.URL.site_path + "/addons/blog/entry_delete",
             data: {
-                entry_id: jQuery(par).find(".mojo_blog_id").val()
+                entry_id: jQuery(par).find(".mojo_blog_id").val(),
+                ci_csrf_token: Mojo.Vars.csrf
             },
             complete: function() {
                 window.location.reload()

@@ -2,7 +2,7 @@
 
 <br />
 
-<?=form_open('C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=mojoblog_import'.AMP.'method=process_upload')?>
-<p>Export File: <?=form_upload('userfile')?></p>
-<p><input type="submit" value="Upload" class="submit" /></p>
+<?=form_open_multipart('C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=mojoblog_import')?>
+	<p>Export File: <?=form_upload('userfile')?></p>
+	<p><input type="submit" value="Upload" class="submit" /></p>
 <?=form_close()?>
