@@ -43,6 +43,40 @@ class Mojoblog_import_mcp {
 			$this->ee->functions->redirect(BASE.AMP.'C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=mojoblog_import');
 		}
 		
+		// Check we've got a custom field group for MojoBlog
+		$query = $this->ee->db->where('group_name', 'MojoBlog')->get('field_groups');
+		
+		if ($query->num_rows > 0) {
+			$group = $query->row('group_id');
+		} else {
+			$group = $this->ee->db->insert('field_groups', array(
+				'site_id' => config_item('site_id'),
+				'group_name' => 'MojoBlog'
+			));
+			
+			$this->ee->db->insert('channel_fields', array(
+				'site_id' 						=> config_item('site_id'),
+				'group_id' 						=> $group,
+				'field_name' 					=> 'content',
+				'field_label' 					=> 'Content',
+				'field_type' 					=> 'textarea',
+				'field_fmt' 					=> 'none',
+				'field_show_fmt'				=> 'n',
+				'field_required'				=> 'n',
+				'field_search'					=> 'y',
+				'field_is_hidden'				=> 'n',
+				'field_pre_populate'			=> 'n',
+				'field_show_spellcheck'			=> 'n',
+				'field_show_smileys'			=> 'n',
+				'field_show_glossary'			=> 'n',
+				'field_show_formatting_btns'	=> 'n',
+				'field_show_writemode'			=> 'n',
+				'field_show_file_selector'		=> 'n',
+				'field_text_direction'			=> 'ltr',
+				'field_settings'				=> $this->ee->api_channel_fields->get_global_settings('textarea') // default to global settings
+			));
+		}
+		
 		// Loop through the blogs and find/create channels
 		foreach ($data['blogs'] as $blog => $posts) {
 			// Does a channel exist?
