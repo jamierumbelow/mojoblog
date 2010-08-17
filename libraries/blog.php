@@ -405,18 +405,9 @@ class Blog {
 			$posts[$blog->blog] = $this->mojo->blog_model->where('blog', $blog->blog)->get();
 		}
 		
-		// Get the member IDs to map
-		$members = $this->mojo->blog_model->select('DISTINCT(author_id)')->get();
-		$membs = array();
-		
-		foreach ($members as $member) {
-			$membs[] = (int)$member->author_id;
-		}
-		
 		// Build up the serialised PHP!
 		$export_data['mojo_blog_export'] = TRUE;
 		$export_data['blogs'] = $posts;
-		$export_data['members'] = $membs;
 		$data = serialize($export_data);
 		$filename = "mojoblog_export_".date('Y-m-d');
 		

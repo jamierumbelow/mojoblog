@@ -14,8 +14,10 @@ class Mojoblog_import_mcp {
 	public function __construct() {
 		$this->ee =& get_instance();
 		
-		$this->EE->load->library('api');
-		$this->EE->api->instantiate('channel_structure');
+		$this->ee->load->library('api');
+		$this->ee->api->instantiate('channel_structure');
+		$this->ee->api->instantiate('channel_entries');
+		$this->ee->api->instantiate('channel_fields');
 		
 		$this->ee->cp->set_variable('cp_page_title', lang('mojoblog_import_module_name')); 
 	}
@@ -48,6 +50,7 @@ class Mojoblog_import_mcp {
 		
 		if ($query->num_rows > 0) {
 			$group = $query->row('group_id');
+			$field = $this->ee->db->select('field_id')->where('group_id', $group)->where('field_name', 'content')->get('channel_fields')->row('field_id');
 		} else {
 			$group = $this->ee->db->insert('field_groups', array(
 				'site_id' => config_item('site_id'),
@@ -73,9 +76,12 @@ class Mojoblog_import_mcp {
 				'field_show_writemode'			=> 'n',
 				'field_show_file_selector'		=> 'n',
 				'field_text_direction'			=> 'ltr',
-				'field_settings'				=> $this->ee->api_channel_fields->get_global_settings('textarea') // default to global settings
+				'field_settings'				=> base64_encode(serialize($this->ee->api_channel_fields->get_global_settings('textarea'))) // default to global settings
 			));
+			$field = $this->ee->db->insert_id();
 		}
+		
+		$author = $this->ee->db->select('member_id')->where('group_id', 1)->get('members', 1)->row('member_id');
 		
 		// Loop through the blogs and find/create channels
 		foreach ($data['blogs'] as $blog => $posts) {
@@ -88,13 +94,36 @@ class Mojoblog_import_mcp {
 				// Create a new channel
 				$data = array(
 					'channel_title' => ucwords(str_replace('_', ' ', $blog)),
-					'channel_name' => $blog
+					'channel_name' => $blog,
+					'field_group' => $group
 				);
+				
+				$channel = $this->ee->api_channel_structure->create_channel($data);
+			}
+			
+			// Loop through the entries
+			foreach ($posts as $post) {
+				$entry["title"] = $post->title;
+				$entry["field_id_".$field] = $post->content;
+				$entry["entry_date"] = strtotime($post->date);
+				$entry["author_id"] = $author;
+				$entry["channel_id"] = $channel;
+				$entry['ping_servers'] = 0;
+				
+				$this->ee->api_channel_entries->submit_new_entry($channel, $entry);
 			}
 		}
+		
+		// We're done!
+		$this->ee->session->set_flashdata('message_success', "Successfully imported MojoBlog data!");
+		$this->ee->functions->redirect(BASE.AMP.'C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=mojoblog_import'.AMP.'method=success');
 	}
 	
 	public function upload_file() {
 		return $this->ee->load->view('upload', array(), TRUE);
+	}
+	
+	public function success() {
+		return $this->ee->load->view('success', array(), TRUE);
 	}
 }
