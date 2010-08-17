@@ -235,14 +235,12 @@ class Blog {
 		// Get the variables, brother
 		$blog = $this->mojo->uri->segment(4);
 		$limit = $this->mojo->uri->segment(5);
+		$link_page = $this->mojo->uri->segment(6);
 		
 		// Make sure we've got a blog variable
 		if (!$blog) {
 			show_error("You're missing the blog name!");
 		}
-		
-		// Do we have a limit?
-		$limit = ($limit) ? (int)$limit : 10;
 		
 		// Get the posts, my friend
 		$data['posts'] = $this->mojo->blog_model->where('blog', $blog)->order_by('date DESC')->limit($limit)->get();
@@ -250,6 +248,7 @@ class Blog {
 		$data['blog_name'] = $blog;
 		$data['blog_pretty_name'] = ucwords(str_replace("_", " ", $blog));
 		$data['rss_url'] = site_url('addons/blog/rss/'.$data['blog_name']);
+		$data['link_page'] = $link_page;
 		
 		// Set mime types and extract variables
 		header("Content-type: text/xml");
@@ -260,10 +259,10 @@ class Blog {
 	}
 	
 	/**
-	 * Outputs the URL to the RSS feed. Takes two parameters,
-	 * the required 'blog' and an optional 'limit'.
+	 * Outputs the URL to the RSS feed. Takes three parameters,
+	 * the required 'blog' and an optional 'limit' and 'link_page'
 	 *
-	 * {mojo:blog:rss_url blog="blog" limit="15"}
+	 * {mojo:blog:rss_url blog="blog" limit="15" link_page="about"}
 	 *
 	 * @return void
 	 * @author Jamie Rumbelow
@@ -273,9 +272,13 @@ class Blog {
 		$this->template_data = $template_data;
 		$blog = $this->_param('blog');
 		$limit = $this->_param('limit');
+		$link_page = $this->_param('link_page');
+		
+		// Do we have a limit?
+		$limit = ($limit) ? (int)$limit : 10;
 		
 		// Output the URL, basically
-		return site_url("addons/blog/rss/$blog/$limit");
+		return site_url("addons/blog/rss/$blog/$limit/$link_page");
 	}
 	
 	/**

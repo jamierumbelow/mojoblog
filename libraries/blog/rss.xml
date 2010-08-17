@@ -7,7 +7,7 @@
 		<?php foreach($posts as $post): ?>
 		<item>
 			<title><?=$post->title?></title>
-			<link><?=base_url()?></link>
+			<link><?=site_url("page/$link_page")?></link>
 			<description><?=htmlentities($post->content)?></description>
 			<pubDate><?=$post->date?></pubDate>
 		</item>
