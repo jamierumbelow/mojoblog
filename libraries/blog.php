@@ -248,7 +248,7 @@ class Blog {
 		$data['blog_name'] = $blog;
 		$data['blog_pretty_name'] = ucwords(str_replace("_", " ", $blog));
 		$data['rss_url'] = site_url('addons/blog/rss/'.$data['blog_name']);
-		$data['link_page'] = $link_page;
+		$data['link_page'] = ($link_page) ? $link_page : $this->mojo->site_model->default_page();
 		
 		// Set mime types and extract variables
 		header("Content-type: text/xml");
