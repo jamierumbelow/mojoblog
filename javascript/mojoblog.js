@@ -289,14 +289,17 @@ MojoBlog = function(){
 };
 
 /**
- * Because Mr. Allard finds it appropriate to waste my time
- * by loading the CKEditor scripts AFTER everything else, I'm
- * having to load everything twice. I'll get my revenge, mark
- * my words... bloody Canadians...
+ * Mr. Allard gave me a good solution to my previous
+ * script loading problem! Mr. Allard for president!
+ * Canadians FTW!
  */
  
 window.onload = function(){
-    jQuery.getScript(Mojo.URL.site_path + '/javascript/load_ckeditor', function(){
+    if (mojoEditor.mojo_editor_ref != "") {
         MojoBlog();
-    });
+    } else {
+        jQuery.getScript(Mojo.URL.site_path + '/javascript/load_ckeditor', function(){
+            MojoBlog();
+        });
+    }
 }
