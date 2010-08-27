@@ -294,7 +294,7 @@ MojoBlog = function(){
  * Canadians FTW!
  */
  
-window.onload = function(){
+jQuery(function(){
     if (mojoEditor.mojo_editor_ref != "") {
         MojoBlog();
     } else {
@@ -302,4 +302,4 @@ window.onload = function(){
             MojoBlog();
         });
     }
-}
+});

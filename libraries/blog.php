@@ -12,6 +12,7 @@
 
 class Blog {
 	private $mojo;
+	private $injected_javascript = FALSE;
 	
 	public function __construct() {
 		$this->mojo =& get_instance();
@@ -26,6 +27,11 @@ class Blog {
 		
 		// Check that we're setup and the DB table exists
 		$this->mojo->blog_model->install();
+		
+		// Inject MojoBlog JavaScript if we need to!
+		if ($this->injected_javascript == FALSE) {
+			$this->javascript_tag();
+		}
 	}
 	
 	/**
@@ -362,13 +368,16 @@ class Blog {
 	 * @author Jamie Rumbelow
 	 */
 	public function javascript_tag() {
-		if ($this->mojo->auth->is_editor()) {
-			$js = "<script type='text/javascript' src='".$this->javascript_url()."'></script>";
-		} else {
-			$js = '';
-		}
+		if ($this->injected_javascript == FALSE) {
+			if ($this->mojo->auth->is_editor()) {
+				$js = "<script type='text/javascript' src='".$this->javascript_url()."'></script>";
+			} else {
+				$js = '';
+			}
 		
-		return $js;
+			$this->mojo->cp->appended_output[] = $js;
+			$this->injected_javascript = TRUE;
+		}
 	}
 	
 	/**
