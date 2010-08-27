@@ -278,6 +278,27 @@ MojoBlog = function(){
         }
     });
     
+    /**
+     * Outfielder
+     */
+    jQuery(".mojoblog_outfielder_metadata_key").live('focus', function() { if (jQuery(this).val() == "Key") { jQuery(this).val(""); } });
+    jQuery(".mojoblog_outfielder_metadata_key").live('blur', function() { if (jQuery(this).val() == "") { jQuery(this).val("Key"); }});
+    jQuery(".mojoblog_outfielder_metadata_value").live('focus', function() { if (jQuery(this).val() == "Value") { jQuery(this).val(""); } });
+    jQuery(".mojoblog_outfielder_metadata_value").live('blur', function() { if (jQuery(this).val() == "") { jQuery(this).val("Value"); }});
+    
+    jQuery(".mojoblog_outfielder_add").click(function(){
+        var key = jQuery(this).parent().parent().find(".mojoblog_outfielder_metadata_key").val();
+        var value = jQuery(this).parent().parent().find(".mojoblog_outfielder_metadata_value").val();
+        var hidden = '<input type="hidden" name="metadata_keys[]" value="'+key+'" /><input type="hidden" name="metadata_values[]" value="'+value+'" />';
+        
+        jQuery(this).parent().parent().find(".mojoblog_outfielder_metadata_key").parent().html(key + " = " + value + hidden);
+        jQuery(this).parent().parent().find("ul").append('<li><input type="text" name="metadata_keys[]" value="Key" class="mojoblog_outfielder_metadata_key" /> = <input type="text" name="metadata_values[]" value="Value" class="mojoblog_outfielder_metadata_value" /></li>');
+        
+        jQuery(this).parent().parent().find('.mojoblog_outfielder_metadata_key').focus();
+        
+        return false;
+    });
+    
     // Hide the entry form if it's open
     if (!mojoEditor.is_open) {
         jQuery(".mojo_blog_entry_form").hide();

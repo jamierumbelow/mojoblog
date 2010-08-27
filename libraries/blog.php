@@ -13,6 +13,7 @@
 class Blog {
 	private $mojo;
 	private $injected_javascript = FALSE;
+	private $outfielder = FALSE;
 	
 	public function __construct() {
 		$this->mojo =& get_instance();
@@ -31,6 +32,16 @@ class Blog {
 		// Inject MojoBlog JavaScript if we need to!
 		if ($this->injected_javascript == FALSE) {
 			$this->javascript_tag();
+		}
+		
+		// Outfielder support
+		if (is_dir(APPPATH.'/third_party/outfielder/')) {
+		    $this->mojo->load->add_package_path(APPPATH.'/third_party/outfielder/');
+		    $this->mojo->load->model('fields_model', 'fields');
+		    $this->mojo->load->remove_package_path();
+			
+			// Outfielder is loaded
+		    $this->outfielder = TRUE;
 		}
 	}
 	
@@ -122,7 +133,19 @@ class Blog {
 					} else {
 						$tmp = preg_replace("/{date}/", date('d/m/Y', strtotime($post->date)), $tmp);
 					}
-				
+					
+					// Outfielder metadata!
+					if ($this->outfielder) {
+						$metadata = $this->mojo->fields->get_via_page_title("mojo_blog_entry_".$post->id);
+						
+						if ($metadata) {
+							foreach ($metadata as $row) {
+								// Replace {field_key} with the value
+								$tmp = str_replace("{".$row->field_key."}", $row->field_value, $tmp);
+							}
+						}
+					}
+					
 					// Finally, add it to the buffer
 					$parsed .= $tmp;
 				}
@@ -181,6 +204,16 @@ class Blog {
 			} else {
 				$html .= "<p><textarea class='mojo_blog_content mojo_blog_new_entry'></textarea></p>";
 			}
+		}
+		
+		// Outfielder support
+		if ($this->outfielder) {
+		    $html .= '<h3>Outfielder Metadata</h3>';
+		
+			$html .= '<div class="mojoblog_outfielder_group">';
+				$html .= '<ul style="list-style:none;margin:0;padding:0"><li><input type="text" name="metadata_keys[]" value="Key" class="mojoblog_outfielder_metadata_key" /> = <input type="text" name="metadata_values[]" value="Value" class="mojoblog_outfielder_metadata_value" /></li></ul>';
+				$html .= '<p><a href="#" class="mojoblog_outfielder_add">Add</a></p>';
+			$html .= '</div>';
 		}
 		
 		// Entry submission, close the div
