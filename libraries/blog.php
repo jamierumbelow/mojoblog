@@ -140,10 +140,18 @@ class Blog {
 						
 						if ($metadata) {
 							foreach ($metadata as $row) {
+								// Is there an {if} tag for this key? If so, remove it
+								if (preg_match("/\{if $row->field_key\}(.*)\{\/if\}/", $tmp)) {
+									$tmp = preg_replace("/\{if $row->field_key\}(.*)\{\/if\}/", "$1", $tmp);
+								}
+								
 								// Replace {field_key} with the value
 								$tmp = str_replace("{".$row->field_key."}", $row->field_value, $tmp);
 							}
 						}
+						
+						// Remove the rest of the {if tag}{tag}{/if}s
+						$tmp = preg_replace("/\{if (\w+)\}(.*)\{\/if\}/", "", $tmp);
 					}
 					
 					// Finally, add it to the buffer
@@ -191,16 +199,17 @@ class Blog {
 		
 		// Start preparing the entry form
 		$html = "<div class='mojo_blog_entry_form'>";
+			$html .= form_open("addons/blog/entry_submit");
 			$html .= "<input type='hidden' name='mojo_blog_blog' class='mojo_blog_blog' value='$blog' />";
 			$html .= "<h1>New Blog Entry</h1>";
 			$html .= "<p><input style='padding: 5px; font-size: 14px; width: 90%' type='text' name='mojo_blog_title' class='mojo_blog_title' value='Title' /></p>";
 			
 		// Textarea or input	
 		if ($field == 'input') {
-			$html .= "<p><input type='text' class='mojo_blog_content mojo_blog_new_entry' /></p>";
+			$html .= "<p><input type='text' name='mojo_blog_content' class='mojo_blog_content mojo_blog_new_entry' /></p>";
 		} else {
 			if ($editor == "no") {
-				$html .= "<p><textarea class='mojo_blog_content mojo_blog_new_entry' data-editor='no'></textarea></p>";
+				$html .= "<p><textarea name='mojo_blog_content' class='mojo_blog_content mojo_blog_new_entry' data-editor='no'></textarea></p>";
 			} else {
 				$html .= "<p><textarea class='mojo_blog_content mojo_blog_new_entry'></textarea></p>";
 			}
@@ -218,7 +227,7 @@ class Blog {
 		
 		// Entry submission, close the div
 		$html .= "<p><input type='submit' name='mojo_blog_submit' class='mojo_blog_submit' value='Create New Entry' /></p>";
-		$html .= "</div>";
+		$html .= "</form></div>";
 				
 		// Done!
 		return $html;
@@ -254,6 +263,19 @@ class Blog {
 		// Create the new post
 		$id = $this->mojo->blog_model->insert($post);
 		$post['id'] = $id;
+		
+		// Outfielder
+		if ($this->outfielder) {
+			$keys = $this->mojo->input->post('metadata_keys');
+			$values = $this->mojo->input->post('metadata_values');
+			$metadata = array();
+			
+			// Loop through the keys, match it up with the values
+			// and insert metadata into Outfielder!
+			foreach ($keys as $index => $key) {
+				$this->mojo->fields->create($key, $values[$index], "mojo_blog_entry_$id");
+			}
+		}
 		
 		// Return it as JSON
 		header('Content-type: application/json');

@@ -215,19 +215,26 @@ MojoBlog = function(){
      */
     jQuery("input.mojo_blog_submit").click(function() {
         var par = jQuery(this).parent().parent();
+        var object = jQuery(par).serialize();
+        var content = jQuery(par).find(".mojo_blog_content").val();
+        object = object + "&" + jQuery.param({ mojo_blog_content: content });
+        
+        // Outfielder Key Value
+        if (jQuery(par).find(".mojoblog_outfielder_metadata_key").val() == "Key") { jQuery(par).find(".mojoblog_outfielder_metadata_key").val(""); };
+        if (jQuery(par).find(".mojoblog_outfielder_metadata_value").val() == "Value") { jQuery(par).find(".mojoblog_outfielder_metadata_value").val(""); };
+        
+        // Save the post
         jQuery.ajax({
             type: "POST",
             url: Mojo.URL.site_path + "/addons/blog/entry_submit",
-            data: {
-                mojo_blog_title: jQuery(par).find(".mojo_blog_title").val(),
-                mojo_blog_content: jQuery(par).find(".mojo_blog_content").val(),
-                mojo_blog_blog: jQuery(par).find(".mojo_blog_blog").val(),
-                ci_csrf_token: Mojo.Vars.csrf
-            },
+            data: object,
             complete: function() {
                 window.location.reload()
             }
         });
+        
+        // Cancel the automatical submission
+        return false;
     });
     
     /**
