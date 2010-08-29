@@ -168,7 +168,7 @@ class Blog {
 	/**
 	 * Shows the entry form at the location specified.
 	 *
-	 * {mojo:blog:entry_form blog="blog" page="about|contact" editor="no" field="textarea"}
+	 * {mojo:blog:entry_form blog="blog" page="about|contact" editor="no" field="textarea" outfielder="yes"}
 	 *
 	 * @return void
 	 * @author Jamie Rumbelow
@@ -187,6 +187,7 @@ class Blog {
 		$page = $this->_param('page');
 		$editor = $this->_param('editor');
 		$field = $this->_param('field');
+		$outfielder = $this->_param('outfielder');
 				
 		// Limit access by page
 		if (!$this->_limited_access_by_page($page)) {
@@ -217,8 +218,8 @@ class Blog {
 		}
 		
 		// Outfielder support
-		if ($this->outfielder) {
-		    $html .= '<h3>Outfielder Metadata</h3>';
+		if ($this->outfielder && $outfielder == "yes") {
+		    $html .= '<h3>Metadata</h3>';
 		
 			$html .= '<div class="mojoblog_outfielder_group">';
 				$html .= '<ul style="list-style:square;"><li><input type="text" name="metadata_keys[]" value="Key" class="mojoblog_outfielder_metadata_key newinput" /> = <input type="text" name="metadata_values[]" value="Value" class="mojoblog_outfielder_metadata_value newinput" /> <a href="#" class="mojoblog_outfielder_add"><img src="'.site_url("addons/blog/image/add.png").'" alt="Add" /></a></li></ul>';
