@@ -42,6 +42,7 @@ class Blog {
 			
 			// Outfielder is loaded
 		    $this->outfielder = TRUE;
+			$this->mojo->cp->appended_output[] = '<script charset="utf-8" type="text/javascript">mojoEditor.outfielder = true;</script>';
 		}
 	}
 	
@@ -220,7 +221,7 @@ class Blog {
 		    $html .= '<h3>Outfielder Metadata</h3>';
 		
 			$html .= '<div class="mojoblog_outfielder_group">';
-				$html .= '<ul style="list-style:square;"><li><input type="text" name="metadata_keys[]" value="Key" class="mojoblog_outfielder_metadata_key" /> = <input type="text" name="metadata_values[]" value="Value" class="mojoblog_outfielder_metadata_value" /> <a href="#" class="mojoblog_outfielder_add"><img src="'.site_url("addons/blog/image/add.png").'" alt="Add" /></a></li></ul>';
+				$html .= '<ul style="list-style:square;"><li><input type="text" name="metadata_keys[]" value="Key" class="mojoblog_outfielder_metadata_key newinput" /> = <input type="text" name="metadata_values[]" value="Value" class="mojoblog_outfielder_metadata_value newinput" /> <a href="#" class="mojoblog_outfielder_add"><img src="'.site_url("addons/blog/image/add.png").'" alt="Add" /></a></li></ul>';
 			$html .= '</div>';
 		}
 		
@@ -272,7 +273,9 @@ class Blog {
 			// Loop through the keys, match it up with the values
 			// and insert metadata into Outfielder!
 			foreach ($keys as $index => $key) {
-				$this->mojo->fields->create($key, $values[$index], "mojo_blog_entry_$id");
+				if ($key && $values[$index]) {
+					$this->mojo->fields->create($key, $values[$index], "mojo_blog_entry_$id");
+				}
 			}
 		}
 		

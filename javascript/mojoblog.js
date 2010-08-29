@@ -215,13 +215,17 @@ MojoBlog = function(){
      */
     jQuery("input.mojo_blog_submit").click(function() {
         var par = jQuery(this).parent().parent();
+        
+        // Outfielder Key Value
+        if (mojoEditor.outfielder === true) {
+            if (jQuery(par).find(".mojoblog_outfielder_metadata_key").val() == "Key") { jQuery(par).find(".mojoblog_outfielder_metadata_key").val(""); };
+            if (jQuery(par).find(".mojoblog_outfielder_metadata_value").val() == "Value") { jQuery(par).find(".mojoblog_outfielder_metadata_value").val(""); };
+        }
+        
+        // Get the data
         var object = jQuery(par).serialize();
         var content = jQuery(par).find(".mojo_blog_content").val();
         object = object + "&" + jQuery.param({ mojo_blog_content: content });
-        
-        // Outfielder Key Value
-        if (jQuery(par).find(".mojoblog_outfielder_metadata_key").val() == "Key") { jQuery(par).find(".mojoblog_outfielder_metadata_key").val(""); };
-        if (jQuery(par).find(".mojoblog_outfielder_metadata_value").val() == "Value") { jQuery(par).find(".mojoblog_outfielder_metadata_value").val(""); };
         
         // Save the post
         jQuery.ajax({
@@ -288,23 +292,55 @@ MojoBlog = function(){
     /**
      * Outfielder
      */
-    jQuery(".mojoblog_outfielder_metadata_key").live('focus', function() { if (jQuery(this).val() == "Key") { jQuery(this).val(""); } });
-    jQuery(".mojoblog_outfielder_metadata_key").live('blur', function() { if (jQuery(this).val() == "") { jQuery(this).val("Key"); }});
-    jQuery(".mojoblog_outfielder_metadata_value").live('focus', function() { if (jQuery(this).val() == "Value") { jQuery(this).val(""); } });
-    jQuery(".mojoblog_outfielder_metadata_value").live('blur', function() { if (jQuery(this).val() == "") { jQuery(this).val("Value"); }});
+    if (mojoEditor.outfielder === true) {
+        jQuery(".mojoblog_outfielder_metadata_key.newinput").live('focus', function() { if (jQuery(this).val() == "Key") { jQuery(this).val(""); } });
+        jQuery(".mojoblog_outfielder_metadata_key.newinput").live('blur', function() { if (jQuery(this).val() == "") { jQuery(this).val("Key"); }});
+        jQuery(".mojoblog_outfielder_metadata_value.newinput").live('focus', function() { if (jQuery(this).val() == "Value") { jQuery(this).val(""); } });
+        jQuery(".mojoblog_outfielder_metadata_value.newinput").live('blur', function() { if (jQuery(this).val() == "") { jQuery(this).val("Value"); }});
     
-    jQuery(".mojoblog_outfielder_add").click(function(){
-        var key = jQuery(this).parent().parent().find(".mojoblog_outfielder_metadata_key").val();
-        var value = jQuery(this).parent().parent().find(".mojoblog_outfielder_metadata_value").val();
-        var hidden = '<input type="hidden" name="metadata_keys[]" value="'+key+'" /><input type="hidden" name="metadata_values[]" value="'+value+'" />';
+        jQuery(".mojoblog_outfielder_add").live('click', function(){
+            var par = jQuery(this).parent().parent();
+            var key = par.find(".mojoblog_outfielder_metadata_key").val();
+            var value = par.find(".mojoblog_outfielder_metadata_value").val();
+            var hidden = '<input type="hidden" name="metadata_keys[]" value="'+key+'" /><input type="hidden" name="metadata_values[]" value="'+value+'" />';
+            var editdelete = '<a href="#" class="mojoblog_outfielder_edit"><img src="' + Mojo.URL.site_path + "/addons/blog/image/edit.png" + '" alt="Edit" /></a><a href="#" class="mojoblog_outfielder_delete"><img src="' + Mojo.URL.site_path + "/addons/blog/image/delete.png" + '" alt="Delete" /></a>';
+            
+            jQuery(this).parent().html(key + " = " + value + editdelete + hidden);
+            
+            par.append('<li><input type="text" name="metadata_keys[]" value="Key" class="mojoblog_outfielder_metadata_key newinput" /> = <input type="text" name="metadata_values[]" value="Value" class="mojoblog_outfielder_metadata_value newinput" /> <a href="#" class="mojoblog_outfielder_add"><img src="' + Mojo.URL.site_path + "/addons/blog/image/add.png" + '" alt="Add" /></a></li>');        
+            par.find('.mojoblog_outfielder_metadata_key').focus();
         
-        jQuery(this).parent().parent().find(".mojoblog_outfielder_metadata_key").parent().html(key + " = " + value + hidden);
-        jQuery(this).parent().parent().find("ul").append('<li><input type="text" name="metadata_keys[]" value="Key" class="mojoblog_outfielder_metadata_key" /> = <input type="text" name="metadata_values[]" value="Value" class="mojoblog_outfielder_metadata_value" /></li>');
+            return false;
+        });
         
-        jQuery(this).parent().parent().find('.mojoblog_outfielder_metadata_key').focus();
+        jQuery(".mojoblog_outfielder_edit").live('click', function(){
+            var par = jQuery(this).parent();
+            var key = par.find("input[name=metadata_keys\[\]]").val();
+            var value = par.find("input[name=metadata_values\[\]]").val();
+            var html = '<input type="text" name="metadata_keys[]" value="'+key+'" class="mojoblog_outfielder_metadata_key" /> = <input type="text" name="metadata_values[]" value="'+value+'" class="mojoblog_outfielder_metadata_value" /> <a href="#" class="mojoblog_outfielder_save"><img src="' + Mojo.URL.site_path + "/addons/blog/image/accept.png" + '" alt="Save" /></a>';
+            
+            par.html(html);
+            
+            return false;
+        });
         
-        return false;
-    });
+        jQuery(".mojoblog_outfielder_save").live('click', function(){
+            var par = jQuery(this).parent();
+            var key = par.find(".mojoblog_outfielder_metadata_key").val();
+            var value = par.find(".mojoblog_outfielder_metadata_value").val();
+            var hidden = '<input type="hidden" name="metadata_keys[]" value="'+key+'" /><input type="hidden" name="metadata_values[]" value="'+value+'" />';
+            var editdelete = '<a href="#" class="mojoblog_outfielder_edit"><img src="' + Mojo.URL.site_path + "/addons/blog/image/edit.png" + '" alt="Edit" /></a><a href="#" class="mojoblog_outfielder_delete"><img src="' + Mojo.URL.site_path + "/addons/blog/image/delete.png" + '" alt="Delete" /></a>';
+            
+            par.html(key + " = " + value + editdelete + hidden);
+            
+            return false;
+        });
+        
+        jQuery(".mojoblog_outfielder_delete").live('click', function(){
+            jQuery(this).parent().remove();
+            return false;
+        });
+    }
     
     // Hide the entry form if it's open
     if (!mojoEditor.is_open) {
