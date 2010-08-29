@@ -102,9 +102,9 @@ class Blog {
 			if (preg_match("/{entries}/", $this->template_data['template'])) {			
 				// Strip the template tags and replace with nothing
 				$divs = '';
-				$tags = array('{mojo::blog:entries}', '{/mojo::blog:entries}');		
+				$tags = array('{mojo:blog:entries}', '{/mojo:blog:entries}');		
 				$parsed = str_replace($tags, $divs, $this->template_data['template']);
-			
+				
 				// Get the contents of the {posts}{/posts} tag
 				preg_match("/\{entries\}(.*)\{\/entries\}/is", $this->template_data['template'], $internal_template);
 				$internal_template = $internal_template[1];
@@ -220,8 +220,7 @@ class Blog {
 		    $html .= '<h3>Outfielder Metadata</h3>';
 		
 			$html .= '<div class="mojoblog_outfielder_group">';
-				$html .= '<ul style="list-style:none;margin:0;padding:0"><li><input type="text" name="metadata_keys[]" value="Key" class="mojoblog_outfielder_metadata_key" /> = <input type="text" name="metadata_values[]" value="Value" class="mojoblog_outfielder_metadata_value" /></li></ul>';
-				$html .= '<p><a href="#" class="mojoblog_outfielder_add">Add</a></p>';
+				$html .= '<ul style="list-style:square;"><li><input type="text" name="metadata_keys[]" value="Key" class="mojoblog_outfielder_metadata_key" /> = <input type="text" name="metadata_values[]" value="Value" class="mojoblog_outfielder_metadata_value" /> <a href="#" class="mojoblog_outfielder_add"><img src="'.site_url("addons/blog/image/add.png").'" alt="Add" /></a></li></ul>';
 			$html .= '</div>';
 		}
 		
@@ -486,6 +485,18 @@ class Blog {
 		header("Content-Length: ".strlen($data));
 		
 		exit($data);
+	}
+	
+	/**
+	 * Render an image from the addon
+	 *
+	 * @param string $file 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function image($file) {
+		header('Content-Type: image/png');
+		die(file_get_contents(APPPATH.'third_party/blog/images/'.$file));
 	}
 	
 	/**
