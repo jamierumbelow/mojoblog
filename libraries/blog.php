@@ -49,13 +49,18 @@ class Blog {
 	/**
 	 * Loops through a blog's entries and displays them
 	 *
-	 * {mojo:blog:entries blog="blog" editable="no" page="about|home" global="yes" limit="5" orderby="date" sort="desc" date_format="Y-m-d" no_posts="No posts!"}
+	 * {mojo:blog:entries 
+	 * 			blog="blog" editable="no" page="about|home" global="yes" limit="10" orderby="date" sort="desc" 
+	 * 			date_format="Y-m-d" no_posts="No posts!" paginate="yes" per_page="5" pagination_trigger="p"}
 	 *	   	{posts}
 	 *     		<h1>{title}</h1>
 	 *     		<p>{content}</p>
 	 * 		{/posts}
+	 *
+	 * 		{pagination}{first_page_url} {prev_page_url} - Page {current_page} of {total_pages} - {next_page_url} {last_page_url}{/pagination}
 	 * {/mojo:blog:entries}
 	 *
+	 * @todo Add {page_number_list} (Google style, 1 - 2 - 3 - *4* - 5)
 	 * @return void
 	 * @author Jamie Rumbelow
 	 */
@@ -70,6 +75,9 @@ class Blog {
 		$sort = $this->_param('sort');
 		$date_format = $this->_param('date_format');
 		$no_posts = $this->_param('no_posts');
+		$paginate = $this->_param('paginate');
+		$per_page = $this->_param('per_page');
+		$pagination_trigger = $this->_param('pagination_trigger');
 				
 		// Limit access by page
 		if (!$this->_limited_access_by_page($page)) {
@@ -79,19 +87,54 @@ class Blog {
 		// Blog time!
 		$this->mojo->blog_model->where('blog', $blog);
 		
-		// Limit
-		if ($limit) {
-			$this->mojo->blog_model->limit($limit);
-		}
-		
 		// Orderby and sort
 		$orderby = ($orderby) ? $orderby : 'date';
 		$sort = ($sort) ? strtoupper($sort) : 'DESC';
 		
 		$this->mojo->blog_model->order_by("$orderby $sort");
 		
+		// Paginate?
+		if ($paginate) {
+			$per_page = ($per_page) ? $per_page : 5;
+			$pagination_trigger = ($pagination_trigger) ? $pagination_trigger : 'p';
+			
+			// Get the page by the pagination trigger (we know it'll be > segment 2)
+			$possible_segments = array_slice($this->mojo->uri->segments, 2);
+			
+			if (in_array($pagination_trigger, $possible_segments)) {
+				$flipped = array_flip($possible_segments);
+				$segment = $possible_segments[$pagination_trigger];
+				
+				if (isset($possible_segments[$segment+1])) {
+					$page = $possible_segments[$segment+1];
+				} else {
+					$page = 1;
+				}
+			} else {
+				$page = 1;
+			}
+			
+			// Work out the offset
+			$offset = ($page-1) * $per_page;
+			
+			// Limit & offset!
+			$this->mojo->blog_model->limit($per_page, $offset);
+		} else {
+			// Limit
+			if ($limit) {
+				$this->mojo->blog_model->limit($limit);
+			}
+		}
+		
 		// Get the posts
 		$posts = $this->mojo->blog_model->get();
+		$entries_tag = "";
+		
+		// Get a count for pagination
+		if ($paginate) {
+			$this->mojo->blog_model->where('blog', $blog);
+			$count = $this->mojo->blog_model->count_all_results();
+		}
 		
 		// Any posts?
 		if (!$posts) {
@@ -109,10 +152,7 @@ class Blog {
 				// Get the contents of the {posts}{/posts} tag
 				preg_match("/\{entries\}(.*)\{\/entries\}/is", $this->template_data['template'], $internal_template);
 				$internal_template = $internal_template[1];
-				
-				// The replace it
-				$parsed = preg_replace("/\{entries\}(.*)\{\/entries\}/is", "", $parsed);
-				
+								
 				// Loop through and parse
 				foreach ($posts as $post) {
 					$tmp = $internal_template;
@@ -134,7 +174,7 @@ class Blog {
 					} else {
 						$tmp = preg_replace("/{date}/", date('d/m/Y', strtotime($post->date)), $tmp);
 					}
-					
+										
 					// Outfielder metadata!
 					if ($this->outfielder) {
 						$metadata = $this->mojo->fields->get_via_page_title("mojo_blog_entry_".$post->id);
@@ -156,7 +196,55 @@ class Blog {
 					}
 					
 					// Finally, add it to the buffer
-					$parsed .= $tmp;
+					$entries_tag .= $tmp;
+				}
+			}
+			
+			// Replace the entries with the entirety of the tag parsed
+			$parsed = preg_replace("/\{entries\}(.*)\{\/entries\}/is", $entries_tag, $parsed);
+			
+			// Finish off with pagination
+			if (preg_match("/\{pagination\}(.*)\{\/pagination\}/", $parsed, $pagtmp)) {
+				if ($paginate) {			
+					$first_page_url = site_url('page/'.$this->mojo->mojomotor_parser->url_title);
+					$prev_page_url = ($page > 1) ? site_url('page/'.$this->mojo->mojomotor_parser->url_title.'/'.$pagination_trigger.'/'.(string)($page-1)) : FALSE;
+					$current_page = $page;
+					$total_pages = round($count/$per_page);
+					$next_page_url = ($page < ($count/$per_page)) ? site_url('page/'.$this->mojo->mojomotor_parser->url_title.'/'.$pagination_trigger.'/'.(string)($page+1)) : FALSE;
+					$last_page_url = site_url('page/'.$this->mojo->mojomotor_parser->url_title.'/'.$pagination_trigger.'/'.(string)round($count/$per_page));
+					$pagtmp = $pagtmp[1];
+
+					// Prev and next page conditionals
+					if ($prev_page_url) {
+						if (preg_match("/\{if prev_page\}(.*?)\{\/if\}/", $pagtmp)) {
+							$pagtmp = preg_replace("/\{if prev_page\}(.*?)\{\/if\}/", "$1", $pagtmp);
+						}
+					} else {
+						if (preg_match("/\{if prev_page\}(.*?)\{\/if\}/", $pagtmp)) {
+							$pagtmp = preg_replace("/\{if prev_page\}(.*?)\{\/if\}/", "", $pagtmp);
+						}
+					}
+
+					if ($next_page_url) {
+						if (preg_match("/\{if next_page\}(.*?)\{\/if\}/", $pagtmp)) {
+							$pagtmp = preg_replace("/\{if next_page\}(.*?)\{\/if\}/", "$1", $pagtmp);
+						}
+					} else {
+						if (preg_match("/\{if next_page\}(.*?)\{\/if\}/", $pagtmp)) {
+							$pagtmp = preg_replace("/\{if next_page\}(.*?)\{\/if\}/", "", $pagtmp);
+						}
+					}
+
+					// Variable swap fun
+					$pagtmp = preg_replace("/\{first_page_url\}/", $first_page_url, $pagtmp);
+					$pagtmp = preg_replace("/\{prev_page_url\}/", $prev_page_url, $pagtmp);
+					$pagtmp = preg_replace("/\{current_page\}/", $current_page, $pagtmp);
+					$pagtmp = preg_replace("/\{total_pages\}/", $total_pages, $pagtmp);
+					$pagtmp = preg_replace("/\{next_page_url\}/", $next_page_url, $pagtmp);
+					$pagtmp = preg_replace("/\{last_page_url\}/", $last_page_url, $pagtmp);
+				
+					// Replace {pagination} tags
+					$parsed = preg_replace("/\{pagination\}(.*?)\{\/pagination\}/is", $pagtmp, $parsed);
 				}
 			}
 			

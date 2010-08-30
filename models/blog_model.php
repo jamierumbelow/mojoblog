@@ -71,6 +71,10 @@ class Blog_model extends CI_Model {
 		return $this->db->delete('blog_entries');
 	}
 	
+	public function count_all_results() {
+		return $this->db->count_all_results('blog_entries');
+	}
+	
 	public function __call($method, $arguments) {
 		if (method_exists($this->db, $method)) {
 			call_user_func_array(array($this->db, $method), $arguments);
