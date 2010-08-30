@@ -156,6 +156,7 @@ class Blog {
 				// Loop through and parse
 				foreach ($posts as $post) {
 					$tmp = $internal_template;
+					$post->author = $this->mojo->db->where('id', $post->author_id)->get('members')->row()->email;
 				
 					// First, check that we're editable
 					if ($editable !== "no") { 
@@ -167,6 +168,7 @@ class Blog {
 					$tmp = preg_replace("/{id}/", $post->id, $tmp);
 					$tmp = preg_replace("/{title}/", $post->title, $tmp);
 					$tmp = preg_replace("/{content}/", $post->content, $tmp);
+					$tmp = preg_replace("/{author}/", $post->author, $tmp);
 				
 					// Then to the date!
 					if ($date_format) {
