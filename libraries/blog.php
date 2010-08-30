@@ -273,7 +273,7 @@ class Blog {
 			return $parsed;
 		}
 	}
-	
+		
 	/**
 	 * Shows the entry form at the location specified.
 	 *
