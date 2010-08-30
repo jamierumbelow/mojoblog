@@ -50,8 +50,8 @@ class Blog {
 	 * Loops through a blog's entries and displays them
 	 *
 	 * {mojo:blog:entries 
-	 * 			blog="blog" editable="no" page="about|home" global="yes" limit="10" orderby="date" sort="desc" 
-	 * 			date_format="Y-m-d" no_posts="No posts!" paginate="yes" per_page="5" pagination_trigger="p"}
+	 * 			blog="blog" editable="no" page="about|home" global="yes" limit="10" entry_id="1" entry_id_segment="3" no_posts_404="yes"
+	 *			orderby="date" sort="desc" date_format="Y-m-d" no_posts="No posts!" paginate="yes" per_page="5" pagination_trigger="p"}
 	 *	   	{posts}
 	 *     		<h1>{title}</h1>
 	 *     		<p>{content}</p>
@@ -71,6 +71,9 @@ class Blog {
 		$global = $this->_param('global');
 		$editable = $this->_param('editable');
 		$limit = $this->_param('limit');
+		$entry_id = $this->_param('entry_id');
+		$entry_id_segment = $this->_param('entry_id_segment');
+		$no_posts_404 = $this->_param('no_posts_404');
 		$orderby = $this->_param('orderby');
 		$sort = $this->_param('sort');
 		$date_format = $this->_param('date_format');
@@ -92,6 +95,18 @@ class Blog {
 		$sort = ($sort) ? strtoupper($sort) : 'DESC';
 		
 		$this->mojo->blog_model->order_by("$orderby $sort");
+		
+		// Entry ID
+		if ($entry_id) {
+			$this->mojo->blog_model->where('id', $entry_id);
+		}
+		
+		// Is there an entry ID in the URL?
+		if ($entry_id_segment) {
+			if ($this->mojo->uri->segment($entry_id_segment)) {
+				$this->mojo->blog_model->where('id', (int)$this->mojo->uri->segment($entry_id_segment));
+			}
+		}
 		
 		// Paginate?
 		if ($paginate) {
@@ -138,7 +153,11 @@ class Blog {
 		
 		// Any posts?
 		if (!$posts) {
-			return ($no_posts) ? $no_posts : '';
+			if ($no_posts_404 == "yes") {
+				show_404();
+			} else {
+				return ($no_posts) ? $no_posts : '';
+			}
 		} else {
 			$parsed = "";
 			
