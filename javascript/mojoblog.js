@@ -11,55 +11,29 @@
 
 // Our main function
 MojoBlog = function(){
-    
+        
     /**
      * Loop through all .mojo_blog_content elements
      * and turn into a CKEditor instance
      */
     function ckeditorise() {
         jQuery(".mojo_blog_content:not([data-editor='no'])").each(function() {
-            /* Add a unique class */
-            var d = new Date(),
-            t = d.getTime(),
-            r = Math.random() * 20000,
-            u = Math.floor(t + r);
-            jQuery(this).addClass("random_class_" + u);
-            
-            /* CKify */
-            if (!jQuery(".random_class_" + u).hasClass("mojo_blog_new_entry")) {
-                jQuery(".random_class_" + u).ckeditor(function() {},
-                {
-                    "skin": "mojo," + Mojo.URL.editor_skin_path,
-                    "startupMode": Mojo.edit_mode,
-                    "toolbar": Mojo.toolbar,
-                    "extraPlugins": "cancel",
-                    "removePlugins": "save",
-                    "language": "en",
-                    "toolbarCanCollapse": false,
-                    "toolbarStartupExpanded": true,
-                    "resize_enabled": true,
-                    filebrowserBrowseUrl: Mojo.URL.site_path + "/editor/browse",
-                    filebrowserWindowWidth: "780",
-                    filebrowserWindowHeight: "500",
-                    filebrowserUploadUrl: Mojo.URL.site_path + "/editor/upload"
-                });
-            } else {
-                jQuery(".random_class_" + u).ckeditor(function() {},
-                {
-                    "skin": "mojo," + Mojo.URL.editor_skin_path,
-                    "startupMode": Mojo.edit_mode,
-                    "toolbar": Mojo.toolbar,
-                    "removePlugins": "save",
-                    "language": "en",
-                    "toolbarCanCollapse": false,
-                    "toolbarStartupExpanded": true,
-                    "resize_enabled": true,
-                    filebrowserBrowseUrl: Mojo.URL.site_path + "/editor/browse",
-                    filebrowserWindowWidth: "780",
-                    filebrowserWindowHeight: "500",
-                    filebrowserUploadUrl: Mojo.URL.site_path + "/editor/upload"
-                });
-            }
+            jQuery(this).ckeditor(function() {},
+            {
+                "skin": "mojo," + Mojo.URL.editor_skin_path,
+                "startupMode": Mojo.edit_mode,
+                "toolbar": Mojo.toolbar,
+                "extraPlugins": "cancel",
+                "removePlugins": "save",
+                "language": "en",
+                "toolbarCanCollapse": false,
+                "toolbarStartupExpanded": true,
+                "resize_enabled": true,
+                filebrowserBrowseUrl: Mojo.URL.site_path + "/editor/browse",
+                filebrowserWindowWidth: "780",
+                filebrowserWindowHeight: "500",
+                filebrowserUploadUrl: Mojo.URL.site_path + "/editor/upload"
+            });
         });
     };
     
@@ -74,7 +48,7 @@ MojoBlog = function(){
             var title = data["title"],
             blog = data["blog"],
             content = data["content"];
-            jQuery(entry).html("<input type='hidden' class='mojo_blog_orig_html' value='" + escape(origHTML) + "' /><input type='hidden' name='mojo_blog_id' class='mojo_blog_id' value='" + data["id"] + "' /><input type='hidden' name='mojo_blog_blog' class='mojo_blog_blog' value='" + data["blog"] + "' /><p><input style='padding: 5px; font-size: 14px; width: 90%' type='text' name='mojo_blog_title' class='mojo_blog_title' value='" + data["title"] + "' /></p><p><textarea class='mojo_blog_content'>" + data["content"] + "</textarea></p><p><input type='submit' class='mojo_blog_update' name='mojo_blog_update' class='mojo_blog_update' value='Update Entry' /> <small><a href='#' class='mojo_blog_delete'>(delete post)</a></small></p>");
+            jQuery(entry).html("<input type='hidden' class='mojo_blog_orig_html' value='" + escape(origHTML) + "' /><input type='hidden' name='mojo_blog_id' class='mojo_blog_id' value='" + data["id"] + "' /><input type='hidden' name='mojo_blog_blog' class='mojo_blog_blog' value='" + data["blog"] + "' /><p><input style='padding: 5px; font-size: 14px; width: 90%' type='text' name='mojo_blog_title' class='mojo_blog_title' value=\"" + data["title"] + "\" /></p><p><textarea class='mojo_blog_content'>" + data["content"] + "</textarea></p><p><input type='submit' class='mojo_blog_update' name='mojo_blog_update' class='mojo_blog_update' value='Update Entry' /> <small><a href='#' class='mojo_blog_delete'>(delete post)</a></small></p>");
             ckeditorise();
             jQuery(entry).attr("data-active", "true");
             jQuery(entry).removeClass("mojo_blog_entry_region");
