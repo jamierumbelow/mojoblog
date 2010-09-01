@@ -277,7 +277,7 @@ class Blog {
 	/**
 	 * Shows the entry form at the location specified.
 	 *
-	 * {mojo:blog:entry_form blog="blog" page="about|contact" editor="no" field="textarea" outfielder="no"}
+	 * {mojo:blog:entry_form blog="blog" page="about|contact" editor="no" field="textarea" outfielder="no" title="New Gallery Entry"}
 	 *
 	 * @return void
 	 * @author Jamie Rumbelow
@@ -297,6 +297,7 @@ class Blog {
 		$editor = $this->_param('editor');
 		$field = $this->_param('field');
 		$outfielder = $this->_param('outfielder');
+		$title = ($this->_param('title')) ? $this->_param('title') : 'New Blog Entry';
 				
 		// Limit access by page
 		if (!$this->_limited_access_by_page($page)) {
@@ -312,7 +313,7 @@ class Blog {
 		$html = "<div class='mojo_blog_entry_form'>";
 			$html .= form_open("addons/blog/entry_submit");
 			$html .= "<input type='hidden' name='mojo_blog_blog' class='mojo_blog_blog' value='$blog' />";
-			$html .= "<h1>New Blog Entry</h1>";
+			$html .= "<h1>" . $title . "</h1>";
 			$html .= "<p><input style='padding: 5px; font-size: 14px; width: 90%' type='text' name='mojo_blog_title' class='mojo_blog_title' value='Title' /></p>";
 			
 		// Textarea or input	
@@ -336,7 +337,7 @@ class Blog {
 		}
 		
 		// Entry submission, close the div
-		$html .= "<p><input type='submit' name='mojo_blog_submit' class='mojo_blog_submit' value='Create New Entry' /></p>";
+		$html .= "<p><input type='submit' name='mojo_blog_submit' class='mojo_blog_submit' value='Create ".$title."' /></p>";
 		$html .= "</form></div>";
 				
 		// Done!
