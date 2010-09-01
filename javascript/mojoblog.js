@@ -18,13 +18,12 @@ MojoBlog = function(){
      */
     function ckeditorise() {
         jQuery(".mojo_blog_content:not([data-editor='no'])").each(function() {
-            jQuery(this).ckeditor(function() {},
-            {
+            jQuery(this).ckeditor(function() {}, {
                 "skin": "mojo," + Mojo.URL.editor_skin_path,
                 "startupMode": Mojo.edit_mode,
                 "toolbar": Mojo.toolbar,
                 "extraPlugins": "cancel",
-                "removePlugins": "save",
+                "removePlugins": "scayt,save",
                 "language": "en",
                 "toolbarCanCollapse": false,
                 "toolbarStartupExpanded": true,
@@ -35,6 +34,8 @@ MojoBlog = function(){
                 filebrowserUploadUrl: Mojo.URL.site_path + "/editor/upload"
             });
         });
+        
+        mojoEditor.custom_mojo_toolbar();
     };
     
     /**
