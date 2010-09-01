@@ -277,7 +277,7 @@ class Blog {
 	/**
 	 * Shows the entry form at the location specified.
 	 *
-	 * {mojo:blog:entry_form blog="blog" page="about|contact" editor="no" field="textarea" outfielder="yes"}
+	 * {mojo:blog:entry_form blog="blog" page="about|contact" editor="no" field="textarea" outfielder="no"}
 	 *
 	 * @return void
 	 * @author Jamie Rumbelow
@@ -327,7 +327,7 @@ class Blog {
 		}
 		
 		// Outfielder support
-		if ($this->outfielder && $outfielder == "yes") {
+		if ($this->outfielder && $outfielder !== "no") {
 		    $html .= '<h3>Metadata</h3>';
 		
 			$html .= '<div class="mojoblog_outfielder_group">';
@@ -474,6 +474,33 @@ class Blog {
 	}
 	
 	/**
+	 * Get entry metadata
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function entry_metadata_get() {
+		// Get the post metadata
+		$id = $this->mojo->uri->segment(4);
+		$metadata = $this->mojo->fields->get_via_page_title("mojo_blog_entry_".$id);
+		
+		if ($metadata) {
+			foreach ($metadata as $row) {
+				$response[$row->field_key] = $row->field_value;
+			}
+		} else {
+			$response = FALSE;
+		}
+		
+		// Return it as JSON
+		header('Content-type: application/json');
+		echo json_encode($response);
+		
+		// And we're done!
+		exit;
+	}
+	
+	/**
 	 * Update a entry
 	 *
 	 * @return void
@@ -487,6 +514,25 @@ class Blog {
 		// Update the title and content
 		$this->mojo->blog_model->set('title', $title)->set('content', $content)->where('id', $id);
 		$this->mojo->blog_model->update();
+		
+		// Outfielder
+		if ($this->outfielder) {
+			$keys = $this->mojo->input->post('metadata_keys');
+			$values = $this->mojo->input->post('metadata_values');
+			$metadata = array();
+			
+			// Loop through the keys, match it up with the values
+			// and insert metadata into Outfielder!
+			foreach ($keys as $index => $key) {
+				if ($key && $values[$index]) {
+					if ($this->mojo->db->where(array('field_page' => "mojo_blog_entry_$id", 'field_key' => $key))->get('mojo_outfielder')->num_rows > 0) {
+						$this->mojo->db->where(array('field_page' => "mojo_blog_entry_$id", 'field_key' => $key))->set('field_value', $values[$index])->update('mojo_outfielder');
+					} else {
+						$this->mojo->fields->create($key, $values[$index], "mojo_blog_entry_$id");
+					}
+				}
+			}
+		}
 		
 		// Done!
 		exit;

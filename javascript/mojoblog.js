@@ -48,23 +48,33 @@ MojoBlog = function(){
             var title = data["title"],
             blog = data["blog"],
             content = data["content"];
-            jQuery(entry).html("<input type='hidden' class='mojo_blog_orig_html' value='" + escape(origHTML) + "' /><input type='hidden' name='mojo_blog_id' class='mojo_blog_id' value='" + data["id"] + "' /><input type='hidden' name='mojo_blog_blog' class='mojo_blog_blog' value='" + data["blog"] + "' /><p><input style='padding: 5px; font-size: 14px; width: 90%' type='text' name='mojo_blog_title' class='mojo_blog_title' value=\"" + data["title"] + "\" /></p><p><textarea class='mojo_blog_content'>" + data["content"] + "</textarea></p><p><input type='submit' class='mojo_blog_update' name='mojo_blog_update' class='mojo_blog_update' value='Update Entry' /> <small><a href='#' class='mojo_blog_delete'>(delete post)</a></small></p>");
+            jQuery(entry).html("<form action=\""+Mojo.URL.site_path+"/addons/blog/entry_update\"><input type='hidden' class='mojo_blog_orig_html' value='" + escape(origHTML) + "' /><input type='hidden' name='mojo_blog_id' class='mojo_blog_id' value='" + data["id"] + "' /><input type='hidden' name='mojo_blog_blog' class='mojo_blog_blog' value='" + data["blog"] + "' /><p><input style='padding: 5px; font-size: 14px; width: 90%' type='text' name='mojo_blog_title' class='mojo_blog_title' value=\"" + data["title"] + "\" /></p><p><textarea class='mojo_blog_content'>" + data["content"] + "</textarea></p>");
+            if (mojoEditor.outfielder === true) { edit_outfielder(entry); } else {
+            jQuery(entry).find('form').append("<p><input type='submit' class='mojo_blog_update' name='mojo_blog_update' class='mojo_blog_update' value='Update Entry' /> <small><a href='#' class='mojo_blog_delete'>(delete post)</a></small></p>"); }
             ckeditorise();
             jQuery(entry).attr("data-active", "true");
             jQuery(entry).removeClass("mojo_blog_entry_region");
-            jQuery(".mojo_blog_update").click(function() {
-                var par = jQuery(this).parent().parent();
-                var blogdata = {
-                    mojo_blog_id: jQuery(par).find(".mojo_blog_id").val(),
-                    mojo_blog_title: jQuery(par).find(".mojo_blog_title").val(),
-                    mojo_blog_content: jQuery(par).find(".mojo_blog_content").val(),
-                    mojo_blog_blog: jQuery(par).find(".mojo_blog_blog").val(),
-                    ci_csrf_token: Mojo.Vars.csrf
-                };
-                jQuery.post(Mojo.URL.site_path + "/addons/blog/entry_update", blogdata,
-                function() {
+            
+            jQuery(".mojo_blog_update").live('click', function() {
+                var par = jQuery(this).parent().parent().parent();
+                
+                // Outfielder Key Value
+                if (mojoEditor.outfielder === true) {
+                    if (jQuery(par).find(".mojoblog_outfielder_metadata_key").val() == "Key") { jQuery(par).find(".mojoblog_outfielder_metadata_key").val(""); };
+                    if (jQuery(par).find(".mojoblog_outfielder_metadata_value").val() == "Value") { jQuery(par).find(".mojoblog_outfielder_metadata_value").val(""); };
+                }
+
+                // Get the data
+                var object = jQuery(par).find('form').serialize();
+                var content = jQuery(par).find(".mojo_blog_content").val();
+                
+                object = object + "&" + jQuery.param({ mojo_blog_content: content, ci_csrf_token: Mojo.Vars.csrf });
+                
+                jQuery.post(Mojo.URL.site_path + "/addons/blog/entry_update", object,
+                function(data) {
                     window.location.reload();
                 });
+                
                 return false;
             });
         })
@@ -316,6 +326,28 @@ MojoBlog = function(){
             jQuery(this).parent().remove();
             return false;
         });
+        
+        function edit_outfielder(entry) {            
+            jQuery.get(Mojo.URL.site_path + "/addons/blog/entry_metadata_get/" + jQuery(entry).attr("data-post-id"), {}, function(data) {
+                var html = "<h3>Metadata</h3><div class=\"mojoblog_outfielder_group\"><ul style=\"list-style:square;\">";
+                
+                if (data) {
+			        for (key in data) {
+			            var value = data[key];
+                        var hidden = '<input type="hidden" name="metadata_keys[]" value="'+key+'" /><input type="hidden" name="metadata_values[]" value="'+value+'" />';
+                        var editdelete = '<a href="#" class="mojoblog_outfielder_edit"><img src="' + Mojo.URL.site_path + "/addons/blog/image/edit.png" + '" alt="Edit" /></a><a href="#" class="mojoblog_outfielder_delete"><img src="' + Mojo.URL.site_path + "/addons/blog/image/delete.png" + '" alt="Delete" /></a>';
+
+                        html += "<li>" + key + " = " + value + editdelete + hidden + "</li>";
+			        }
+			    }
+			    
+                html += "<li><input type=\"text\" name=\"metadata_keys[]\" value=\"Key\" class=\"mojoblog_outfielder_metadata_key newinput\" /> = <input type=\"text\" name=\"metadata_values[]\" value=\"Value\" class=\"mojoblog_outfielder_metadata_value newinput\" /> <a href=\"#\" class=\"mojoblog_outfielder_add\"><img src=\"" + Mojo.URL.site_path + "/addons/blog/image/add.png" + "\" alt=\"Add\" /></a></li>";
+			    html += "</ul></div>";
+			    html += "<p><input type='submit' class='mojo_blog_update' name='mojo_blog_update' class='mojo_blog_update' value='Update Entry' /> <small><a href='#' class='mojo_blog_delete'>(delete post)</a></small></p></form>";
+			    
+			    jQuery(entry).find('form').append(html);
+    		});
+        }
     }
     
     // Hide the entry form if it's open
