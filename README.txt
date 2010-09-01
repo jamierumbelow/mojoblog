@@ -1,5 +1,5 @@
 ==============================
-	MojoBlog Version 1.0.0
+	MojoBlog Version 1.1.0
 	http://getsparkplugs.com/mojoblog/
 ==============================
 
@@ -17,6 +17,16 @@ Installing MojoBlog is just like any other MojoMotor addon. Simply drag the blog
 
 Changelog
 =========
+
+	Version 1.1.0
+		- Added Outfielder support
+		- Added Pagination
+		- Added an {author} tag
+		- entry_id, no_posts_404 and entry_id_segment parameters (single entry pages)
+		- Fixed a language file bug
+		- Fixed a bug with apostrophes
+		- Fixed MojoMotor save button error
+		- Added a title="" parameter
 
 	Version 1.0.0
 		- First Release
