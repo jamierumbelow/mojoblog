@@ -18,11 +18,13 @@ MojoBlog = function(){
      */
     function ckeditorise() {
         jQuery(".mojo_blog_content:not([data-editor='no'])").each(function() {
+            if (jQuery(this).hasClass("mojo_blog_new_entry")) { extraPlugins = ""; } else { extraPlugins = "cancel"; }
+            
             jQuery(this).ckeditor(function() {}, {
                 "skin": "mojo," + Mojo.URL.editor_skin_path,
                 "startupMode": Mojo.edit_mode,
                 "toolbar": Mojo.toolbar,
-                "extraPlugins": "cancel",
+                "extraPlugins": extraPlugins,
                 "removePlugins": "scayt,save",
                 "language": "en",
                 "toolbarCanCollapse": false,
@@ -44,41 +46,51 @@ MojoBlog = function(){
      */
     function handle_mojo_blog_edit(entry) {
         var origHTML = jQuery(entry).html();
-        jQuery.get(Mojo.URL.site_path + "/addons/blog/entry_get/" + jQuery(entry).attr("data-post-id"), {},
-        function(data) {
-            var title = data["title"],
-            blog = data["blog"],
-            content = data["content"];
-            jQuery(entry).html("<form action=\""+Mojo.URL.site_path+"/addons/blog/entry_update\"><input type='hidden' class='mojo_blog_orig_html' value='" + escape(origHTML) + "' /><input type='hidden' name='mojo_blog_id' class='mojo_blog_id' value='" + data["id"] + "' /><input type='hidden' name='mojo_blog_blog' class='mojo_blog_blog' value='" + data["blog"] + "' /><p><input style='padding: 5px; font-size: 14px; width: 90%' type='text' name='mojo_blog_title' class='mojo_blog_title' value=\"" + data["title"] + "\" /></p><p><textarea class='mojo_blog_content'>" + data["content"] + "</textarea></p>");
-            if (mojoEditor.outfielder === true) { edit_outfielder(entry); } else {
-            jQuery(entry).find('form').append("<p><input type='submit' class='mojo_blog_update' name='mojo_blog_update' class='mojo_blog_update' value='Update Entry' /> <small><a href='#' class='mojo_blog_delete'>(delete post)</a></small></p>"); }
-            ckeditorise();
-            jQuery(entry).attr("data-active", "true");
-            jQuery(entry).removeClass("mojo_blog_entry_region");
-            
-            jQuery(".mojo_blog_update").live('click', function() {
-                var par = jQuery(this).parent().parent().parent();
-                
-                // Outfielder Key Value
-                if (mojoEditor.outfielder === true) {
-                    if (jQuery(par).find(".mojoblog_outfielder_metadata_key").val() == "Key") { jQuery(par).find(".mojoblog_outfielder_metadata_key").val(""); };
-                    if (jQuery(par).find(".mojoblog_outfielder_metadata_value").val() == "Value") { jQuery(par).find(".mojoblog_outfielder_metadata_value").val(""); };
-                }
+        
+        if (jQuery(entry).attr("data-active") != "true") {
+            jQuery.get(Mojo.URL.site_path + "/addons/blog/entry_get/" + jQuery(entry).attr("data-post-id"), {},
+            function(data) {
+                var title = data["title"],
+                blog = data["blog"],
+                content = data["content"];
 
-                // Get the data
-                var object = jQuery(par).find('form').serialize();
-                var content = jQuery(par).find(".mojo_blog_content").val();
+                html = "<form action=\""+Mojo.URL.site_path+"/addons/blog/entry_update\"><input type='hidden' class='mojo_blog_orig_html' value='" + escape(origHTML) + "' /><input type='hidden' name='mojo_blog_id' class='mojo_blog_id' value='" + data["id"] + "' /><input type='hidden' name='mojo_blog_blog' class='mojo_blog_blog' value='" + data["blog"] + "' /><p><input style='padding: 5px; font-size: 14px; width: 90%' type='text' name='mojo_blog_title' class='mojo_blog_title' value=\"" + data["title"] + "\" /></p><p><textarea class='mojo_blog_content'>" + data["content"] + "</textarea></p>";
+
+                if (mojoEditor.outfielder === true) {
+                    edit_outfielder(entry, html);
+                } else {
+                    html += "<p><input type='submit' class='mojo_blog_update' name='mojo_blog_update' class='mojo_blog_update' value='Update Entry' /> <small><a href='#' class='mojo_blog_delete'>(delete post)</a></small></p>";
+                    jQuery(entry).html(html);
+                    ckeditorise();
+                }
                 
-                object = object + "&" + jQuery.param({ mojo_blog_content: content, ci_csrf_token: Mojo.Vars.csrf });
+                jQuery(entry).attr("data-active", true);
+                jQuery(entry).removeClass("mojo_blog_entry_region");
                 
-                jQuery.post(Mojo.URL.site_path + "/addons/blog/entry_update", object,
-                function(data) {
-                    window.location.reload();
+                jQuery(".mojo_blog_update").live('click', function() {
+                    var par = jQuery(this).parent().parent().parent();
+                
+                    // Outfielder Key Value
+                    if (mojoEditor.outfielder === true) {
+                        if (jQuery(par).find(".mojoblog_outfielder_metadata_key").val() == "Key") { jQuery(par).find(".mojoblog_outfielder_metadata_key").val(""); };
+                        if (jQuery(par).find(".mojoblog_outfielder_metadata_value").val() == "Value") { jQuery(par).find(".mojoblog_outfielder_metadata_value").val(""); };
+                    }
+
+                    // Get the data
+                    var object = jQuery(par).find('form').serialize();
+                    var content = jQuery(par).find(".mojo_blog_content").val();
+                
+                    object = object + "&" + jQuery.param({ mojo_blog_content: content, ci_csrf_token: Mojo.Vars.csrf });
+                
+                    jQuery.post(Mojo.URL.site_path + "/addons/blog/entry_update", object,
+                    function(data) {
+                        window.location.reload();
+                    });
+                
+                    return false;
                 });
-                
-                return false;
             });
-        })
+        }
     };
     
     /**
@@ -147,10 +159,12 @@ MojoBlog = function(){
                         handle_mojo_blog_regions();
                     } else {
                         editor.destroy();
-                        jQuery(par).parent().attr("data-active", "false");
-                        jQuery(par).parent().attr("data-is-editable-region", "false");
-                        jQuery(par).parent().addClass("mojo_blog_entry_region");
-                        jQuery(par).parent().html(html);
+                        
+                        jQuery(par).parent().parent().attr("data-active", "false");
+                        jQuery(par).parent().parent().attr("data-is-editable-region", "false");
+                        jQuery(par).parent().parent().addClass("mojo_blog_entry_region");
+                        jQuery(par).parent().parent().html(html);
+                        
                         jQuery(".mojo_blog_entry_region").live("click",
                         function() {
                             if (jQuery(this).attr("data-active") !== "true") {
@@ -328,9 +342,9 @@ MojoBlog = function(){
             return false;
         });
         
-        function edit_outfielder(entry) {            
+        function edit_outfielder(entry, html) {            
             jQuery.get(Mojo.URL.site_path + "/addons/blog/entry_metadata_get/" + jQuery(entry).attr("data-post-id"), {}, function(data) {
-                var html = "<h3>Metadata</h3><div class=\"mojoblog_outfielder_group\"><ul style=\"list-style:square;\">";
+                html += "<h3>Metadata</h3><div class=\"mojoblog_outfielder_group\"><ul style=\"list-style:square;\">";
                 
                 if (data) {
 			        for (key in data) {
@@ -346,7 +360,8 @@ MojoBlog = function(){
 			    html += "</ul></div>";
 			    html += "<p><input type='submit' class='mojo_blog_update' name='mojo_blog_update' class='mojo_blog_update' value='Update Entry' /> <small><a href='#' class='mojo_blog_delete'>(delete post)</a></small></p></form>";
 			    
-			    jQuery(entry).find('form').append(html);
+			    jQuery(entry).html(html);
+			    ckeditorise();
     		});
         }
     }
