@@ -184,16 +184,16 @@ class Blog {
 					}
 				
 					// Start off with the basic variables
-					$tmp = preg_replace("/{id}/", $post->id, $tmp);
-					$tmp = preg_replace("/{title}/", $post->title, $tmp);
-					$tmp = preg_replace("/{content}/", $post->content, $tmp);
-					$tmp = preg_replace("/{author}/", $post->author, $tmp);
+					$tmp = preg_replace("/{id}/i", $post->id, $tmp);
+					$tmp = preg_replace("/{title}/i", $post->title, $tmp);
+					$tmp = preg_replace("/{content}/i", $post->content, $tmp);
+					$tmp = preg_replace("/{author}/i", $post->author, $tmp);
 				
 					// Then to the date!
 					if ($date_format) {
-						$tmp = preg_replace("/{date}/", date($date_format, strtotime($post->date)), $tmp);
+						$tmp = preg_replace("/{date}/i", date($date_format, strtotime($post->date)), $tmp);
 					} else {
-						$tmp = preg_replace("/{date}/", date('d/m/Y', strtotime($post->date)), $tmp);
+						$tmp = preg_replace("/{date}/i", date('d/m/Y', strtotime($post->date)), $tmp);
 					}
 										
 					// Outfielder metadata!
@@ -203,8 +203,8 @@ class Blog {
 						if ($metadata) {
 							foreach ($metadata as $row) {
 								// Is there an {if} tag for this key? If so, remove it
-								if (preg_match("/\{if $row->field_key\}(.*)\{\/if\}/", $tmp)) {
-									$tmp = preg_replace("/\{if $row->field_key\}(.*)\{\/if\}/", "$1", $tmp);
+								if (preg_match("/\{if $row->field_key\}(.*)\{\/if\}/is", $tmp)) {
+									$tmp = preg_replace("/\{if $row->field_key\}(.*)\{\/if\}/is", "$1", $tmp);
 								}
 								
 								// Replace {field_key} with the value
@@ -213,7 +213,7 @@ class Blog {
 						}
 						
 						// Remove the rest of the {if tag}{tag}{/if}s
-						$tmp = preg_replace("/\{if (\w+)\}(.*)\{\/if\}/", "", $tmp);
+						$tmp = preg_replace("/\{if (\w+)\}(.*)\{\/if\}/is", "", $tmp);
 					}
 					
 					// Finally, add it to the buffer
@@ -225,7 +225,7 @@ class Blog {
 			$parsed = preg_replace("/\{entries\}(.*)\{\/entries\}/is", $entries_tag, $parsed);
 			
 			// Finish off with pagination
-			if (preg_match("/\{pagination\}(.*)\{\/pagination\}/", $parsed, $pagtmp)) {
+			if (preg_match("/\{pagination\}(.*)\{\/pagination\}/is", $parsed, $pagtmp)) {
 				if ($paginate) {			
 					$first_page_url = site_url('page/'.$this->mojo->mojomotor_parser->url_title);
 					$prev_page_url = ($page > 1) ? site_url('page/'.$this->mojo->mojomotor_parser->url_title.'/'.$pagination_trigger.'/'.(string)($page-1)) : FALSE;
@@ -237,32 +237,32 @@ class Blog {
 
 					// Prev and next page conditionals
 					if ($prev_page_url) {
-						if (preg_match("/\{if prev_page\}(.*?)\{\/if\}/", $pagtmp)) {
-							$pagtmp = preg_replace("/\{if prev_page\}(.*?)\{\/if\}/", "$1", $pagtmp);
+						if (preg_match("/\{if prev_page\}(.*?)\{\/if\}/is", $pagtmp)) {
+							$pagtmp = preg_replace("/\{if prev_page\}(.*?)\{\/if\}/is", "$1", $pagtmp);
 						}
 					} else {
-						if (preg_match("/\{if prev_page\}(.*?)\{\/if\}/", $pagtmp)) {
-							$pagtmp = preg_replace("/\{if prev_page\}(.*?)\{\/if\}/", "", $pagtmp);
+						if (preg_match("/\{if prev_page\}(.*?)\{\/if\}/is", $pagtmp)) {
+							$pagtmp = preg_replace("/\{if prev_page\}(.*?)\{\/if\}/is", "", $pagtmp);
 						}
 					}
 
 					if ($next_page_url) {
-						if (preg_match("/\{if next_page\}(.*?)\{\/if\}/", $pagtmp)) {
-							$pagtmp = preg_replace("/\{if next_page\}(.*?)\{\/if\}/", "$1", $pagtmp);
+						if (preg_match("/\{if next_page\}(.*?)\{\/if\}/is", $pagtmp)) {
+							$pagtmp = preg_replace("/\{if next_page\}(.*?)\{\/if\}/is", "$1", $pagtmp);
 						}
 					} else {
-						if (preg_match("/\{if next_page\}(.*?)\{\/if\}/", $pagtmp)) {
-							$pagtmp = preg_replace("/\{if next_page\}(.*?)\{\/if\}/", "", $pagtmp);
+						if (preg_match("/\{if next_page\}(.*?)\{\/if\}/is", $pagtmp)) {
+							$pagtmp = preg_replace("/\{if next_page\}(.*?)\{\/if\}/is", "", $pagtmp);
 						}
 					}
 
 					// Variable swap fun
-					$pagtmp = preg_replace("/\{first_page_url\}/", $first_page_url, $pagtmp);
-					$pagtmp = preg_replace("/\{prev_page_url\}/", $prev_page_url, $pagtmp);
-					$pagtmp = preg_replace("/\{current_page\}/", $current_page, $pagtmp);
-					$pagtmp = preg_replace("/\{total_pages\}/", $total_pages, $pagtmp);
-					$pagtmp = preg_replace("/\{next_page_url\}/", $next_page_url, $pagtmp);
-					$pagtmp = preg_replace("/\{last_page_url\}/", $last_page_url, $pagtmp);
+					$pagtmp = preg_replace("/\{first_page_url\}/i", $first_page_url, $pagtmp);
+					$pagtmp = preg_replace("/\{prev_page_url\}/i", $prev_page_url, $pagtmp);
+					$pagtmp = preg_replace("/\{current_page\}/i", $current_page, $pagtmp);
+					$pagtmp = preg_replace("/\{total_pages\}/i", $total_pages, $pagtmp);
+					$pagtmp = preg_replace("/\{next_page_url\}/i", $next_page_url, $pagtmp);
+					$pagtmp = preg_replace("/\{last_page_url\}/i", $last_page_url, $pagtmp);
 				
 					// Replace {pagination} tags
 					$parsed = preg_replace("/\{pagination\}(.*?)\{\/pagination\}/is", $pagtmp, $parsed);
