@@ -186,6 +186,7 @@ class Blog {
 					// Start off with the basic variables
 					$tmp = preg_replace("/{id}/i", $post->id, $tmp);
 					$tmp = preg_replace("/{title}/i", $post->title, $tmp);
+					$tmp = preg_replace("/{excerpt}/i", $this->_get_excerpt($post->content), $tmp);
 					$tmp = preg_replace("/{content}/i", $post->content, $tmp);
 					$tmp = preg_replace("/{author}/i", $post->author, $tmp);
 				
@@ -668,6 +669,27 @@ class Blog {
 	 */
 	private function _param($key) {
 		return (isset($this->template_data['parameters'][$key])) ? $this->template_data['parameters'][$key] : FALSE;
+	}
+	
+	/**
+	 * Get excerpt from string
+	 * 
+	 * @param string $str String to get an excerpt from
+	 * @param integer $startPos Position int string to start excerpt from
+	 * @param integer $maxLength Maximum length the excerpt may be
+	 * @return string
+	 */
+	private function _get_excerpt($str, $start_pos = 0, $max_length = 100) {
+		if(strlen($str) > $max_length) {
+			$excerpt    = substr($str, $start_pos, $max_length - 3);
+			$last_space = strrpos($excerpt, ' ');
+			$excerpt    = substr($excerpt, 0, $last_space);
+			$excerpt   .= '...';
+		} else {
+			$excerpt = $str;
+		}
+
+		return $excerpt;
 	}
 	
 	/**
