@@ -113,8 +113,8 @@ class Blog {
 			$per_page = ($per_page) ? $per_page : 5;
 			$pagination_trigger = ($pagination_trigger) ? $pagination_trigger : 'p';
 			
-			// Get the page by the pagination trigger (we know it'll be > segment 2)
-			$possible_segments = array_slice($this->mojo->uri->segments, 2);
+			// Get the page by the pagination trigger (we know it'll be > segment 1)
+			$possible_segments = array_slice($this->mojo->uri->segments, 1);
 			
 			if (in_array($pagination_trigger, $possible_segments)) {
 				$flipped = array_flip($possible_segments);
@@ -291,8 +291,8 @@ class Blog {
 
 		// Set up a few variables
 		$this->template_data = $template_data;
-		$url = site_url('addons/blog/entry_submit');
-		$delete_url = site_url('addons/blog/entry_delete');
+		$url = site_url('admin/addons/blog/entry_submit');
+		$delete_url = site_url('admin/addons/blog/entry_delete');
 		$blog = $this->_param('blog');
 		$page = $this->_param('page');
 		$editor = $this->_param('editor');
@@ -312,7 +312,7 @@ class Blog {
 		
 		// Start preparing the entry form
 		$html = "<div class='mojo_blog_entry_form'>";
-			$html .= form_open("addons/blog/entry_submit");
+			$html .= form_open("admin/addons/blog/entry_submit");
 			$html .= "<input type='hidden' name='mojo_blog_blog' class='mojo_blog_blog' value='$blog' />";
 			$html .= "<h1>" . $title . "</h1>";
 			$html .= "<p><input style='padding: 5px; font-size: 14px; width: 90%' type='text' name='mojo_blog_title' class='mojo_blog_title' value='Title' /></p>";
@@ -333,7 +333,7 @@ class Blog {
 		    $html .= '<h3>Metadata</h3>';
 		
 			$html .= '<div class="mojoblog_outfielder_group">';
-				$html .= '<ul style="list-style:square;"><li><input type="text" name="metadata_keys[]" value="Key" class="mojoblog_outfielder_metadata_key newinput" /> = <input type="text" name="metadata_values[]" value="Value" class="mojoblog_outfielder_metadata_value newinput" /> <a href="#" class="mojoblog_outfielder_add"><img src="'.site_url("addons/blog/image/add.png").'" alt="Add" /></a></li></ul>';
+				$html .= '<ul style="list-style:square;"><li><input type="text" name="metadata_keys[]" value="Key" class="mojoblog_outfielder_metadata_key newinput" /> = <input type="text" name="metadata_values[]" value="Value" class="mojoblog_outfielder_metadata_value newinput" /> <a href="#" class="mojoblog_outfielder_add"><img src="'.site_url("admin/addons/blog/image/add.png").'" alt="Add" /></a></li></ul>';
 			$html .= '</div>';
 		}
 		
@@ -408,9 +408,9 @@ class Blog {
 	 */
 	public function rss() {
 		// Get the variables, brother
-		$blog = $this->mojo->uri->segment(4);
-		$limit = $this->mojo->uri->segment(5);
-		$link_page = $this->mojo->uri->segment(6);
+		$blog = $this->mojo->uri->segment(5);
+		$limit = $this->mojo->uri->segment(6);
+		$link_page = $this->mojo->uri->segment(7);
 		
 		// Make sure we've got a blog variable
 		if (!$blog) {
@@ -422,7 +422,7 @@ class Blog {
 		$data['site_name'] = $this->mojo->site_model->get_setting('site_name');
 		$data['blog_name'] = $blog;
 		$data['blog_pretty_name'] = ucwords(str_replace("_", " ", $blog));
-		$data['rss_url'] = site_url('addons/blog/rss/'.$data['blog_name']);
+		$data['rss_url'] = site_url('admin/addons/blog/rss/'.$data['blog_name']);
 		$data['link_page'] = ($link_page) ? $link_page : $this->mojo->site_model->default_page();
 		
 		// Set mime types and extract variables
@@ -453,7 +453,7 @@ class Blog {
 		$limit = ($limit) ? (int)$limit : 10;
 		
 		// Output the URL, basically
-		return site_url("addons/blog/rss/$blog/$limit/$link_page");
+		return site_url("admin/addons/blog/rss/$blog/$limit/$link_page");
 	}
 	
 	/**
@@ -464,7 +464,7 @@ class Blog {
 	 */
 	public function entry_get() {
 		// Get the post
-		$id = $this->mojo->uri->segment(4);
+		$id = $this->mojo->uri->segment(5);
 		$post = $this->mojo->blog_model->where('id', $id)->get(TRUE);
 		
 		// Return it as JSON
@@ -483,7 +483,7 @@ class Blog {
 	 */
 	public function entry_metadata_get() {
 		// Get the post metadata
-		$id = $this->mojo->uri->segment(4);
+		$id = $this->mojo->uri->segment(5);
 		$metadata = $this->mojo->fields->get_via_page_title("mojo_blog_entry_".$id);
 		
 		if ($metadata) {
@@ -573,7 +573,7 @@ class Blog {
 	 * @author Jamie Rumbelow
 	 */
 	public function javascript_url() {
-		return site_url('addons/blog/javascript');
+		return site_url('admin/addons/blog/javascript');
 	}
 	
 	/**
@@ -722,7 +722,9 @@ class Blog {
 				
 				// Loop through the pages and check
 				foreach ($pages as $possible_page) {
-					if ($possible_page == $this->mojo->uri->rsegment(3) || $possible_page == $default_page) {
+					if ($possible_page == $this->mojo->mojomotor_parser->url_title || 
+						$possible_page == $default_page || 
+						$possible_page == end($this->mojo->uri->segments)) {
 						$yo_brother_can_i_access_your_blog = TRUE;
 					}
 				}
