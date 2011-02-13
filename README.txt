@@ -1,5 +1,5 @@
 ==============================
-	MojoBlog Version 1.1.0
+	MojoBlog Version 1.1.1
 	http://getsparkplugs.com/mojoblog/
 ==============================
 
@@ -17,6 +17,11 @@ Installing MojoBlog is just like any other MojoMotor addon. Simply drag the blog
 
 Changelog
 =========
+
+	Version 1.1.1
+		- Fixed an error with multi-line regexes and made all the tags case insensitive
+		- Fixed MM1.1 compatibility
+		- Added an {excerpt} variable
 
 	Version 1.1.0
 		- Added Outfielder support
