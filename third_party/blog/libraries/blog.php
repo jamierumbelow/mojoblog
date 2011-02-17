@@ -109,19 +109,9 @@ class Blog {
 		if ($paginate) {
 			$per_page = ($per_page) ? $per_page : 5;
 			$pagination_trigger = ($pagination_trigger) ? $pagination_trigger : 'p';
-			
-			// Get the page by the pagination trigger (we know it'll be > segment 2)
-			$possible_segments = array_slice($this->mojo->uri->segments, 2);
-			
-			if (in_array($pagination_trigger, $possible_segments)) {
-				$flipped = array_flip($possible_segments);
-				$segment = $possible_segments[$pagination_trigger];
-				
-				if (isset($possible_segments[$segment+1])) {
-					$page = $possible_segments[$segment+1];
-				} else {
-					$page = 1;
-				}
+						
+			if (isset($_REQUEST[$pagination_trigger])) {
+				$page = (int)$_REQUEST[$pagination_trigger];
 			} else {
 				$page = 1;
 			}
@@ -224,12 +214,12 @@ class Blog {
 			// Finish off with pagination
 			if (preg_match("/\{pagination\}(.*)\{\/pagination\}/is", $parsed, $pagtmp)) {
 				if ($paginate) {			
-					$first_page_url = site_url('page/'.$this->mojo->mojomotor_parser->url_title);
-					$prev_page_url = ($page > 1) ? site_url('page/'.$this->mojo->mojomotor_parser->url_title.'/'.$pagination_trigger.'/'.(string)($page-1)) : FALSE;
+					$first_page_url = site_url($this->mojo->mojomotor_parser->url_title);
+					$prev_page_url = ($page > 1) ? site_url($this->mojo->mojomotor_parser->url_title.'?'.$pagination_trigger.'='.(string)($page-1)) : FALSE;
 					$current_page = $page;
 					$total_pages = round($count/$per_page);
-					$next_page_url = ($page < ($count/$per_page)) ? site_url('page/'.$this->mojo->mojomotor_parser->url_title.'/'.$pagination_trigger.'/'.(string)($page+1)) : FALSE;
-					$last_page_url = site_url('page/'.$this->mojo->mojomotor_parser->url_title.'/'.$pagination_trigger.'/'.(string)round($count/$per_page));
+					$next_page_url = ($page < ($count/$per_page)) ? site_url($this->mojo->mojomotor_parser->url_title.'?'.$pagination_trigger.'='.(string)($page+1)) : FALSE;
+					$last_page_url = site_url($this->mojo->mojomotor_parser->url_title.'?'.$pagination_trigger.'='.(string)round($count/$per_page));
 					$pagtmp = $pagtmp[1];
 
 					// Prev and next page conditionals
