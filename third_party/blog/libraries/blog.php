@@ -701,7 +701,9 @@ class Blog {
 				
 				// Loop through the pages and check
 				foreach ($pages as $possible_page) {
-					if ($possible_page == $this->mojo->uri->rsegment(3) || $possible_page == $default_page) {
+					$url = implode('/', $this->mojo->uri->segments);
+					
+					if ($possible_page == $url || $possible_page == $default_page) {
 						$yo_brother_can_i_access_your_blog = TRUE;
 					}
 				}
