@@ -1,5 +1,5 @@
 ==============================
-	MojoBlog Version 1.1.1
+	MojoBlog Version 1.1.3
 	http://getsparkplugs.com/mojoblog/
 ==============================
 
