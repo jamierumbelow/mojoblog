@@ -593,6 +593,9 @@ class Blog {
 		
 		// Make sure the config uri protocol is set to PATH_INFO
 		$this->mojo->config->config_update(array('uri_protocol' => 'PATH_INFO'));
+		
+		// Let the user know about it
+		die('MojoBlog has been successfully installed!');
 	}
 	
 	/**
