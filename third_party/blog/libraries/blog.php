@@ -26,10 +26,6 @@ class Blog {
 		
 		$this->mojo->load->library('auth');
 		
-		// Check that we're setup and the DB table exists
-		$this->mojo->blog_model->install();
-		$this->mojo->config->config_update(array('uri_protocol' => 'PATH_INFO'));
-		
 		// Inject MojoBlog JavaScript if we need to!
 		if ($this->injected_javascript == FALSE) {
 			$this->javascript_tag();
@@ -593,6 +589,20 @@ class Blog {
 			$this->mojo->cp->appended_output[] = $js;
 			$this->injected_javascript = TRUE;
 		}
+	}
+	
+	/**
+	 * Installs MojoBlog
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function install() {
+		// Check that we're setup and the DB table exists
+		$this->mojo->blog_model->install();
+		
+		// Make sure the config uri protocol is set to PATH_INFO
+		$this->mojo->config->config_update(array('uri_protocol' => 'PATH_INFO'));
 	}
 	
 	/**
