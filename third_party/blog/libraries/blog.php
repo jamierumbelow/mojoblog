@@ -47,7 +47,7 @@ class Blog {
 	 * Loops through a blog's entries and displays them
 	 *
 	 * {mojo:blog:entries 
-	 * 			blog="blog" editable="no" page="about|home" global="yes" limit="10" entry_id="1" entry_id_segment="3" no_posts_404="yes"
+	 * 			blog="blog" editable="no" page="about|home" global="yes" limit="10" entry_id="1" entry_id_qs="post" no_posts_404="yes"
 	 *			orderby="date" sort="desc" date_format="Y-m-d" no_posts="No posts!" paginate="yes" per_page="5" pagination_trigger="p"}
 	 *	   	{posts}
 	 *     		<h1>{title}</h1>
@@ -69,7 +69,7 @@ class Blog {
 		$editable = $this->_param('editable');
 		$limit = $this->_param('limit');
 		$entry_id = $this->_param('entry_id');
-		$entry_id_segment = $this->_param('entry_id_segment');
+		$entry_id_qs = $this->_param('entry_id_qs');
 		$no_posts_404 = $this->_param('no_posts_404');
 		$orderby = $this->_param('orderby');
 		$sort = $this->_param('sort');
@@ -99,9 +99,9 @@ class Blog {
 		}
 		
 		// Is there an entry ID in the URL?
-		if ($entry_id_segment) {
-			if ($this->mojo->uri->segment($entry_id_segment)) {
-				$this->mojo->blog_model->where('id', (int)$this->mojo->uri->segment($entry_id_segment));
+		if ($entry_id_qs) {
+			if (isset($_REQUEST[$entry_id_qs])) {
+				$this->mojo->blog_model->where('id', (int)$_REQUEST[$entry_id_qs]);
 			}
 		}
 		
