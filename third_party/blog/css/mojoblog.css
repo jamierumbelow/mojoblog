@@ -1,0 +1,18 @@
+/**
+ * MojoBlog
+ *
+ * A small, quick, and painfully simple 
+ * blogging system for MojoMotor 
+ *
+ * @package mojoblog
+ * @author Jamie Rumbelow <http://jamierumbelow.net>
+ * @copyright (c)2010 Jamie Rumbelow
+ */
+
+/* Widen the bar slightly to add the Blog button */
+#mojo-modal-data #mojo_main_bar ul { width: 642px; }
+
+/* MojoBlog button */
+#mojo-modal-data #mojo_main_bar #mojo_admin_blog a 							{ background: url('image/button_blog.png') no-repeat; }
+#mojo-modal-data #mojo_main_bar #mojo_admin_blog a:hover 					{ background: url('image/button_blog_hover.png') no-repeat; }
+#mojo-modal-data #mojo_main_bar #mojo_admin_blog.mojo_admin_blog_active a 	{ background: url('image/button_blog_active.png') no-repeat; }

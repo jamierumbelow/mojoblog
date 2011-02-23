@@ -12,7 +12,6 @@
 
 class Blog {
 	private $mojo;
-	private $injected_javascript = FALSE;
 	private $outfielder = FALSE;
 	
 	public function __construct() {
@@ -26,11 +25,6 @@ class Blog {
 		
 		$this->mojo->load->library('auth');
 		
-		// Inject MojoBlog JavaScript if we need to!
-		if ($this->injected_javascript == FALSE) {
-			$this->javascript_tag();
-		}
-		
 		// Outfielder support
 		if (is_dir(APPPATH.'/third_party/outfielder/')) {
 		    $this->mojo->load->add_package_path(APPPATH.'/third_party/outfielder/');
@@ -41,6 +35,17 @@ class Blog {
 		    $this->outfielder = TRUE;
 			$this->mojo->cp->appended_output[] = '<script charset="utf-8" type="text/javascript">mojoEditor.outfielder = true;</script>';
 		}
+	}
+	
+	/**
+	 * Initialises the MojoBlog system, loading the key scripts and
+	 * stylesheets needed to run a copy of MojoBlog
+	 */
+	public function init() {
+		$html = 	'<script type="text/javascript" src="'.$this->javascript_url().'"></script>';
+		$html .= 	'<link rel="stylesheet" type="text/css" href="'.$this->stylesheet_url().'" />';
+		
+		$this->mojo->cp->appended_output[] = $html;
 	}
 	
 	/**
@@ -543,23 +548,32 @@ class Blog {
 	
 	/**
 	 * Load the MojoBlog JavaScript
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
 	public function javascript() {
-		$this->mojo->output->set_header("Content-Type: text/javascript");
-		exit(file_get_contents(APPPATH.'third_party/blog/javascript/mojoblog.js'));
+		header("Content-Type: text/javascript");
+		echo file_get_contents(APPPATH.'third_party/blog/javascript/mojoblog.js');
+	}
+	
+	/**
+	 * Load the MojoBlog CSS
+	 */
+	public function css() {
+		header("Content-Type: text/css");
+		echo file_get_contents(APPPATH.'third_party/blog/css/mojoblog.css');
 	}
 	
 	/**
 	 * Returns the correct URL to the MojoBlog JavaScript
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
 	public function javascript_url() {
-		return site_url('addons/blog/javascript');
+		return site_url('admin/addons/blog/javascript');
+	}
+	
+	/**
+	 * Returns the correct URL to the MojoBlog CSS
+	 */
+	public function stylesheet_url() {
+		return site_url('admin/addons/blog/css');
 	}
 	
 	/**
