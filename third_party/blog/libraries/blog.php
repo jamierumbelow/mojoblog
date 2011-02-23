@@ -48,6 +48,21 @@ class Blog {
 		$this->mojo->cp->appended_output[] = $html;
 	}
 	
+	public function index() {
+		// ...save the original view path, and set to our Foo Bar package view folder
+		$orig_view_path = $this->mojo->load->_ci_view_path;
+		$this->mojo->load->_ci_view_path = APPPATH.'third_party/blog/views/';
+		
+		// Load the entries from the DB
+		$data['entries'] = $this->mojo->blog_model->get();
+		
+		// Load the view
+		$this->mojo->load->view('index', $data);
+		
+		// ...then return the view path to the application's original view path
+		$this->mojo->load->_ci_view_path = $orig_view_path;
+	}
+	
 	/**
 	 * Loops through a blog's entries and displays them
 	 *

@@ -26,10 +26,6 @@ class Blog_model extends CI_Model {
 			'author_id' => array(
 				'type' => 'INT'
 			),
-			'blog' => array(
-				'type' => 'VARCHAR',
-				'constraint' => '100'
-			),
 			'title' => array(
 				'type' => 'VARCHAR',
 				'constraint' => '250'
@@ -48,6 +44,10 @@ class Blog_model extends CI_Model {
 	public function uninstall() {
 		$this->load->dbforge();
 		$this->dbforge->drop_table('blog_entries');
+	}
+	
+	public function get_blogs() {
+		return $this->db->get('blogs')->result();
 	}
 	
 	public function get($row = FALSE) {
