@@ -2,7 +2,7 @@
 	<thead>
 		<tr>
 			<th>Title</th>
-			<th>Publish Date</th>
+			<th>Date</th>
 			<th>Status</th>
 			<th></th>
 			<th></th>
@@ -14,7 +14,7 @@
 			<tr class="<?=alternator('even','odd')?>">
 				<td><?=$entry->title?></td>
 				<td><?=date('Y/m/d', strtotime($entry->date))?></td>
-				<td></td>
+				<td><?=ucwords($entry->status)?></td>
 				<td><?=anchor('admin/addons/blog/edit/' . $entry->id, 'Edit', 'class="mojo_sub_page" title="Edit Entry"')?></td>
 				<td><?=anchor('admin/addons/blog/delete_confirm/' . $entry->id, 'Delete', 'class="mojo_sub_page" title="Delete Entry"')?></td>
 			</tr>

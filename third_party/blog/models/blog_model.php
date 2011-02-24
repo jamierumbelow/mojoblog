@@ -26,6 +26,10 @@ class Blog_model extends CI_Model {
 			'author_id' => array(
 				'type' => 'INT'
 			),
+			'status' => array(
+				'type' => 'VARCHAR',
+				'constraint' => '20'
+			),
 			'title' => array(
 				'type' => 'VARCHAR',
 				'constraint' => '250'

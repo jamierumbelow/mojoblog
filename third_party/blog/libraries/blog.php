@@ -11,8 +11,17 @@
  */
 
 class Blog {
+	
+	/* --------------------------------------------------------------
+	 * VARIABLES
+	 * ------------------------------------------------------------ */
+	
 	private $mojo;
 	private $outfielder = FALSE;
+	
+	/* --------------------------------------------------------------
+	 * GENERIC METHODS
+	 * ------------------------------------------------------------ */
 	
 	public function __construct() {
 		$this->mojo =& get_instance();
@@ -37,17 +46,14 @@ class Blog {
 		}
 	}
 	
-	/**
-	 * Initialises the MojoBlog system, loading the key scripts and
-	 * stylesheets needed to run a copy of MojoBlog
-	 */
-	public function init() {
-		$html = 	'<script type="text/javascript" src="'.$this->javascript_url().'"></script>';
-		$html .= 	'<link rel="stylesheet" type="text/css" href="'.$this->stylesheet_url().'" />';
-		
-		$this->mojo->cp->appended_output[] = $html;
-	}
+	/* --------------------------------------------------------------
+	 * CONTROL PANEL
+	 * ------------------------------------------------------------ */
 	
+	/**
+	 * Display a list of entries in MojoBlog so that the user can 
+	 * edit and create new posts
+	 */
 	public function index() {
 		// ...save the original view path, and set to our Foo Bar package view folder
 		$orig_view_path = $this->mojo->load->_ci_view_path;
@@ -61,6 +67,23 @@ class Blog {
 		
 		// ...then return the view path to the application's original view path
 		$this->mojo->load->_ci_view_path = $orig_view_path;
+	}
+	
+	/* --------------------------------------------------------------
+	 * TEMPLATE TAGS
+	 * ------------------------------------------------------------ */
+	
+	/**
+	 * Initialises the MojoBlog system, loading the key scripts and
+	 * stylesheets needed to run a copy of MojoBlog
+	 */
+	public function init() {
+		if ($this->mojo->auth->is_editor()) {
+			$html = 	'<script type="text/javascript" src="'.$this->javascript_url().'"></script>';
+			$html .= 	'<link rel="stylesheet" type="text/css" href="'.$this->stylesheet_url().'" />';
+		
+			$this->mojo->cp->appended_output[] = $html;
+		}
 	}
 	
 	/**
@@ -78,8 +101,6 @@ class Blog {
 	 * {/mojo:blog:entries}
 	 *
 	 * @todo Add {page_number_list} (Google style, 1 - 2 - 3 - *4* - 5)
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
 	public function entries($template_data) {
 		$this->template_data = $template_data;
@@ -103,9 +124,6 @@ class Blog {
 		if (!$this->_limited_access_by_page($page)) {
 			return '';
 		}
-			
-		// Blog time!
-		$this->mojo->blog_model->where('blog', $blog);
 		
 		// Orderby and sort
 		$orderby = ($orderby) ? $orderby : 'date';
@@ -154,7 +172,6 @@ class Blog {
 		
 		// Get a count for pagination
 		if ($paginate) {
-			$this->mojo->blog_model->where('blog', $blog);
 			$count = $this->mojo->blog_model->count_all_results();
 		}
 		
@@ -280,137 +297,35 @@ class Blog {
 			return $parsed;
 		}
 	}
-		
-	/**
-	 * Shows the entry form at the location specified.
-	 *
-	 * {mojo:blog:entry_form blog="blog" page="about|contact" editor="no" field="textarea" outfielder="no" title="New Gallery Entry"}
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
-	 */
-	public function entry_form($template_data) {
-		// Only display the entry form if we're logged in
-		if (!$this->mojo->auth->is_editor()) {
-			return '';
-		}
-
-		// Set up a few variables
-		$this->template_data = $template_data;
-		$url = site_url('addons/blog/entry_submit');
-		$delete_url = site_url('addons/blog/entry_delete');
-		$blog = $this->_param('blog');
-		$page = $this->_param('page');
-		$editor = $this->_param('editor');
-		$field = $this->_param('field');
-		$outfielder = $this->_param('outfielder');
-		$title = ($this->_param('title')) ? $this->_param('title') : 'New Blog Entry';
-				
-		// Limit access by page
-		if (!$this->_limited_access_by_page($page)) {
-			return '';
-		}
-		
-		// Check we've got a blog parameter!
-		if (!$blog) {
-			return 'Blog Parameter Required';
-		}
-		
-		// Start preparing the entry form
-		$html = "<div class='mojo_blog_entry_form'>";
-			$html .= form_open("addons/blog/entry_submit");
-			$html .= "<input type='hidden' name='mojo_blog_blog' class='mojo_blog_blog' value='$blog' />";
-			$html .= "<h1>" . $title . "</h1>";
-			$html .= "<p><input style='padding: 5px; font-size: 14px; width: 90%' type='text' name='mojo_blog_title' class='mojo_blog_title' value='Title' /></p>";
-			
-		// Textarea or input	
-		if ($field == 'input') {
-			$html .= "<p><input type='text' name='mojo_blog_content' class='mojo_blog_content mojo_blog_new_entry' /></p>";
-		} else {
-			if ($editor == "no") {
-				$html .= "<p><textarea name='mojo_blog_content' class='mojo_blog_content mojo_blog_new_entry' data-editor='no'></textarea></p>";
-			} else {
-				$html .= "<p><textarea class='mojo_blog_content mojo_blog_new_entry'></textarea></p>";
-			}
-		}
-		
-		// Outfielder support
-		if ($this->outfielder && $outfielder !== "no") {
-		    $html .= '<h3>Metadata</h3>';
-		
-			$html .= '<div class="mojoblog_outfielder_group">';
-				$html .= '<ul style="list-style:square;"><li><input type="text" name="metadata_keys[]" value="Key" class="mojoblog_outfielder_metadata_key newinput" /> = <input type="text" name="metadata_values[]" value="Value" class="mojoblog_outfielder_metadata_value newinput" /> <a href="#" class="mojoblog_outfielder_add"><img src="'.site_url("addons/blog/image/add.png").'" alt="Add" /></a></li></ul>';
-			$html .= '</div>';
-		}
-		
-		// Entry submission, close the div
-		$html .= "<p><input type='submit' name='mojo_blog_submit' class='mojo_blog_submit' value='Create ".$title."' /></p>";
-		$html .= "</form></div>";
-				
-		// Done!
-		return $html;
-	}
 	
 	/**
-	 * Submit a new entry via the AJAX POST form.
+	 * Outputs the URL to the RSS feed. Takes three parameters,
+	 * the required 'blog' and an optional 'limit' and 'link_page'
 	 *
-	 * @return void
-	 * @author Jamie Rumbelow
+	 * {mojo:blog:rss_url blog="blog" limit="15" link_page="about"}
 	 */
-	public function entry_submit() {
-		// Are we allowed to do this?
-		if (!$this->mojo->auth->is_editor()) {
-			die('Unauthorised access!');
-		}
+	public function rss_url($template_data) {
+		// Gather the variables
+		$this->template_data = $template_data;
+		$blog = $this->_param('blog');
+		$limit = $this->_param('limit');
+		$link_page = $this->_param('link_page');
 		
-		// Get the POST vars
-		$blog = $this->mojo->input->post('mojo_blog_blog');
-		$title = $this->mojo->input->post('mojo_blog_title');
-		$content = $this->mojo->input->post('mojo_blog_content');
-		$date = date('Y-m-d H:i:s', time());
+		// Do we have a limit?
+		$limit = ($limit) ? (int)$limit : 10;
 		
-		// Setup the post array
-		$post = array(
-			'blog' => $blog,
-			'author_id' => $this->mojo->session->userdata('id'),
-			'title' => $title,
-			'content' => $content,
-			'date' => $date
-		);
-		
-		// Create the new post
-		$id = $this->mojo->blog_model->insert($post);
-		$post['id'] = $id;
-		
-		// Outfielder
-		if ($this->outfielder) {
-			$keys = $this->mojo->input->post('metadata_keys');
-			$values = $this->mojo->input->post('metadata_values');
-			$metadata = array();
-			
-			// Loop through the keys, match it up with the values
-			// and insert metadata into Outfielder!
-			foreach ($keys as $index => $key) {
-				if ($key && $values[$index]) {
-					$this->mojo->fields->create($key, $values[$index], "mojo_blog_entry_$id");
-				}
-			}
-		}
-		
-		// Return it as JSON
-		header('Content-type: application/json');
-		echo json_encode($post);
-		
-		// And we're done!
-		exit;
+		// Output the URL, basically
+		return site_url("addons/blog/rss/$blog/$limit/$link_page");
 	}
+	
+	
+	/* --------------------------------------------------------------
+	 * RSS/ATOM FEEDS
+	 * ------------------------------------------------------------ */
 	
 	/**
 	 * Display an RSS feed from the supplied blog,
 	 * with an optional limit parameter (defaulting to 10)
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
 	public function rss() {
 		// Get the variables, brother
@@ -439,127 +354,9 @@ class Blog {
 		include('blog/rss.xml');
 	}
 	
-	/**
-	 * Outputs the URL to the RSS feed. Takes three parameters,
-	 * the required 'blog' and an optional 'limit' and 'link_page'
-	 *
-	 * {mojo:blog:rss_url blog="blog" limit="15" link_page="about"}
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
-	 */
-	public function rss_url($template_data) {
-		// Gather the variables
-		$this->template_data = $template_data;
-		$blog = $this->_param('blog');
-		$limit = $this->_param('limit');
-		$link_page = $this->_param('link_page');
-		
-		// Do we have a limit?
-		$limit = ($limit) ? (int)$limit : 10;
-		
-		// Output the URL, basically
-		return site_url("addons/blog/rss/$blog/$limit/$link_page");
-	}
-	
-	/**
-	 * Get a specific entry in JSON format
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
-	 */
-	public function entry_get() {
-		// Get the post
-		$id = $this->mojo->uri->segment(4);
-		$post = $this->mojo->blog_model->where('id', $id)->get(TRUE);
-		
-		// Return it as JSON
-		header('Content-type: application/json');
-		echo json_encode($post);
-		
-		// And we're done!
-		exit;
-	}
-	
-	/**
-	 * Get entry metadata
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
-	 */
-	public function entry_metadata_get() {
-		// Get the post metadata
-		$id = $this->mojo->uri->segment(4);
-		$metadata = $this->mojo->fields->get_via_page_title("mojo_blog_entry_".$id);
-		
-		if ($metadata) {
-			foreach ($metadata as $row) {
-				$response[$row->field_key] = $row->field_value;
-			}
-		} else {
-			$response = FALSE;
-		}
-		
-		// Return it as JSON
-		header('Content-type: application/json');
-		echo json_encode($response);
-		
-		// And we're done!
-		exit;
-	}
-	
-	/**
-	 * Update a entry
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
-	 */
-	public function entry_update() {
-		$id = $this->mojo->input->post('mojo_blog_id');
-		$title = $this->mojo->input->post('mojo_blog_title');
-		$content = $this->mojo->input->post('mojo_blog_content');
-		
-		// Update the title and content
-		$this->mojo->blog_model->set('title', $title)->set('content', $content)->where('id', $id);
-		$this->mojo->blog_model->update();
-		
-		// Outfielder
-		if ($this->outfielder) {
-			$keys = $this->mojo->input->post('metadata_keys');
-			$values = $this->mojo->input->post('metadata_values');
-			$metadata = array();
-			
-			// Loop through the keys, match it up with the values
-			// and insert metadata into Outfielder!
-			foreach ($keys as $index => $key) {
-				if ($key && $values[$index]) {
-					if ($this->mojo->db->where(array('field_page' => "mojo_blog_entry_$id", 'field_key' => $key))->get('mojo_outfielder')->num_rows > 0) {
-						$this->mojo->db->where(array('field_page' => "mojo_blog_entry_$id", 'field_key' => $key))->set('field_value', $values[$index])->update('mojo_outfielder');
-					} else {
-						$this->mojo->fields->create($key, $values[$index], "mojo_blog_entry_$id");
-					}
-				}
-			}
-		}
-		
-		// Done!
-		exit;
-	}
-	
-	/**
-	 * Delete an entry
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
-	 */
-	public function entry_delete() {
-		// Delete the post
-		$id = $this->mojo->input->post('entry_id');
-		$this->mojo->blog_model->where('id', $id)->delete();
-		
-		// Wicked
-		exit;
-	}
+	/* --------------------------------------------------------------
+	 * ASSETS (CSS & JAVASCRIPT)
+	 * ------------------------------------------------------------ */
 	
 	/**
 	 * Load the MojoBlog JavaScript
@@ -592,29 +389,19 @@ class Blog {
 	}
 	
 	/**
-	 * Returns a JavaScript tag to the JS if we're an editor
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
+	 * Render an image from the addon
 	 */
-	public function javascript_tag() {
-		if ($this->injected_javascript == FALSE) {
-			if ($this->mojo->auth->is_editor()) {
-				$js = "<script type='text/javascript' src='".$this->javascript_url()."'></script>";
-			} else {
-				$js = '';
-			}
-		
-			$this->mojo->cp->appended_output[] = $js;
-			$this->injected_javascript = TRUE;
-		}
+	public function image($file) {
+		header('Content-Type: image/png');
+		die(file_get_contents(APPPATH.'third_party/blog/images/'.$file));
 	}
+		
+	/* --------------------------------------------------------------
+	 * INSTALLATION ROUTINE
+	 * ------------------------------------------------------------ */
 	
 	/**
 	 * Installs MojoBlog
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
 	public function install() {
 		// Check that we're setup and the DB table exists
@@ -629,9 +416,6 @@ class Blog {
 	
 	/**
 	 * Uninstalls MojoBlog.
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
 	public function uninstall() {
 		// Are we allowed to do this?
@@ -641,14 +425,11 @@ class Blog {
 		
 		// Bye!
 		$this->mojo->blog_model->uninstall();
-		die('MojoBlog is uninstalled. Please remove the blog/ folder from mojomotor/third_party <strong>without</strong> loading another page or refreshing.');
+		die('MojoBlog is uninstalled. Please remove the blog/ folder from mojomotor/third_party. If you do not do this you may receive errors.');
 	}
 	
 	/**
 	 * Export everything for the EE importer
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
 	public function export() {
 		// Are we allowed to do this?
@@ -680,24 +461,12 @@ class Blog {
 		exit($data);
 	}
 	
-	/**
-	 * Render an image from the addon
-	 *
-	 * @param string $file 
-	 * @return void
-	 * @author Jamie Rumbelow
-	 */
-	public function image($file) {
-		header('Content-Type: image/png');
-		die(file_get_contents(APPPATH.'third_party/blog/images/'.$file));
-	}
+	/* --------------------------------------------------------------
+	 * HELPER METHODS
+	 * ------------------------------------------------------------ */
 	
 	/**
 	 * Fetch a parameter
-	 *
-	 * @param string $key 
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
 	private function _param($key) {
 		return (isset($this->template_data['parameters'][$key])) ? $this->template_data['parameters'][$key] : FALSE;
@@ -706,11 +475,6 @@ class Blog {
 	/**
 	 * Limit the access by page name, or bar separated list 
 	 * of page names.
-	 *
-	 * @param string $page 
-	 * @param boolean $global 
-	 * @return boolean
-	 * @author Jamie Rumbelow
 	 */
 	private function _limited_access_by_page($page, $global = FALSE) {
 		// Let's check the page variable, because
