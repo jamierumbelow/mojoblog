@@ -5,9 +5,10 @@
  * A small, quick, and painfully simple 
  * blogging system for MojoMotor 
  *
- * @package mojoblog
- * @author Jamie Rumbelow <http://jamierumbelow.net>
- * @copyright (c)2010 Jamie Rumbelow
+ * @package 	mojoblog
+ * @author 		Jamie Rumbelow <http://jamierumbelow.net>
+ * @version		2.0.0
+ * @copyright 	(c)2011 Jamie Rumbelow
  */
 
 class Blog {
@@ -90,7 +91,7 @@ class Blog {
 	 * Loops through a blog's entries and displays them
 	 *
 	 * {mojo:blog:entries 
-	 * 			blog="blog" editable="no" page="about|home" global="yes" limit="10" entry_id="1" entry_id_qs="post" no_posts_404="yes"
+	 * 			blog="blog" editable="no" page="about|home" global="yes" limit="10" entry_id="1" entry_id_segment="3" no_posts_404="yes"
 	 *			orderby="date" sort="desc" date_format="Y-m-d" no_posts="No posts!" paginate="yes" per_page="5" pagination_trigger="p"}
 	 *	   	{posts}
 	 *     		<h1>{title}</h1>
@@ -103,23 +104,23 @@ class Blog {
 	 * @todo Add {page_number_list} (Google style, 1 - 2 - 3 - *4* - 5)
 	 */
 	public function entries($template_data) {
-		$this->template_data = $template_data;
-		$blog = $this->_param('blog');
-		$page = $this->_param('page');
-		$global = $this->_param('global');
-		$editable = $this->_param('editable');
-		$limit = $this->_param('limit');
-		$entry_id = $this->_param('entry_id');
-		$entry_id_qs = $this->_param('entry_id_qs');
-		$no_posts_404 = $this->_param('no_posts_404');
-		$orderby = $this->_param('orderby');
-		$sort = $this->_param('sort');
-		$date_format = $this->_param('date_format');
-		$no_posts = $this->_param('no_posts');
-		$paginate = $this->_param('paginate');
-		$per_page = $this->_param('per_page');
-		$pagination_trigger = $this->_param('pagination_trigger');
-				
+		$this->template_data 	= $template_data;
+		$blog 					= $this->_param('blog');
+		$page 					= $this->_param('page');
+		$global 				= $this->_param('global');
+		$editable 				= $this->_param('editable');
+		$limit 					= $this->_param('limit');
+		$entry_id 				= $this->_param('entry_id');
+		$entry_id_segment 		= $this->_param('entry_id_segment');
+		$no_posts_404	 		= $this->_param('no_posts_404');
+		$orderby 				= $this->_param('orderby');
+		$sort 					= $this->_param('sort');
+		$date_format 			= $this->_param('date_format');
+		$no_posts 				= $this->_param('no_posts');
+		$paginate 				= $this->_param('paginate');
+		$per_page 				= $this->_param('per_page');
+		$pagination_trigger 	= $this->_param('pagination_trigger');
+		
 		// Limit access by page
 		if (!$this->_limited_access_by_page($page)) {
 			return '';
@@ -137,9 +138,10 @@ class Blog {
 		}
 		
 		// Is there an entry ID in the URL?
-		if ($entry_id_qs) {
-			if (isset($_REQUEST[$entry_id_qs])) {
-				$this->mojo->blog_model->where('id', (int)$_REQUEST[$entry_id_qs]);
+		if ($entry_id_segment) {
+			if ($this->mojo->uri->segment((int)$entry_id_segment)) {
+				$this->mojo->blog_model->where('id', $this->mojo->uri->segment((int)$entry_id_segment));
+				$paginate = FALSE;
 			}
 		}
 		
@@ -250,7 +252,7 @@ class Blog {
 			
 			// Finish off with pagination
 			if (preg_match("/\{pagination\}(.*)\{\/pagination\}/is", $parsed, $pagtmp)) {
-				if ($paginate) {			
+				if ($paginate) {
 					$first_page_url = site_url($this->mojo->mojomotor_parser->url_title);
 					$prev_page_url = ($page > 1) ? site_url($this->mojo->mojomotor_parser->url_title.'?'.$pagination_trigger.'='.(string)($page-1)) : FALSE;
 					$current_page = $page;
@@ -290,6 +292,8 @@ class Blog {
 				
 					// Replace {pagination} tags
 					$parsed = preg_replace("/\{pagination\}(.*?)\{\/pagination\}/is", $pagtmp, $parsed);
+				} else {
+					$parsed = preg_replace("/\{pagination\}(.*)\{\/pagination\}/is", '', $parsed);
 				}
 			}
 			
@@ -407,8 +411,8 @@ class Blog {
 		// Check that we're setup and the DB table exists
 		$this->mojo->blog_model->install();
 		
-		// Make sure the config uri protocol is set to PATH_INFO
-		$this->mojo->config->config_update(array('uri_protocol' => 'PATH_INFO'));
+		// Make sure we update the routing
+		$this->mojo->blog_model->install_routing();
 		
 		// Let the user know about it
 		die('MojoBlog has been successfully installed!');
@@ -497,9 +501,9 @@ class Blog {
 				
 				// Loop through the pages and check
 				foreach ($pages as $possible_page) {
-					$url = implode('/', $this->mojo->uri->segments);
+					$url = implode('/', $this->mojo->uri->rsegments);
 					
-					if ($possible_page == $url || $possible_page == $default_page) {
+					if ('page/content/' . $possible_page == $url || $possible_page == $default_page) {
 						$yo_brother_can_i_access_your_blog = TRUE;
 					}
 				}

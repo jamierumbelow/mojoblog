@@ -45,6 +45,12 @@ class Blog_model extends CI_Model {
 		$this->dbforge->create_table('blog_entries', TRUE);
 	}
 	
+	public function install_routing() {
+		$f = fopen(APPPATH . 'config/routes.php', 'a');
+		fwrite($f, "\n\n" . '$route = array(	\'(.+)/entry/(.+)/?\' => \'page/content/$1\' ) + $route;');
+		fclose($f);
+	}
+	
 	public function uninstall() {
 		$this->load->dbforge();
 		$this->dbforge->drop_table('blog_entries');
