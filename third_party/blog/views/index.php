@@ -23,5 +23,11 @@
 </table>
 
 <div class="shrinkwrap">
-	<p><?=anchor('admin/addons/blog/create', 'Add Post', 'class="mojo_sub_page shrinkwrap_submit" title="Add Post"')?></p>
+	<p>
+		<?=anchor('admin/addons/blog/create', 'Add Post', 'class="mojo_sub_page shrinkwrap_submit" title="Add Post"')?>
+	</p>
+	
+	<div id="mojoblog_pagination">
+		<?=$this->pagination->create_links()?>
+	</div>
 </div>

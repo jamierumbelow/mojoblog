@@ -17,5 +17,5 @@
 #mojo-modal-data #mojo_main_bar #mojo_admin_blog a:hover 					{ background: url('image/button_blog_hover.png') no-repeat; }
 #mojo-modal-data #mojo_main_bar #mojo_admin_blog.mojo_admin_blog_active a 	{ background: url('image/button_blog_active.png') no-repeat; }
 
-/* Entries list */
-#mojo_reveal_page #mojo_reveal_page_content table#mojoblog_entries {  }
+/* Pagination */
+#mojoblog_pagination #mojo_pagination { float: right; margin-top: -16px; }

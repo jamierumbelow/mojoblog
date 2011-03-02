@@ -36,6 +36,7 @@ class Blog {
 		
 		$this->mojo->load->library('auth');
 		$this->mojo->load->library('javascript');
+		$this->mojo->load->library('pagination');
 		
 		$this->mojo->load->helper('form');
 		$this->mojo->load->helper('page');
@@ -60,9 +61,16 @@ class Blog {
 	 * Display a list of entries in MojoBlog so that the user can 
 	 * edit and create new posts
 	 */
-	public function index() {
+	public function index($offset = 0) {
+		// Paginate like a mofo
+		$config['base_url'] = site_url('admin/addons/blog/index');
+		$config['total_rows'] = $this->mojo->blog_model->count_all_results();
+		$config['uri_segment'] = 5;
+		
+		$this->mojo->pagination->initialize($config);
+		
 		// Load the entries from the DB
-		$this->data['entries'] = $this->mojo->blog_model->get();
+		$this->data['entries'] = $this->mojo->blog_model->limit($this->mojo->pagination->per_page, $offset)->get();
 		
 		// Load the view
 		$this->_view('index');
