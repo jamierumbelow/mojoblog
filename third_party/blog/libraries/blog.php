@@ -171,6 +171,14 @@ class Blog {
 		exit($this->mojo->javascript->generate_json($response));
 	}
 	
+	/**
+	 * Display an image
+	 */
+	public function images($file) {
+		header('Content-type: image/png');
+		exit(file_get_contents(APPPATH . 'third_party/blog/images/' . $file));
+	}
+	
 	/* --------------------------------------------------------------
 	 * TEMPLATE TAGS
 	 * ------------------------------------------------------------ */
@@ -182,6 +190,8 @@ class Blog {
 	public function init() {
 		if ($this->mojo->auth->is_editor()) {
 			$html = 	'<script type="text/javascript" src="'.$this->javascript_url().'"></script>';
+			$html .= 	'<script type="text/javascript">$(function(){ Mojo.URL.mojoblog_skin_url = "' 
+								. base_url() . SYSDIR . '/mojomotor/third_party/blog/javascript/ckeditor/skins/kama/"; });</script>';
 			$html .= 	'<link rel="stylesheet" type="text/css" href="'.$this->stylesheet_url().'" />';
 		
 			$this->mojo->cp->appended_output[] = $html;

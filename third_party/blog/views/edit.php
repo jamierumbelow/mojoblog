@@ -12,7 +12,10 @@
 		
 		<p>
 			<label for="entry[content]">Content</label>
-			<?=form_textarea('entry[content]', $entry['content'], 'id="entry_content" class="mojo_textbox"')?>
+			
+			<div id="mojoblog_content_entry">
+				<?=form_textarea('entry[content]', $entry['content'], 'id="entry_content" class="mojo_textbox"')?>
+			</div>
 		</p>
 
 		<p class="mojo_shift_right">
@@ -22,8 +25,4 @@
 	<?=form_close()?>
 <div>
 	
-<script type="text/javascript" charset="utf-8">
-	$(function(){
-		// CKEditorise content field...
-	});
-</script>
+<?=$this->load->view('_js', array(), TRUE)?>
