@@ -11,6 +11,8 @@
  */
 
 class Blog_model extends CI_Model {
+	public $validation_errors = '';
+	
 	public function __construct() {
 		parent::__construct();
 	}
@@ -69,6 +71,20 @@ class Blog_model extends CI_Model {
 	}
 	
 	public function insert($data) {
+		// Do a little bit of validation
+		if (!isset($data['title']) || empty($data['title'])) {
+			$this->validation_errors .= "Entry title is required!\n";
+		}
+		if (!isset($data['content']) || empty($data['content'])) {
+			$this->validation_errors .= "Entry content is required!\n";
+		}
+		
+		// Return FALSE if we has errors
+		if (!empty($this->validation_errors)) {
+			return FALSE;
+		}
+		
+		// Go insert the entry
 		$this->db->insert('blog_entries', $data);
 		return $this->db->insert_id();
 	}
