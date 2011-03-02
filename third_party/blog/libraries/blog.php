@@ -154,6 +154,22 @@ class Blog {
 		$this->_view('edit');
 	}
 	
+	/**
+	 * Delete an entry
+	 */
+	public function delete($id) {
+		// We've already confirmed by this point, so we
+		// can go ahead and delete it
+		$this->mojo->blog_model->where('id', $id)->delete();
+		
+		// Build the response
+		$response['result'] = 'success';
+		$response['message'] = 'Successfully deleted entry';
+		$response['id'] = $id;
+		
+		// Output in JSON
+		exit($this->mojo->javascript->generate_json($response));
+	}
 	
 	/* --------------------------------------------------------------
 	 * TEMPLATE TAGS
