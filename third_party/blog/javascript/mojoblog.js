@@ -23,6 +23,24 @@ jQuery(function(){
 	$("#mojo_admin_pages").after(toolbar_button);
 	
 	/**
+	 * Let's be sneaky here and hack into the mojoEditor object;
+	 * whenever a CP page is changed, check if we've got an open
+	 * MojoBlog CKEditor. If we do, get rid of it so that we can 
+	 * return to a new one without refreshing the page!
+	 */
+	var old_reveal_page = mojoEditor.reveal_page;
+	
+	mojoEditor.reveal_page = function (a, b) {
+		if (CKEDITOR.instances['mojoblog_entry_content']) {
+			CKEDITOR.instances['mojoblog_entry_content'].destroy();
+		}
+		
+		old_reveal_page(a, b);
+	}
+	
+	// $('form').submit();
+	
+	/**
 	 * When the user clicks on a delete link, bring up the 
 	 * MojoBlog delete confirmation modal window.
 	 */

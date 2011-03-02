@@ -14,7 +14,7 @@
 			<label for="entry[content]">Content</label>
 			
 			<div id="mojoblog_content_entry">
-				<?=form_textarea('entry[content]', $entry['content'], 'id="entry_content" class="mojo_textbox"')?>
+				<?=form_textarea('entry[content]', $entry['content'], 'id="mojoblog_entry_content" class="mojo_textbox"')?>
 			</div>
 		</p>
 

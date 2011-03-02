@@ -21,8 +21,8 @@
 #mojoblog_pagination #mojo_pagination { float: right; margin-top: -16px; }
 
 /* Editor */
-#mojoblog_content_entry .cke_skin_mojo.cke_editor_entry_content { border: 0; width: 500px; margin-left: 138px; }
-#mojoblog_content_entry .cke_skin_mojo.cke_editor_entry_content table tbody tr:hover td { background: 0; }
+#mojoblog_content_entry .cke_skin_mojo.cke_editor_mojoblog_entry_content { border: 0; width: 500px; margin-left: 138px; }
+#mojoblog_content_entry .cke_skin_mojo.cke_editor_mojoblog_entry_content table tbody tr:hover td { background: 0; }
 
 /* Namespaced editor.css */
 #mojoblog_content_entry .cke_skin_mojo *,#mojoblog_content_entry .cke_skin_mojo a:hover,#mojoblog_content_entry .cke_skin_mojo a:link,#mojoblog_content_entry .cke_skin_mojo a:visited,#mojoblog_content_entry .cke_skin_mojo a:active{margin:0;padding:0;border:0;background:transparent;text-decoration:none;font:normal normal normal 100% Sans-Serif;width:auto;height:auto;border-collapse:collapse;text-align:left;vertical-align:baseline;white-space:nowrap;cursor:auto;color:#000;font-size:12px;font-family:Arial,Helvetica,Tahoma,Verdana,Sans-Serif;}

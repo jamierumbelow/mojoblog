@@ -1,6 +1,6 @@
 <script type="text/javascript" charset="utf-8">
 	$(function(){
-		$('#entry_content').ckeditor({
+		$('#mojoblog_entry_content').ckeditor({
 			"skin": 'mojo,' + parent.Mojo.URL.editor_skin_path,
 			"toolbar": parent.Mojo.toolbar,
 			"toolbarCanCollapse": false,
