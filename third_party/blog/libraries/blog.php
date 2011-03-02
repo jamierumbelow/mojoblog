@@ -76,7 +76,6 @@ class Blog {
 		$this->data['validation'] = '';
 		$this->data['entry'] = array('title' => '', 'content' => '', 'status' => '');
 		$this->data['statuses'] = array('' => '---', 'published' => 'Published', 'draft' => 'Draft', 'review' => 'Review');
-		$this->data['action'] = 'Create';
 		
 		// Handle entry submission
 		if ($this->mojo->input->post('entry')) {
@@ -91,7 +90,7 @@ class Blog {
 				// It's success
 				$response['result'] = 'success';
 				$response['reveal_page'] = site_url('admin/addons/blog/index');
-				$response['message'] = 'Successfully created new post';
+				$response['message'] = 'Successfully created new entry';
 				
 				exit($this->mojo->javascript->generate_json($response));
 			} else {
@@ -104,9 +103,49 @@ class Blog {
 			}
 		}
 		
-		// Display that bitchin' view
-		$this->_view('add_edit');
+		// Load that bitchin' view
+		$this->_view('create');
 	}
+	
+	/**
+	 * Display the edit entry form
+	 */
+	public function edit($entry_id) {
+		// Setup some variables
+		$this->data['validation'] = '';
+		$this->data['entry'] = $this->mojo->blog_model->where('id', $entry_id)->get(TRUE, TRUE);
+		$this->data['statuses'] = array('' => '---', 'published' => 'Published', 'draft' => 'Draft', 'review' => 'Review');
+		
+		// Handle entry submission
+		if ($this->mojo->input->post('entry')) {
+			// Get the entry data and set some stuff
+			$this->data['entry']		 		= $this->mojo->input->post('entry');
+			$this->data['entry']['author_id'] 	= $this->mojo->session->userdata('id');
+			$this->data['entry']['date']		= date('Y-m-d H:i:s');
+			$this->data['entry']['status']		= ($this->data['entry']['status']) ? $this->data['entry']['status'] : 'published';
+			
+			// Insert it!
+			if ($this->mojo->blog_model->where('id', $entry_id)->update($this->data['entry'])) {
+				// It's success
+				$response['result'] = 'success';
+				$response['reveal_page'] = site_url('admin/addons/blog/index');
+				$response['message'] = 'Successfully updated entry';
+				
+				exit($this->mojo->javascript->generate_json($response));
+			} else {
+				// There have been validation errors
+				$response['result'] = 'error';
+				$response['message'] = $this->mojo->blog_model->validation_errors;
+				
+				// Output the response
+				exit($this->mojo->javascript->generate_json($response));
+			}
+		}
+		
+		// Load that bitchin' view
+		$this->_view('edit');
+	}
+	
 	
 	/* --------------------------------------------------------------
 	 * TEMPLATE TAGS

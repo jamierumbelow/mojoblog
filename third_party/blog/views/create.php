@@ -16,7 +16,7 @@
 		</p>
 
 		<p class="mojo_shift_right">
-			<?=form_submit('', $action . ' Entry', 'class="button"')?>
+			<?=form_submit('', 'Create Entry', 'class="button"')?>
 		</p>
 
 	<?=form_close()?>

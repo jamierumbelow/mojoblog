@@ -58,15 +58,19 @@ class Blog_model extends CI_Model {
 		$this->dbforge->drop_table('blog_entries');
 	}
 	
-	public function get_blogs() {
-		return $this->db->get('blogs')->result();
-	}
-	
-	public function get($row = FALSE) {
+	public function get($row = FALSE, $array = FALSE) {
 		if (!$row) {
-			return $this->db->get('blog_entries')->result();
+			if ($array) {
+				return $this->db->get('blog_entries')->result_array();
+			} else {
+				return $this->db->get('blog_entries')->result();
+			}
 		} else {
-			return $this->db->get('blog_entries')->row();
+			if ($array) {
+				return $this->db->get('blog_entries')->row_array();
+			} else {
+				return $this->db->get('blog_entries')->row();
+			}
 		}
 	}
 	
@@ -90,6 +94,20 @@ class Blog_model extends CI_Model {
 	}
 	
 	public function update($data = array()) {
+		// Do a little bit of validation
+		if (!isset($data['title']) || empty($data['title'])) {
+			$this->validation_errors .= "Entry title is required!\n";
+		}
+		if (!isset($data['content']) || empty($data['content'])) {
+			$this->validation_errors .= "Entry content is required!\n";
+		}
+		
+		// Return FALSE if we has errors
+		if (!empty($this->validation_errors)) {
+			return FALSE;
+		}
+		
+		// Update!
 		return $this->db->update('blog_entries', $data);
 	}
 	
