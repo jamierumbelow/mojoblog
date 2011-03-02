@@ -35,8 +35,10 @@ class Blog {
 		$this->mojo->load->model('blog_model');
 		
 		$this->mojo->load->library('auth');
+		$this->mojo->load->library('javascript');
 		
 		$this->mojo->load->helper('form');
+		$this->mojo->load->helper('page');
 		
 		// Outfielder support
 		if (is_dir(APPPATH.'/third_party/outfielder/')) {
@@ -72,25 +74,29 @@ class Blog {
 	public function create() {
 		// Setup some variables
 		$this->data['validation'] = '';
-		$this->data['entry'] = array('title' => '', 'content' => '');
+		$this->data['entry'] = array('title' => '', 'content' => '', 'status' => '');
+		$this->data['statuses'] = array('' => '---', 'published' => 'Published', 'draft' => 'Draft', 'review' => 'Review');
+		$this->data['action'] = 'Create';
 		
 		// Handle entry submission
 		if ($this->mojo->input->post('entry')) {
 			// Get the entry data and set some stuff
 			$this->data['entry']		 		= $this->mojo->input->post('entry');
-			$this->data['entry']['author_id'] = $this->mojo->session->userdata('id');
+			$this->data['entry']['author_id'] 	= $this->mojo->session->userdata('id');
 			$this->data['entry']['date']		= date('Y-m-d H:i:s');
+			$this->data['entry']['status']		= ($this->data['entry']['status']) ? $this->data['entry']['status'] : 'published';
 			
 			// Insert it!
-			if ($this->mojo->blog_model->insert($data['entry'])) {
+			if ($this->mojo->blog_model->insert($this->data['entry'])) {
 				// It's success
-				$response['success'] = TRUE;
+				$response['result'] = 'success';
+				$response['message'] = 'Successfully created new post' . refresh_string();
 				
 				exit($this->mojo->javascript->generate_json($response));
 			} else {
 				// There have been validation errors
-				$response['success'] = FALSE;
-				$response['errors'] = $this->mojo->blog_model->validation_errors;
+				$response['result'] = 'error';
+				$response['message'] = $this->mojo->blog_model->validation_errors;
 				
 				// Output the response
 				exit($this->mojo->javascript->generate_json($response));
