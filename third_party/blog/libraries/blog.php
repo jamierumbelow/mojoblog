@@ -19,6 +19,7 @@ class Blog {
 	
 	private $mojo;
 	private $outfielder = FALSE;
+	private $data = array();
 	
 	/* --------------------------------------------------------------
 	 * GENERIC METHODS
@@ -34,6 +35,8 @@ class Blog {
 		$this->mojo->load->model('blog_model');
 		
 		$this->mojo->load->library('auth');
+		
+		$this->mojo->load->helper('form');
 		
 		// Outfielder support
 		if (is_dir(APPPATH.'/third_party/outfielder/')) {
@@ -56,18 +59,46 @@ class Blog {
 	 * edit and create new posts
 	 */
 	public function index() {
-		// ...save the original view path, and set to our Foo Bar package view folder
-		$orig_view_path = $this->mojo->load->_ci_view_path;
-		$this->mojo->load->_ci_view_path = APPPATH.'third_party/blog/views/';
-		
 		// Load the entries from the DB
-		$data['entries'] = $this->mojo->blog_model->get();
+		$this->data['entries'] = $this->mojo->blog_model->get();
 		
 		// Load the view
-		$this->mojo->load->view('index', $data);
+		$this->_view('index');
+	}
+	
+	/**
+	 * Display the create entry form
+	 */
+	public function create() {
+		// Setup some variables
+		$this->data['validation'] = '';
+		$this->data['entry'] = array('title' => '', 'content' => '');
 		
-		// ...then return the view path to the application's original view path
-		$this->mojo->load->_ci_view_path = $orig_view_path;
+		// Handle entry submission
+		if ($this->mojo->input->post('entry')) {
+			// Get the entry data and set some stuff
+			$this->data['entry']		 		= $this->mojo->input->post('entry');
+			$this->data['entry']['author_id'] = $this->mojo->session->userdata('id');
+			$this->data['entry']['date']		= date('Y-m-d H:i:s');
+			
+			// Insert it!
+			if ($this->mojo->blog_model->insert($data['entry'])) {
+				// It's success
+				$response['success'] = TRUE;
+				
+				exit($this->mojo->javascript->generate_json($response));
+			} else {
+				// There have been validation errors
+				$response['success'] = FALSE;
+				$response['errors'] = $this->mojo->blog_model->validation_errors;
+				
+				// Output the response
+				exit($this->mojo->javascript->generate_json($response));
+			}
+		}
+		
+		// Display that bitchin' view
+		$this->_view('add_edit');
 	}
 	
 	/* --------------------------------------------------------------
@@ -468,6 +499,21 @@ class Blog {
 	/* --------------------------------------------------------------
 	 * HELPER METHODS
 	 * ------------------------------------------------------------ */
+	
+	/**
+	 * Load a view
+	 */
+	private function _view($view) {
+		// ...save the original view path, and set to our Foo Bar package view folder
+		$orig_view_path = $this->mojo->load->_ci_view_path;
+		$this->mojo->load->_ci_view_path = APPPATH.'third_party/blog/views/';
+		
+		// ...load the view
+		$this->mojo->load->view($view, $this->data);
+		
+		// ...then return the view path to the application's original view path
+		$this->mojo->load->_ci_view_path = $orig_view_path;
+	}
 	
 	/**
 	 * Fetch a parameter
