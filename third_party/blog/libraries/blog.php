@@ -90,7 +90,8 @@ class Blog {
 			if ($this->mojo->blog_model->insert($this->data['entry'])) {
 				// It's success
 				$response['result'] = 'success';
-				$response['message'] = 'Successfully created new post' . refresh_string();
+				$response['reveal_page'] = site_url('admin/addons/blog/index');
+				$response['message'] = 'Successfully created new post';
 				
 				exit($this->mojo->javascript->generate_json($response));
 			} else {
