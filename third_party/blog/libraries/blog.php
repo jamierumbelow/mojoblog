@@ -18,7 +18,6 @@ class Blog {
 	 * ------------------------------------------------------------ */
 	
 	private $mojo;
-	private $outfielder = FALSE;
 	private $data = array();
 	
 	/* --------------------------------------------------------------
@@ -40,17 +39,6 @@ class Blog {
 		
 		$this->mojo->load->helper('form');
 		$this->mojo->load->helper('page');
-		
-		// Outfielder support
-		if (is_dir(APPPATH.'/third_party/outfielder/')) {
-		    $this->mojo->load->add_package_path(APPPATH.'/third_party/outfielder/');
-		    $this->mojo->load->model('fields_model', 'fields');
-		    $this->mojo->load->remove_package_path();
-			
-			// Outfielder is loaded
-		    $this->outfielder = TRUE;
-			$this->mojo->cp->appended_output[] = '<script charset="utf-8" type="text/javascript">mojoEditor.outfielder = true;</script>';
-		}
 	}
 	
 	/* --------------------------------------------------------------
@@ -202,7 +190,7 @@ class Blog {
 	 * Loops through a blog's entries and displays them
 	 *
 	 * {mojo:blog:entries 
-	 * 			blog="blog" editable="no" page="about|home" global="yes" limit="10" entry_id="1" entry_id_segment="3" no_posts_404="yes"
+	 * 			page="about|home" global="yes" limit="10" entry_id="1" entry_id_segment="3" no_posts_404="yes" status="published"
 	 *			orderby="date" sort="desc" date_format="Y-m-d" no_posts="No posts!" paginate="yes" per_page="5" pagination_trigger="p"}
 	 *	   	{posts}
 	 *     		<h1>{title}</h1>
@@ -216,11 +204,10 @@ class Blog {
 	 */
 	public function entries($template_data) {
 		$this->template_data 	= $template_data;
-		$blog 					= $this->_param('blog');
 		$page 					= $this->_param('page');
 		$global 				= $this->_param('global');
-		$editable 				= $this->_param('editable');
 		$limit 					= $this->_param('limit');
+		$status 				= $this->_param('status');
 		$entry_id 				= $this->_param('entry_id');
 		$entry_id_segment 		= $this->_param('entry_id_segment');
 		$no_posts_404	 		= $this->_param('no_posts_404');
@@ -235,6 +222,24 @@ class Blog {
 		// Limit access by page
 		if (!$this->_limited_access_by_page($page)) {
 			return '';
+		}
+		
+		// Status
+		if ($status) {
+			// Get rid of 'not '
+			$not = FALSE;
+			if (substr($status, 0, 4) == 'not ') { $status = substr($status, 4); $not = TRUE; }
+			
+			// Multiple statuses
+			$statuses = explode('|', $status);
+			
+			foreach ($statuses as $status) {
+				if ($not) {
+					$this->mojo->blog_model->where('status !=', $status);
+				} else {
+					$this->mojo->blog_model->or_where('status', $status);
+				}
+			}
 		}
 		
 		// Orderby and sort
@@ -299,13 +304,13 @@ class Blog {
 			$parsed = "";
 			
 			// Do we have the {entries} tag at all?
-			if (preg_match("/{entries}/", $this->template_data['template'])) {			
+			if (preg_match("/{entries}/", $this->template_data['template'])) {
 				// Strip the template tags and replace with nothing
 				$divs = '';
-				$tags = array('{mojo:blog:entries}', '{/mojo:blog:entries}');		
+				$tags = array('{mojo:blog:entries}', '{/mojo:blog:entries}');
 				$parsed = str_replace($tags, $divs, $this->template_data['template']);
 				
-				// Get the contents of the {posts}{/posts} tag
+				// Get the contents of the {entries}{/entries} tag
 				preg_match("/\{entries\}(.*)\{\/entries\}/is", $this->template_data['template'], $internal_template);
 				$internal_template = $internal_template[1];
 								
@@ -313,17 +318,12 @@ class Blog {
 				foreach ($posts as $post) {
 					$tmp = $internal_template;
 					$post->author = $this->mojo->db->where('id', $post->author_id)->get('members')->row()->email;
-				
-					// First, check that we're editable
-					if ($editable !== "no") { 
-						// ...and add the MojoBlog divs if we are
-						$tmp = "<div class=\"mojo_blog_entry_region\" data-is-editable-region=\"false\" data-active=\"false\" data-post-id=\"{$post->id}\">\n$tmp\n</div>";
-					}
-				
+					
 					// Start off with the basic variables
 					$tmp = preg_replace("/{id}/i", $post->id, $tmp);
 					$tmp = preg_replace("/{title}/i", $post->title, $tmp);
 					$tmp = preg_replace("/{content}/i", $post->content, $tmp);
+					$tmp = preg_replace("/{status}/i", ucwords($post->status), $tmp);
 					$tmp = preg_replace("/{author}/i", $post->author, $tmp);
 				
 					// Then to the date!
@@ -331,26 +331,6 @@ class Blog {
 						$tmp = preg_replace("/{date}/i", date($date_format, strtotime($post->date)), $tmp);
 					} else {
 						$tmp = preg_replace("/{date}/i", date('d/m/Y', strtotime($post->date)), $tmp);
-					}
-										
-					// Outfielder metadata!
-					if ($this->outfielder) {
-						$metadata = $this->mojo->fields->get_via_page_title("mojo_blog_entry_".$post->id);
-						
-						if ($metadata) {
-							foreach ($metadata as $row) {
-								// Is there an {if} tag for this key? If so, remove it
-								if (preg_match("/\{if $row->field_key\}(.*)\{\/if\}/is", $tmp)) {
-									$tmp = preg_replace("/\{if $row->field_key\}(.*)\{\/if\}/is", "$1", $tmp);
-								}
-								
-								// Replace {field_key} with the value
-								$tmp = str_replace("{".$row->field_key."}", $row->field_value, $tmp);
-							}
-						}
-						
-						// Remove the rest of the {if tag}{tag}{/if}s
-						$tmp = preg_replace("/\{if (\w+)\}(.*)\{\/if\}/is", "", $tmp);
 					}
 					
 					// Finally, add it to the buffer
