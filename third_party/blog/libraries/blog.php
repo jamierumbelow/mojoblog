@@ -192,10 +192,10 @@ class Blog {
 	 * {mojo:blog:entries 
 	 * 			page="about|home" global="yes" limit="10" entry_id="1" entry_id_segment="3" no_posts_404="yes" status="published"
 	 *			orderby="date" sort="desc" date_format="Y-m-d" no_posts="No posts!" paginate="yes" per_page="5" pagination_trigger="p"}
-	 *	   	{posts}
+	 *	   	{entries}
 	 *     		<h1>{title}</h1>
 	 *     		<p>{content}</p>
-	 * 		{/posts}
+	 * 		{/entries}
 	 *
 	 * 		{pagination}{first_page_url} {prev_page_url} - Page {current_page} of {total_pages} - {next_page_url} {last_page_url}{/pagination}
 	 * {/mojo:blog:entries}
