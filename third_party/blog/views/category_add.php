@@ -2,7 +2,7 @@
 	<?=form_open('admin/addons/blog/category_add')?>
 		<p>
 			<label for="category[name]">Name</label>
-			<?=form_input('category[name]', $category['name'], 'id="entry_title" class="mojo_textbox to_be_slugged"')?>
+			<?=form_input('category[name]', $category['name'], 'id="entry_title" class="mojo_textbox to_be_slugged" data-slugging-target="category_url_name"')?>
 		</p>
 		
 		<p>

@@ -89,11 +89,6 @@ jQuery(function(){
 	 * Automatic URL slugging
 	 */
 	$('.to_be_slugged').live('keyup', function(){
-		$(this).parent().parent().find('.to_hold_the_slug').val(
-			$(this).val()
-			.toLowerCase()
-			.replace(/[^\w ]+/g,'')
-			.replace(/ +/g,'-')
-		);
+		mojoEditor.liveUrlTitle(this, $(this).attr('data-slugging-target'));
 	});
 });
