@@ -511,20 +511,20 @@ class Blog {
 	 * Outputs the URL to the RSS feed. Takes three parameters,
 	 * the required 'blog' and an optional 'limit' and 'link_page'
 	 *
-	 * {mojo:blog:rss_url blog="blog" limit="15" link_page="about"}
+	 * {mojo:blog:rss_url limit="15" link_page="about"}
 	 */
 	public function rss_url($template_data) {
 		// Gather the variables
 		$this->template_data = $template_data;
-		$blog = $this->_param('blog');
 		$limit = $this->_param('limit');
 		$link_page = $this->_param('link_page');
 		
-		// Do we have a limit?
+		// Defaults
 		$limit = ($limit) ? (int)$limit : 10;
+		$link_page = ($link_page) ? $link_page : $this->mojo->mojomotor_parser->url_title;
 		
 		// Output the URL, basically
-		return site_url("addons/blog/rss/$blog/$limit/$link_page");
+		return site_url("admin/addons/blog/rss/$limit/$link_page");
 	}
 	
 	
@@ -538,25 +538,17 @@ class Blog {
 	 */
 	public function rss() {
 		// Get the variables, brother
-		$blog = $this->mojo->uri->segment(4);
-		$limit = $this->mojo->uri->segment(5);
-		$link_page = $this->mojo->uri->segment(6);
-		
-		// Make sure we've got a blog variable
-		if (!$blog) {
-			show_error("You're missing the blog name!");
-		}
+		$limit = ($this->mojo->uri->segment(5)) ? $this->mojo->uri->segment(5) : 10;
+		$link_page = ($this->mojo->uri->segment(6)) ? $this->mojo->uri->segment(6) : $this->mojo->site_model->default_page();
 		
 		// Get the posts, my friend
-		$data['posts'] = $this->mojo->blog_model->where('blog', $blog)->order_by('date DESC')->limit($limit)->get();
+		$data['posts'] = $this->mojo->blog_model->order_by('date DESC')->limit($limit)->get();
 		$data['site_name'] = $this->mojo->site_model->get_setting('site_name');
-		$data['blog_name'] = $blog;
-		$data['blog_pretty_name'] = ucwords(str_replace("_", " ", $blog));
-		$data['rss_url'] = site_url('addons/blog/rss/'.$data['blog_name']);
-		$data['link_page'] = ($link_page) ? $link_page : $this->mojo->site_model->default_page();
+		$data['rss_url'] = site_url('admin/addons/blog/rss/'.$limit.'/'.$link_page);
+		$data['link_page'] = $link_page;
 		
 		// Set mime types and extract variables
-		header("Content-type: text/xml");
+		header("Content-type: application/rss+xml");
 		extract($data);
 		
 		// And output the RSS!

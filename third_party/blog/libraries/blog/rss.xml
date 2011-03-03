@@ -1,17 +1,19 @@
 <?php echo '<?xml version="1.0" encoding="UTF-8" ?>'; ?>
 <rss version="2.0">
 	<channel>
-		<title><?=$site_name?> - <?=$blog_pretty_name?></title>
-		<link><?=site_url("page/$link_page")?></link>
+		<title><?=$site_name?> - Blog</title>
+		<link><?=site_url()?></link>
 
-		<?php foreach($posts as $post): ?>
+<?php foreach($posts as $post): ?>
 		<item>
 			<title><?=$post->title?></title>
-			<link><?=site_url("page/$link_page")?></link>
-			<guid><?=site_url("page/$link_page/$post->id")?></guid>
-			<description><?=htmlentities($post->content)?></description>
+			<link><?=site_url($link_page . '/entry/' . $post->url_title)?></link>
+			<guid><?=site_url($link_page . '/entry/' . $post->url_title)?></guid>
+			<description><![CDATA[
+				<?=$post->content?>
+			]]></description>
 			<pubDate><?=$post->date?></pubDate>
 		</item>
-		<?php endforeach; ?>
+<?php endforeach; ?>
 	</channel>
 </rss>
