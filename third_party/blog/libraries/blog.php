@@ -19,6 +19,7 @@ class Blog {
 	
 	private $mojo;
 	private $data = array();
+	private $version = '2.0.0';
 	
 	/* --------------------------------------------------------------
 	 * GENERIC METHODS
@@ -521,6 +522,37 @@ class Blog {
 		// Bye!
 		$this->mojo->blog_model->uninstall();
 		die('MojoBlog is uninstalled. Please remove the blog/ folder from mojomotor/third_party. If you do not do this you may receive errors.');
+	}
+	
+	/**
+	 * Update routine
+	 */
+	public function update() {
+		$this->mojo->load->dbforge();
+		
+		// What's the current system version?
+		$current = config_item('mojoblog_version');
+		
+		// Do we even have it?
+		if (!$current) {
+			// We know it's 1.1.3
+			$current = '1.1.3';
+		}
+		
+		// Do we need to upgrade at all?
+		if ($this->version > $current) {
+			// Run the upgrade
+			$this->mojo->blog_model->upgrade($current, $this->version);
+			
+			// Write the current version
+			$this->mojo->config->config_update(array('mojoblog_version' => $this->version));
+
+			// Output a message
+			die('You have upgraded MojoBlog to version ' . $this->version . '. Enjoy!');
+		} else {
+			// Output a message
+			die('You are already running MojoBlog ' . $this->version . '. No upgrade needed!');
+		}
 	}
 	
 	/**

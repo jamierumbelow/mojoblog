@@ -19,6 +19,8 @@ class Blog_model extends CI_Model {
 	
 	public function install() {
 		$this->load->dbforge();
+		
+		// Create blog_entries
 		$this->dbforge->add_field(array(
 			'id' => array(
 				'type' => 'INT',
@@ -45,6 +47,15 @@ class Blog_model extends CI_Model {
 		));
 		$this->dbforge->add_key('id', TRUE);
 		$this->dbforge->create_table('blog_entries', TRUE);
+		
+		// Create the blog_categories table
+		$this->dbforge->add_field(array(
+			'id' 		=> array( 'type' => 'INT', 'unsigned' => TRUE, 'auto_increment' => TRUE ),
+			'name'		=> array( 'type' => 'VARCHAR', 'constraint' => 200 ),
+			'url_name'	=> array( 'type' => 'VARCHAR', 'constraint' => 200 )
+		));
+		$this->dbforge->add_key('id', TRUE);
+		$this->dbforge->create_table('blog_categories');
 	}
 	
 	public function install_routing() {
@@ -56,6 +67,26 @@ class Blog_model extends CI_Model {
 	public function uninstall() {
 		$this->load->dbforge();
 		$this->dbforge->drop_table('blog_entries');
+	}
+	
+	public function upgrade($old, $new) {
+		// 1.1.3 -> 2
+		if ($new > '1.1.3') {
+			// Remove the blog column
+			$this->dbforge->drop_column('blog_entries', 'blog');
+			
+			// Add the status column
+			$this->dbforge->add_column('blog_entries', array('status' => array('type' => 'VARCHAR', 'constraint' => '20')));
+			
+			// Create the blog_categories table
+			$this->dbforge->add_field(array(
+				'id' 		=> array( 'type' => 'INT', 'unsigned' => TRUE, 'auto_increment' => TRUE ),
+				'name'		=> array( 'type' => 'VARCHAR', 'constraint' => 200 ),
+				'url_name'	=> array( 'type' => 'VARCHAR', 'constraint' => 200 )
+			));
+			$this->dbforge->add_key('id', TRUE);
+			$this->dbforge->create_table('blog_categories');
+		}
 	}
 	
 	public function get($row = FALSE, $array = FALSE) {
