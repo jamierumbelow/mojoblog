@@ -38,8 +38,6 @@ jQuery(function(){
 		old_reveal_page(a, b);
 	}
 	
-	// $('form').submit();
-	
 	/**
 	 * When the user clicks on a delete link, bring up the 
 	 * MojoBlog delete confirmation modal window.
@@ -85,5 +83,17 @@ jQuery(function(){
 		});
 		
 		return false;
+	});
+	
+	/**
+	 * Automatic URL slugging
+	 */
+	$('.to_be_slugged').live('keyup', function(){
+		$(this).parent().parent().find('.to_hold_the_slug').val(
+			$(this).val()
+			.toLowerCase()
+			.replace(/[^\w ]+/g,'')
+			.replace(/ +/g,'-')
+		);
 	});
 });

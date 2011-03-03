@@ -40,6 +40,7 @@ class Blog {
 		
 		$this->mojo->load->helper('form');
 		$this->mojo->load->helper('page');
+		$this->mojo->load->helper('url');
 	}
 	
 	/* --------------------------------------------------------------
@@ -170,6 +171,41 @@ class Blog {
 		// ...and display the view. We won't
 		// be needing Pagination or anything like that
 		$this->_view('categories');
+	}
+	
+	/**
+	 * Add a new category
+	 */
+	public function category_add() {
+		// Setup validation
+		$this->data['validation'] = "";
+		$this->data['category']	= array('name' => '', 'url_name' => '');
+		
+		// Handle POST
+		if ($this->mojo->input->post('category')) {
+			// Get the category data
+			$this->data['category']	= $this->mojo->input->post('category');
+			
+			// Insert it!
+			if ($this->mojo->blog_model->insert_category($this->data['category'])) {
+				// It's success
+				$response['result'] = 'success';
+				$response['reveal_page'] = site_url('admin/addons/blog/categories');
+				$response['message'] = 'Successfully created category';
+				
+				exit($this->mojo->javascript->generate_json($response));
+			} else {
+				// There have been validation errors
+				$response['result'] = 'error';
+				$response['message'] = $this->mojo->blog_model->validation_errors;
+				
+				// Output the response
+				exit($this->mojo->javascript->generate_json($response));
+			}
+		}
+		
+		// Show the view
+		$this->_view('category_add');
 	}
 	
 	/**

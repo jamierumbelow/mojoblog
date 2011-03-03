@@ -155,12 +155,32 @@ class Blog_model extends CI_Model {
 	}
 	
 	public function categories() {
-		return $this->db->select('COUNT(`mojo_blog_entries`.`id`) AS entries')
-						->select('blog_categories.*')
-						->where('blog_entries.category_id = `mojo_blog_categories`.`id`')
+		return $this->db->select('blog_categories.*')
+						->select('COUNT(`mojo_blog_entries`.`id`) AS entries')
+						->join('blog_entries', 'blog_entries.category_id = mojo_blog_categories.id', 'left')
 						->group_by('blog_categories.id')
-						->get('blog_categories, blog_entries')
+						->get('blog_categories')
 						->result();
+	}
+	
+	public function insert_category($data) {
+		// Do a little bit of validation
+		if (!isset($data['name']) || empty($data['name'])) {
+			$this->validation_errors .= "Category name is required!\n";
+		}
+		
+		// Sanitise like a mofo
+		if (!isset($data['url_name']) || empty($data['url_name'])) {
+			$data['url_name'] = url_title($data['name']);
+		}
+		
+		// Return FALSE if we has errors
+		if (!empty($this->validation_errors)) {
+			return FALSE;
+		}
+		
+		// Insert
+		return $this->db->insert('blog_categories', $data);
 	}
 	
 	public function __call($method, $arguments) {
