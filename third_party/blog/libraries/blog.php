@@ -294,7 +294,7 @@ class Blog {
 	 *
 	 * {mojo:blog:entries 
 	 * 			page="about|home" global="yes" limit="10" entry_id="1" entry_id_segment="3" no_posts_404="yes" status="published"
-	 *			orderby="date" sort="desc" date_format="Y-m-d" no_posts="No posts!" paginate="yes" per_page="5" pagination_trigger="p"}
+	 *			orderby="date" sort="desc" date_format="Y-m-d" no_posts="No posts!" paginate="yes" per_page="5" pagination_segment="p"}
 	 *	   	{entries}
 	 *     		<h1>{title}</h1>
 	 *     		<p>{content}</p>
@@ -320,7 +320,7 @@ class Blog {
 		$no_posts 				= $this->_param('no_posts');
 		$paginate 				= $this->_param('paginate');
 		$per_page 				= $this->_param('per_page');
-		$pagination_trigger 	= $this->_param('pagination_trigger');
+		$pagination_segment		= $this->_param('pagination_segment');
 		
 		// Limit access by page
 		if (!$this->_limited_access_by_page($page)) {
@@ -358,7 +358,7 @@ class Blog {
 		
 		// Is there an entry ID in the URL?
 		if ($entry_id_segment) {
-			if ($this->mojo->uri->segment((int)$entry_id_segment)) {
+			if ($this->mojo->uri->segment((int)$entry_id_segment) && $this->mojo->uri->segment((int)$entry_id_segment-1) == 'entry') {
 				$this->mojo->blog_model->where('id', $this->mojo->uri->segment((int)$entry_id_segment));
 				$paginate = FALSE;
 			}
@@ -367,10 +367,10 @@ class Blog {
 		// Paginate?
 		if ($paginate) {
 			$per_page = ($per_page) ? $per_page : 5;
-			$pagination_trigger = ($pagination_trigger) ? $pagination_trigger : 'p';
+			$pagination_segment = ($pagination_segment) ? $pagination_segment : 3;
 						
-			if (isset($_REQUEST[$pagination_trigger])) {
-				$page = (int)$_REQUEST[$pagination_trigger];
+			if ($this->mojo->uri->segment((int)$pagination_segment) && $this->mojo->uri->segment((int)$pagination_segment-1) == 'p') {
+				$page = (int)$this->mojo->uri->segment((int)$pagination_segment);
 			} else {
 				$page = 1;
 			}
@@ -448,13 +448,13 @@ class Blog {
 			if (preg_match("/\{pagination\}(.*)\{\/pagination\}/is", $parsed, $pagtmp)) {
 				if ($paginate) {
 					$first_page_url = site_url($this->mojo->mojomotor_parser->url_title);
-					$prev_page_url = ($page > 1) ? site_url($this->mojo->mojomotor_parser->url_title.'?'.$pagination_trigger.'='.(string)($page-1)) : FALSE;
+					$prev_page_url = ($page > 1) ? site_url($this->mojo->mojomotor_parser->url_title.'/p/'.(string)($page-1)) : FALSE;
 					$current_page = $page;
 					$total_pages = round($count/$per_page);
-					$next_page_url = ($page < ($count/$per_page)) ? site_url($this->mojo->mojomotor_parser->url_title.'?'.$pagination_trigger.'='.(string)($page+1)) : FALSE;
-					$last_page_url = site_url($this->mojo->mojomotor_parser->url_title.'?'.$pagination_trigger.'='.(string)round($count/$per_page));
+					$next_page_url = ($page < ($count/$per_page)) ? site_url($this->mojo->mojomotor_parser->url_title.'/p/'.(string)($page+1)) : FALSE;
+					$last_page_url = site_url($this->mojo->mojomotor_parser->url_title.'/p/'.(string)round($count/$per_page));
 					$pagtmp = $pagtmp[1];
-
+					
 					// Prev and next page conditionals
 					if ($prev_page_url) {
 						if (preg_match("/\{if prev_page\}(.*?)\{\/if\}/is", $pagtmp)) {
@@ -465,7 +465,7 @@ class Blog {
 							$pagtmp = preg_replace("/\{if prev_page\}(.*?)\{\/if\}/is", "", $pagtmp);
 						}
 					}
-
+					
 					if ($next_page_url) {
 						if (preg_match("/\{if next_page\}(.*?)\{\/if\}/is", $pagtmp)) {
 							$pagtmp = preg_replace("/\{if next_page\}(.*?)\{\/if\}/is", "$1", $pagtmp);
@@ -483,7 +483,7 @@ class Blog {
 					$pagtmp = preg_replace("/\{total_pages\}/i", $total_pages, $pagtmp);
 					$pagtmp = preg_replace("/\{next_page_url\}/i", $next_page_url, $pagtmp);
 					$pagtmp = preg_replace("/\{last_page_url\}/i", $last_page_url, $pagtmp);
-				
+					
 					// Replace {pagination} tags
 					$parsed = preg_replace("/\{pagination\}(.*?)\{\/pagination\}/is", $pagtmp, $parsed);
 				} else {

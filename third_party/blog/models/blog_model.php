@@ -63,7 +63,10 @@ class Blog_model extends CI_Model {
 	
 	public function install_routing() {
 		$f = fopen(APPPATH . 'config/routes.php', 'a');
+		fwrite($f, "\n\n // MojoBlog Automatically Installed Routes");
 		fwrite($f, "\n\n" . '$route = array(	\'(.+)/entry/(.+)/?\' => \'page/content/$1\' ) + $route;');
+		fwrite($f, "\n\n" . '$route = array(	\'(.+)/p/([0-9]+)/?\' => \'page/content/$1\' ) + $route;');
+		fwrite($f, "\n\n // End MojoBlog Automatically Installed Routes");
 		fclose($f);
 	}
 	
@@ -90,6 +93,9 @@ class Blog_model extends CI_Model {
 			));
 			$this->dbforge->add_key('id', TRUE);
 			$this->dbforge->create_table('blog_categories');
+			
+			// Install the routing
+			$this->install_routing();
 		}
 	}
 	
