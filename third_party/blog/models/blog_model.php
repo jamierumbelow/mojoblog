@@ -215,6 +215,21 @@ class Blog_model extends CI_Model {
 		return $this->db->delete('blog_categories');
 	}
 	
+	public function categories_dropdown() {
+		$cats = $this->categories();
+		$dropdown = FALSE;
+		
+		if ($cats) {
+			$dropdown[''] = '---';
+			
+			foreach ($cats as $cat) {
+				$dropdown[$cat->id] = $cat->name;
+			}
+		}
+		
+		return $dropdown;
+	}
+	
 	public function __call($method, $arguments) {
 		if (method_exists($this->db, $method)) {
 			call_user_func_array(array($this->db, $method), $arguments);

@@ -72,8 +72,9 @@ class Blog {
 	public function create() {
 		// Setup some variables
 		$this->data['validation'] = '';
-		$this->data['entry'] = array('title' => '', 'content' => '', 'status' => '');
+		$this->data['entry'] = array('title' => '', 'content' => '', 'status' => '', 'category_id' => '');
 		$this->data['statuses'] = array('' => '---', 'published' => 'Published', 'draft' => 'Draft', 'review' => 'Review');
+		$this->data['categories'] = $this->mojo->blog_model->categories_dropdown();
 		
 		// Handle entry submission
 		if ($this->mojo->input->post('entry')) {
@@ -113,6 +114,7 @@ class Blog {
 		$this->data['validation'] = '';
 		$this->data['entry'] = $this->mojo->blog_model->where('id', $entry_id)->get(TRUE, TRUE);
 		$this->data['statuses'] = array('' => '---', 'published' => 'Published', 'draft' => 'Draft', 'review' => 'Review');
+		$this->data['categories'] = $this->mojo->blog_model->categories_dropdown();
 		
 		// Handle entry submission
 		if ($this->mojo->input->post('entry')) {

@@ -10,6 +10,13 @@
 			<?=form_dropdown('entry[status]', $statuses, $entry['status'], 'id="entry_status" class="mojo_textbox"')?>
 		</p>
 		
+		<?php if($categories): ?>
+			<p>
+				<label for="entry[category_id]">Category</label>
+				<?=form_dropdown('entry[category_id]', $categories, $entry['category_id'], 'id="entry_category_id" class="mojo_textbox"')?>
+			</p>
+		<?php endif; ?>
+		
 		<p>
 			<label for="entry[content]">Content</label>
 			
