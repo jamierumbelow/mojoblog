@@ -41,6 +41,10 @@ class Blog_model extends CI_Model {
 				'type' => 'VARCHAR',
 				'constraint' => '250'
 			),
+			'url_title' => array(
+				'type' => 'VARCHAR',
+				'constraint' => '250'
+			),
 			'content' => array(
 				'type' => 'TEXT'
 			),
@@ -77,11 +81,12 @@ class Blog_model extends CI_Model {
 	
 	public function upgrade($old, $new) {
 		// 1.1.3 -> 2
-		if ($new > '1.1.3') {
+		if ($new > '1.1.3' && '1.1.3' > $old) {
 			// Remove the blog column
 			$this->dbforge->drop_column('blog_entries', 'blog');
 			
-			// Add the status & cat ID column
+			// Add the URL title, status & cat ID column
+			$this->dbforge->add_column('blog_entries', array('url_title' => array('type' => 'VARCHAR', 'constraint' => '250')));
 			$this->dbforge->add_column('blog_entries', array('status' => array('type' => 'VARCHAR', 'constraint' => '20')));
 			$this->dbforge->add_column('blog_entries', array('category_id' => array('type' => 'INT')));
 			
@@ -124,6 +129,11 @@ class Blog_model extends CI_Model {
 			$this->validation_errors .= "Entry content is required!\n";
 		}
 		
+		// Sanitise like a mofo
+		if (!isset($data['url_title']) || empty($data['url_title'])) {
+			$data['url_title'] = url_title($data['title']);
+		}
+		
 		// Return FALSE if we has errors
 		if (!empty($this->validation_errors)) {
 			return FALSE;
@@ -141,6 +151,11 @@ class Blog_model extends CI_Model {
 		}
 		if (!isset($data['content']) || empty($data['content'])) {
 			$this->validation_errors .= "Entry content is required!\n";
+		}
+		
+		// Sanitise like a mofo
+		if (!isset($data['url_title']) || empty($data['url_title'])) {
+			$data['url_title'] = url_title($data['title']);
 		}
 		
 		// Return FALSE if we has errors
