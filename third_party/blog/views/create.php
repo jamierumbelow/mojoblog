@@ -2,7 +2,12 @@
 	<?=form_open('admin/addons/blog/create')?>
 		<p>
 			<label for="entry[title]">Title</label>
-			<?=form_input('entry[title]', $entry['title'], 'id="entry_title" class="mojo_textbox"')?>
+			<?=form_input('entry[title]', $entry['title'], 'id="entry_title" class="mojo_textbox to_be_slugged" data-slugging-target="entry_url_title"')?>
+		</p>
+		
+		<p>
+			<label for="entry[url_title]">URL Title</label>
+			<?=form_input('entry[url_title]', $entry['url_title'], 'id="entry_url_title" class="mojo_textbox"')?>
 		</p>
 		
 		<p>

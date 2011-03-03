@@ -72,7 +72,7 @@ class Blog {
 	public function create() {
 		// Setup some variables
 		$this->data['validation'] = '';
-		$this->data['entry'] = array('title' => '', 'content' => '', 'status' => '', 'category_id' => '');
+		$this->data['entry'] = array('title' => '', 'url_title' => '', 'content' => '', 'status' => '', 'category_id' => '');
 		$this->data['statuses'] = array('' => '---', 'published' => 'Published', 'draft' => 'Draft', 'review' => 'Review');
 		$this->data['categories'] = $this->mojo->blog_model->categories_dropdown();
 		
@@ -293,7 +293,7 @@ class Blog {
 	 * Loops through a blog's entries and displays them
 	 *
 	 * {mojo:blog:entries 
-	 * 			page="about|home" global="yes" limit="10" entry_id="1" entry_id_segment="3" no_posts_404="yes" status="published"
+	 * 			page="about|home" global="yes" limit="10" entry_id="1" entry_id_segment="3" entry_url_title_segment="3" no_posts_404="yes" status="published"
 	 *			orderby="date" sort="desc" date_format="Y-m-d" no_posts="No posts!" paginate="yes" per_page="5" pagination_segment="p"}
 	 *	   	{entries}
 	 *     		<h1>{title}</h1>
@@ -306,21 +306,22 @@ class Blog {
 	 * @todo Add {page_number_list} (Google style, 1 - 2 - 3 - *4* - 5)
 	 */
 	public function entries($template_data) {
-		$this->template_data 	= $template_data;
-		$page 					= $this->_param('page');
-		$global 				= $this->_param('global');
-		$limit 					= $this->_param('limit');
-		$status 				= $this->_param('status');
-		$entry_id 				= $this->_param('entry_id');
-		$entry_id_segment 		= $this->_param('entry_id_segment');
-		$no_posts_404	 		= $this->_param('no_posts_404');
-		$orderby 				= $this->_param('orderby');
-		$sort 					= $this->_param('sort');
-		$date_format 			= $this->_param('date_format');
-		$no_posts 				= $this->_param('no_posts');
-		$paginate 				= $this->_param('paginate');
-		$per_page 				= $this->_param('per_page');
-		$pagination_segment		= $this->_param('pagination_segment');
+		$this->template_data 		= $template_data;
+		$page 						= $this->_param('page');
+		$global 					= $this->_param('global');
+		$limit 						= $this->_param('limit');
+		$status 					= $this->_param('status');
+		$entry_id 					= $this->_param('entry_id');
+		$entry_id_segment 			= $this->_param('entry_id_segment');
+		$entry_url_title_segment 	= $this->_param('entry_url_title_segment');
+		$no_posts_404	 			= $this->_param('no_posts_404');
+		$orderby 					= $this->_param('orderby');
+		$sort 						= $this->_param('sort');
+		$date_format 				= $this->_param('date_format');
+		$no_posts 					= $this->_param('no_posts');
+		$paginate 					= $this->_param('paginate');
+		$per_page 					= $this->_param('per_page');
+		$pagination_segment			= $this->_param('pagination_segment');
 		
 		// Limit access by page
 		if (!$this->_limited_access_by_page($page)) {
@@ -360,6 +361,14 @@ class Blog {
 		if ($entry_id_segment) {
 			if ($this->mojo->uri->segment((int)$entry_id_segment) && $this->mojo->uri->segment((int)$entry_id_segment-1) == 'entry') {
 				$this->mojo->blog_model->where('id', $this->mojo->uri->segment((int)$entry_id_segment));
+				$paginate = FALSE;
+			}
+		} 
+		
+		// What about an entry URL title?
+		elseif ($entry_url_title_segment) {
+			if ($this->mojo->uri->segment((int)$entry_url_title_segment) && $this->mojo->uri->segment((int)$entry_url_title_segment-1) == 'entry') {
+				$this->mojo->blog_model->where('url_title', $this->mojo->uri->segment((int)$entry_url_title_segment));
 				$paginate = FALSE;
 			}
 		}
@@ -425,6 +434,8 @@ class Blog {
 					// Start off with the basic variables
 					$tmp = preg_replace("/{id}/i", $post->id, $tmp);
 					$tmp = preg_replace("/{title}/i", $post->title, $tmp);
+					$tmp = preg_replace("/{url_title}/i", $post->url_title, $tmp);
+					$tmp = preg_replace("/{url_title_path}/i", site_url($this->mojo->mojomotor_parser->url_title . '/entry/' . $post->url_title), $tmp);
 					$tmp = preg_replace("/{content}/i", $post->content, $tmp);
 					$tmp = preg_replace("/{status}/i", ucwords($post->status), $tmp);
 					$tmp = preg_replace("/{author}/i", $post->author, $tmp);
