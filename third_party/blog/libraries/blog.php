@@ -209,6 +209,41 @@ class Blog {
 	}
 	
 	/**
+	 * Edit a category
+	 */
+	public function category_edit($id) {
+		// Setup validation
+		$this->data['validation'] = "";
+		$this->data['category']	= $this->mojo->blog_model->where('id', $id)->category(TRUE);
+		
+		// Handle POST
+		if ($this->mojo->input->post('category')) {
+			// Get the category data
+			$this->data['category']	= $this->mojo->input->post('category');
+			
+			// Insert it!
+			if ($this->mojo->blog_model->where('id', $id)->update_category($this->data['category'])) {
+				// It's success
+				$response['result'] = 'success';
+				$response['reveal_page'] = site_url('admin/addons/blog/categories');
+				$response['message'] = 'Successfully updated category';
+				
+				exit($this->mojo->javascript->generate_json($response));
+			} else {
+				// There have been validation errors
+				$response['result'] = 'error';
+				$response['message'] = $this->mojo->blog_model->validation_errors;
+				
+				// Output the response
+				exit($this->mojo->javascript->generate_json($response));
+			}
+		}
+		
+		// Show the view
+		$this->_view('category_edit');
+	}
+	
+	/**
 	 * Display an image
 	 */
 	public function images($file) {

@@ -163,6 +163,14 @@ class Blog_model extends CI_Model {
 						->result();
 	}
 	
+	public function category($array = FALSE) {
+		if (!$array) {
+			return $this->db->get('blog_categories')->row();
+		} else {
+			return $this->db->get('blog_categories')->row_array();
+		}
+	}
+	
 	public function insert_category($data) {
 		// Do a little bit of validation
 		if (!isset($data['name']) || empty($data['name'])) {
@@ -181,6 +189,26 @@ class Blog_model extends CI_Model {
 		
 		// Insert
 		return $this->db->insert('blog_categories', $data);
+	}
+	
+	public function update_category($data) {
+		// Do a little bit of validation
+		if (!isset($data['name']) || empty($data['name'])) {
+			$this->validation_errors .= "Category name is required!\n";
+		}
+		
+		// Sanitise like a mofo
+		if (!isset($data['url_name']) || empty($data['url_name'])) {
+			$data['url_name'] = url_title($data['name']);
+		}
+		
+		// Return FALSE if we has errors
+		if (!empty($this->validation_errors)) {
+			return FALSE;
+		}
+		
+		// Update
+		return $this->db->update('blog_categories', $data);
 	}
 	
 	public function __call($method, $arguments) {
