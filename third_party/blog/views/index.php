@@ -24,10 +24,15 @@
 
 <div class="shrinkwrap">
 	<p>
-		<?=anchor('admin/addons/blog/create', 'Add Post', 'class="mojo_sub_page shrinkwrap_submit" title="Add Post"')?>
+		<?=anchor('admin/addons/blog/create', 'Create Entry', 'class="mojo_sub_page shrinkwrap_submit" title="Create Entry"')?>
+		
+		&bull;
+		
+		<?=anchor('admin/addons/blog/categories', 'Categories', 'class="mojo_sub_page" title="Categories"')?>
 	</p>
 	
 	<div id="mojoblog_pagination">
 		<?=$this->pagination->create_links()?>
 	</div>
 </div>
+
