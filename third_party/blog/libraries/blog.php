@@ -244,6 +244,23 @@ class Blog {
 	}
 	
 	/**
+	 * Delete a category
+	 */
+	public function category_delete($id) {
+		// We've already confirmed by this point, so we
+		// can go ahead and delete it
+		$this->mojo->blog_model->where('id', $id)->delete_category();
+		
+		// Build the response
+		$response['result'] = 'success';
+		$response['message'] = 'Successfully deleted category';
+		$response['id'] = $id;
+		
+		// Output in JSON
+		exit($this->mojo->javascript->generate_json($response));
+	}
+	
+	/**
 	 * Display an image
 	 */
 	public function images($file) {

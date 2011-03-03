@@ -12,12 +12,12 @@
 
 		<tbody>
 			<?php foreach($categories as $category): ?>
-				<tr class="<?=alternator('even','odd')?>" id="mojoblog_category_<?=$category->id?>">
+				<tr class="<?=alternator('even','odd')?>" id="mojoblog_entry_<?=$category->id?>">
 					<td><?=$category->name?></td>
 					<td><?=$category->url_name?></td>
 					<td><?=$category->entries?></td>
 					<td><?=anchor('admin/addons/blog/category_edit/' . $category->id, 'Edit', 'class="mojo_sub_page" title="Edit Category"')?></td>
-					<td><?=anchor('admin/addons/blog/category_delete/' . $category->id, 'Delete', 'class="mojoblog_delete" title="Are you sure you want to delete '.$category->name.'`?"')?></td>
+					<td><?=anchor('admin/addons/blog/category_delete/' . $category->id, 'Delete', 'class="mojoblog_delete" title="Are you sure you want to delete `'.$category->name.'`?"')?></td>
 				</tr>
 			<?php endforeach; ?>
 		</tbody>

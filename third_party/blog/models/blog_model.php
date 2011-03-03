@@ -211,6 +211,10 @@ class Blog_model extends CI_Model {
 		return $this->db->update('blog_categories', $data);
 	}
 	
+	public function delete_category() {
+		return $this->db->delete('blog_categories');
+	}
+	
 	public function __call($method, $arguments) {
 		if (method_exists($this->db, $method)) {
 			call_user_func_array(array($this->db, $method), $arguments);

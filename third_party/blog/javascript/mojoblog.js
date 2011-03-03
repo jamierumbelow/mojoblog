@@ -70,6 +70,9 @@ jQuery(function(){
 						// Close the modal and display the message
 						jQuery(".mojoblog_delete_dialog").dialog("close");
 						mojoEditor.add_notice(data.message, data.result)
+						
+						// Reload the page
+						jQuery('#mojo_reveal_page_content').load(mojoEditor.revealed_page);
 					}, 'json');
 				},
 				
