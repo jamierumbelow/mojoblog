@@ -161,6 +161,18 @@ class Blog {
 	}
 	
 	/**
+	 * Display a list of all the categories
+	 */
+	public function categories() {
+		// Simple! Get the categories
+		$this->data['categories'] = $this->mojo->blog_model->categories();
+		
+		// ...and display the view. We won't
+		// be needing Pagination or anything like that
+		$this->_view('categories');
+	}
+	
+	/**
 	 * Display an image
 	 */
 	public function images($file) {

@@ -30,6 +30,9 @@ class Blog_model extends CI_Model {
 			'author_id' => array(
 				'type' => 'INT'
 			),
+			'category_id' => array(
+				'type' => 'INT'
+			),
 			'status' => array(
 				'type' => 'VARCHAR',
 				'constraint' => '20'
@@ -75,8 +78,9 @@ class Blog_model extends CI_Model {
 			// Remove the blog column
 			$this->dbforge->drop_column('blog_entries', 'blog');
 			
-			// Add the status column
+			// Add the status & cat ID column
 			$this->dbforge->add_column('blog_entries', array('status' => array('type' => 'VARCHAR', 'constraint' => '20')));
+			$this->dbforge->add_column('blog_entries', array('category_id' => array('type' => 'INT')));
 			
 			// Create the blog_categories table
 			$this->dbforge->add_field(array(
@@ -148,6 +152,15 @@ class Blog_model extends CI_Model {
 	
 	public function count_all_results() {
 		return $this->db->count_all_results('blog_entries');
+	}
+	
+	public function categories() {
+		return $this->db->select('COUNT(`mojo_blog_entries`.`id`) AS entries')
+						->select('blog_categories.*')
+						->where('blog_entries.category_id = `mojo_blog_categories`.`id`')
+						->group_by('blog_categories.id')
+						->get('blog_categories, blog_entries')
+						->result();
 	}
 	
 	public function __call($method, $arguments) {
