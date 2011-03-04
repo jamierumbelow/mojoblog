@@ -262,14 +262,6 @@ class Blog {
 		exit($this->mojo->javascript->generate_json($response));
 	}
 	
-	/**
-	 * Display an image
-	 */
-	public function images($file) {
-		header('Content-type: image/png');
-		exit(file_get_contents(APPPATH . 'third_party/blog/images/' . $file));
-	}
-	
 	/* --------------------------------------------------------------
 	 * TEMPLATE TAGS
 	 * ------------------------------------------------------------ */
@@ -294,7 +286,7 @@ class Blog {
 	 *
 	 * {mojo:blog:entries 
 	 * 			page="about|home" global="yes" limit="10" entry_id="1" entry_id_segment="3" entry_url_title_segment="3" no_posts_404="yes" status="published"
-	 *			orderby="date" sort="desc" date_format="Y-m-d" no_posts="No posts!" paginate="yes" per_page="5" pagination_segment="p"}
+	 *			orderby="date" sort="desc" date_format="Y-m-d" no_posts="No posts!" paginate="yes" per_page="5" pagination_segment="p" paginate_once="yes"}
 	 *	   	{entries}
 	 *     		<h1>{title}</h1>
 	 *     		<p>{content}</p>
@@ -320,6 +312,7 @@ class Blog {
 		$date_format 				= $this->_param('date_format');
 		$no_posts 					= $this->_param('no_posts');
 		$paginate 					= $this->_param('paginate');
+		$paginate_once				= $this->_param('paginate_once');
 		$per_page 					= $this->_param('per_page');
 		$pagination_segment			= $this->_param('pagination_segment');
 		
@@ -498,9 +491,21 @@ class Blog {
 					// Replace {pagination} tags
 					$parsed = preg_replace("/\{pagination\}(.*?)\{\/pagination\}/is", $pagtmp, $parsed);
 				} else {
-					$parsed = preg_replace("/\{pagination\}(.*)\{\/pagination\}/is", '', $parsed);
+					$parsed = preg_replace("/\{pagination\}(.*?)\{\/pagination\}/is", '', $parsed);
 				}
 			}
+			
+			// Finally, are there any mojo:blog tags internally? Run it through MM's template
+			// parser so that it catches everythang. Reset tag data temporarily
+			$tag_data = $this->mojo->mojomotor_parser->tag_data;
+			$loop_count = $this->mojo->mojomotor_parser->loop_count;
+			$this->mojo->mojomotor_parser->tag_data = array();
+			$this->mojo->mojomotor_parser->loop_count = 0;
+			
+			$parsed = $this->mojo->mojomotor_parser->parse_template($parsed);
+			
+			$this->mojo->mojomotor_parser->tag_data = $tag_data;
+			$this->mojo->mojomotor_parser->loop_count = $loop_count;
 			
 			// Return the parsed string!
 			return $parsed;
@@ -527,6 +532,57 @@ class Blog {
 		return site_url("admin/addons/blog/rss/$limit/$link_page");
 	}
 	
+	/**
+	 * Outputs the JavaScript necessary to include a Disqus box.
+	 *
+	 * {mojo:blog:disqus shortname="mymojosite" entry_id="{id}"}
+	 */
+	public function disqus($template_data) {
+		// Gather vars
+		$this->template_data = $template_data;
+		$shortname = $this->_param('shortname');
+		$entry_id = $this->_param('entry_id');
+		
+		// Make sure we have a shortname
+		if (!$shortname) {
+			show_error('Shortname is required for the {mojo:blog:disqus} tag to work!');
+		}
+		
+		// Display the HTML!
+		$html = '<div id="mojoblog_disqus">'.PHP_EOL;
+		$html .= '<div id="disqus_thread"></div>'.PHP_EOL;
+		$html .= '<script type="text/javascript">'.PHP_EOL;
+		$html .= 'var disqus_shortname = "'.$shortname.'";'.PHP_EOL;
+		
+		// Do a quick check to test if we're developing locally
+		if ($_SERVER['REMOTE_ADDR'] == '127.0.0.1') {
+			$html .= 'var disqus_developer = 1;'.PHP_EOL;
+		}
+		
+		// Do we have an entry ID?
+		if ($entry_id) {
+			// Get the entry
+			$entry = $this->mojo->blog_model->where('id', $entry_id)->get(TRUE);
+			
+			// Output that mofo
+			$html .= 'var disqus_identifier = "mojoblog_'.$shortname.'_entry_'.$entry->id.'";'.PHP_EOL;
+			$html .= 'var disqus_url = "'.site_url($this->mojo->mojomotor_parser->url_title.'/entry/'.$entry->url_title).'";'.PHP_EOL;
+		}
+		
+		// Output the rest
+		$html .= "(function() {
+		        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+		        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+		        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+		    })();
+		</script>";
+		$html .= '<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>'.PHP_EOL;
+		//$html .= '<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>'.PHP_EOL;
+		$html .= '</div>'.PHP_EOL;
+		
+		// And return it!
+		return $html;
+	}
 	
 	/* --------------------------------------------------------------
 	 * RSS/ATOM FEEDS
@@ -595,6 +651,13 @@ class Blog {
 	public function image($file) {
 		header('Content-Type: image/png');
 		die(file_get_contents(APPPATH.'third_party/blog/images/'.$file));
+	}
+	
+	/**
+	 * Wrapper for image() (because of CKEditor's load path)
+	 */
+	public function images($file) {
+		$this->image($file);
 	}
 		
 	/* --------------------------------------------------------------
