@@ -315,6 +315,7 @@ class Blog {
 		$paginate_once				= $this->_param('paginate_once');
 		$per_page 					= $this->_param('per_page');
 		$pagination_segment			= $this->_param('pagination_segment');
+		$single_entry_page			= FALSE;
 		
 		// Limit access by page
 		if (!$this->_limited_access_by_page($page)) {
@@ -354,7 +355,9 @@ class Blog {
 		if ($entry_id_segment) {
 			if ($this->mojo->uri->segment((int)$entry_id_segment) && $this->mojo->uri->segment((int)$entry_id_segment-1) == 'entry') {
 				$this->mojo->blog_model->where('id', $this->mojo->uri->segment((int)$entry_id_segment));
+				
 				$paginate = FALSE;
+				$single_entry_page = TRUE;
 			}
 		} 
 		
@@ -362,7 +365,9 @@ class Blog {
 		elseif ($entry_url_title_segment) {
 			if ($this->mojo->uri->segment((int)$entry_url_title_segment) && $this->mojo->uri->segment((int)$entry_url_title_segment-1) == 'entry') {
 				$this->mojo->blog_model->where('url_title', $this->mojo->uri->segment((int)$entry_url_title_segment));
+				
 				$paginate = FALSE;
+				$single_entry_page = TRUE;
 			}
 		}
 		
@@ -479,7 +484,7 @@ class Blog {
 							$pagtmp = preg_replace("/\{if next_page\}(.*?)\{\/if\}/is", "", $pagtmp);
 						}
 					}
-
+					
 					// Variable swap fun
 					$pagtmp = preg_replace("/\{first_page_url\}/i", $first_page_url, $pagtmp);
 					$pagtmp = preg_replace("/\{prev_page_url\}/i", $prev_page_url, $pagtmp);
@@ -493,6 +498,11 @@ class Blog {
 				} else {
 					$parsed = preg_replace("/\{pagination\}(.*?)\{\/pagination\}/is", '', $parsed);
 				}
+			}
+			
+			// Single entry page? Swap out the conditional!
+			if (preg_match("/\{if single_entry_page\}(.*?)\{\/if\}/is", $parsed)) {
+				$parsed = preg_replace("/\{if single_entry_page\}(.*?)\{\/if\}/is", (($single_entry_page) ? "$1" : ""), $parsed);
 			}
 			
 			// Finally, are there any mojo:blog tags internally? Run it through MM's template
