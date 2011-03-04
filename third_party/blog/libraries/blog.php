@@ -753,7 +753,7 @@ class Blog {
 		} else {
 			// Output a message
 			$this->data['title'] = "You're already up to date";
-			$this->data['message'] = 'You are already running MojoBlog ' . $this->version . ', so there\'s no upgrade needed!');
+			$this->data['message'] = 'You are already running MojoBlog ' . $this->version . ', so there\'s no upgrade needed!';
 		}
 		
 		$this->_view('installer');
