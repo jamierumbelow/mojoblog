@@ -678,6 +678,18 @@ class Blog {
 	 * Installs MojoBlog
 	 */
 	public function install() {
+		// Are we installed?
+		$current = config_item('mojoblog_version');
+		
+		// Begone!
+		if ($current) {
+			$this->data['title'] = 'Already installed!';
+			$this->data['message'] = 'MojoBlog is already installed, so there\'s nothing to do here. Enjoy using MojoBlog!';
+			$this->_view('installer');
+			
+			exit;
+		}
+		
 		// Check that we're setup and the DB table exists
 		$this->mojo->blog_model->install();
 		
@@ -685,7 +697,11 @@ class Blog {
 		$this->mojo->blog_model->install_routing();
 		
 		// Let the user know about it
-		die('MojoBlog has been successfully installed!');
+		$this->data['title'] = 'Installation successful';
+		$this->data['message'] = 'MojoBlog has been successfully installed. Thanks for purchasing, and please remember to read the documentation thoroughly before using. If you have any concerns or issues with MojoBlog, don\'t hesitate to report them at our dedicated support site. Enjoy!';
+		$this->_view('installer');
+		
+		exit;
 	}
 	
 	/**
@@ -699,7 +715,13 @@ class Blog {
 		
 		// Bye!
 		$this->mojo->blog_model->uninstall();
-		die('MojoBlog is uninstalled. Please remove the blog/ folder from mojomotor/third_party. If you do not do this you may receive errors.');
+		
+		// Let the user know
+		$this->data['title'] = 'Uninstallation successful';
+		$this->data['message'] = 'MojoBlog is uninstalled. Please remove the <strong>blog/</strong> folder from <strong>mojomotor/third_party</strong>.';
+		$this->_view('installer');
+		
+		exit;
 	}
 	
 	/**
@@ -726,11 +748,16 @@ class Blog {
 			$this->mojo->config->config_update(array('mojoblog_version' => $this->version));
 
 			// Output a message
-			die('You have upgraded MojoBlog to version ' . $this->version . '. Enjoy!');
+			$this->data['title'] = "Upgrade successful";
+			$this->data['message'] = 'You have upgraded MojoBlog to version ' . $this->version . '. Enjoy!';
 		} else {
 			// Output a message
-			die('You are already running MojoBlog ' . $this->version . '. No upgrade needed!');
+			$this->data['title'] = "You're already up to date";
+			$this->data['message'] = 'You are already running MojoBlog ' . $this->version . ', so there\'s no upgrade needed!');
 		}
+		
+		$this->_view('installer');
+		exit;
 	}
 	
 	/**
@@ -779,7 +806,7 @@ class Blog {
 		$this->mojo->load->_ci_view_path = APPPATH.'third_party/blog/views/';
 		
 		// ...load the view
-		$this->mojo->load->view($view, $this->data);
+		echo $this->mojo->load->view($view, $this->data, TRUE);
 		
 		// ...then return the view path to the application's original view path
 		$this->mojo->load->_ci_view_path = $orig_view_path;

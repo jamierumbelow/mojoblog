@@ -20,6 +20,11 @@
 /* Pagination */
 #mojoblog_pagination #mojo_pagination { float: right; margin-top: -16px; }
 
+/* Install & Update */
+#mojoblog_install_header h1 { background: url('../../../assets/img/mojomotor_logo_only.jpg') no-repeat left top; }
+#mojoblog_install .mojo_header { background: #222 url('../../../assets/img/mojobar_bg.jpg') top; }
+#mojoblog_install .button { background: #F5C062 url('../../../assets/img/button_back.png') repeat-x center center; }
+
 /* Editor */
 #mojoblog_content_entry .cke_skin_mojo.cke_editor_mojoblog_entry_content { border: 0; width: 500px; margin-left: 138px; }
 #mojoblog_content_entry .cke_skin_mojo.cke_editor_mojoblog_entry_content table tbody tr:hover td { background: 0; }
