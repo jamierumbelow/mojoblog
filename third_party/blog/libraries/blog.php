@@ -166,7 +166,7 @@ class Blog {
 	/**
 	 * Display a list of all the categories
 	 */
-	public function categories() {
+	public function categories_all() {
 		// Simple! Get the categories
 		$this->data['categories'] = $this->mojo->blog_model->categories();
 		
@@ -192,7 +192,7 @@ class Blog {
 			if ($this->mojo->blog_model->insert_category($this->data['category'])) {
 				// It's success
 				$response['result'] = 'success';
-				$response['reveal_page'] = site_url('admin/addons/blog/categories');
+				$response['reveal_page'] = site_url('admin/addons/blog/categories_all');
 				$response['message'] = 'Successfully created category';
 				
 				exit($this->mojo->javascript->generate_json($response));
@@ -227,7 +227,7 @@ class Blog {
 			if ($this->mojo->blog_model->where('id', $id)->update_category($this->data['category'])) {
 				// It's success
 				$response['result'] = 'success';
-				$response['reveal_page'] = site_url('admin/addons/blog/categories');
+				$response['reveal_page'] = site_url('admin/addons/blog/categories_all');
 				$response['message'] = 'Successfully updated category';
 				
 				exit($this->mojo->javascript->generate_json($response));
@@ -577,6 +577,50 @@ class Blog {
 			// Return the parsed string!
 			return $parsed;
 		}
+	}
+	
+	/**
+	 * Loop through the site's available categories
+	 */
+	public function categories($template_data) {
+		// Get the vars...
+		$this->template_data = $template_data;
+		$limit = $this->_param('limit');
+		$orderby = $this->_param('orderby');
+		$sort = $this->_param('sort');
+		
+		// Limit
+		if ($limit) {
+			$this->mojo->blog_model->limit($limit);
+		}
+		
+		// Orderby and sort
+		$orderby = ($orderby) ? $orderby : 'id';
+		$sort = ($sort) ? strtoupper($sort) : 'ASC';
+		
+		$this->mojo->blog_model->order_by("$orderby $sort");
+		
+		// Get the categories
+		$categories = $this->mojo->blog_model->categories();
+		
+		// Loop through them and build up a parsed template
+		// string to return
+		$parsed = "";
+		
+		foreach ($categories as $category) {
+			// Get template data and parse
+			$tmp = $this->template_data['template'];
+			$tmp = preg_replace("/\{id\}/", $category->id, $tmp);
+			$tmp = preg_replace("/\{name\}/", $category->name, $tmp);
+			$tmp = preg_replace("/\{url_name\}/", $category->url_name, $tmp);
+			$tmp = preg_replace("/\{entries\}/", $category->entries, $tmp);
+			
+			// Append to the total parsed
+			$parsed .= $tmp;
+		}
+		
+		// Return the parsed template
+		return $parsed;
 	}
 	
 	/**

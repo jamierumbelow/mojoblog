@@ -28,7 +28,7 @@
 		
 		&bull;
 		
-		<?=anchor('admin/addons/blog/categories', 'Categories', 'class="mojo_sub_page" title="Categories"')?>
+		<?=anchor('admin/addons/blog/categories_all', 'Categories', 'class="mojo_sub_page" title="Categories"')?>
 	</p>
 	
 	<div id="mojoblog_pagination">
