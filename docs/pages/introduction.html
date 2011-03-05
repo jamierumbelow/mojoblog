@@ -1,0 +1,30 @@
+<h3>Introduction</h3>
+
+<p>MojoBlog is a simple, easy to use and quick blogging engine for MojoMotor. It integrates directly into the MojoMotor experience, allowing you to edit your blog content with MojoMotor's WYSIWYG editor and inline on your website. It features a range of powerful template tags that let you display your blog content easily and quickly.</p>
+
+<h3 id="requirements">Requirements</h3>
+
+<p>MojoBlog requires a licensed copy of MojoMotor 1.1.0+ to run. While an effort to retain backward compatibility will be made, you are always recommended to upgrade to the most recent version of MojoMotor.</p>
+
+<h3 id="installation">Installation</h3>
+
+<p>Installing MojoBlog is just like any other MojoMotor addon. Simply drag the <var>blog/</var> folder found in your download into the <dfn>system/mojomotor/third_party/</dfn> folder. Ensure that your <samp>config/config.php</samp> and <samp>config/routes.php</samp> files are set to have <strong>0777</strong> permissions. Then, point your web browser to <var>http://domain.com/index.php/admin/addons/blog/install</var> and MojoBlog will install itself.</p>
+
+<p>It's that simple - MojoBlog is installed!</p>
+
+<h3 id="routes">A note on routes</h3>
+
+<p>For some of MojoBlog's functionality, such as single entry pages and pagination, a change to MojoMotor's routing file must be made. <strong>The installer will try to make this change automatically</strong>, however, in the event that this proves impossible, you'll need to manually add in the following lines to the bottom of the <samp>system/mojomotor/config/routes.php</samp> file:</p>
+
+<pre>
+$route = array(	'(.+)/entry/(.+)/?' => 'page/content/$1' ) + $route;
+$route = array(	'(.+)/p/([0-9]+)/?' => 'page/content/$1' ) + $route;
+</pre>
+
+<h3 id="update">Update</h3>
+
+<p>MojoBlog contains a built-in updater to make updating to the latest version effortless. Remember to backup your files, and then copy across the <var>blog/</var> folder found in your download into the <dfn>system/mojomotor/third_party/</dfn> folder. Then, point your web browser to <var>http://domain.com/index.php/admin/addons/blog/update</var> and MojoBlog will update itself.</p>
+
+<h3 id="updatev2">Updating from MojoBlog 1.x to 2</h3>
+
+<p>A strong effort has been made to ensure backward compatibility. However, version 2 removes the concept of different blogs, so all your entries will be brought into a single blog. Additionally, Outfielder metadata has been removed, so any metadata attached to your entries will be lost during the upgrade process.</p>
