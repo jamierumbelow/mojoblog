@@ -320,7 +320,7 @@ class Blog {
 		$cond						= array('single_entry_page' => FALSE, 'category_page' => FALSE);
 		
 		// Limit access by page
-		if (!$this->_limited_access_by_page($page)) {
+		if (!$this->_limited_access_by_page($page, $global)) {
 			return '';
 		}
 		
