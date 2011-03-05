@@ -343,14 +343,21 @@ class Blog {
 		// What about a category page?
 		elseif ($category_segment && $this->mojo->uri->segment((int)$category_segment) && $this->mojo->uri->segment((int)$category_segment-1) == 'category') {
 			$category = $this->mojo->blog_model->where('url_name', $this->mojo->uri->segment((int)$category_segment))->category();
-			$this->mojo->blog_model->where('category_id', (($category) ? $category->id : 0));
 			
-			$paginate = FALSE;
-			$cond['category_page'] = TRUE;
+			if ($category) {
+				$this->mojo->blog_model->where('category_id', $category->id);
 			
-			$category_name 		= $category->name;
-			$category_url_name 	= $category->url_name;
-			$category_id 		= $category->id;
+				$paginate = FALSE;
+				$cond['category_page'] = TRUE;
+			
+				$category_name 		= $category->name;
+				$category_url_name 	= $category->url_name;
+				$category_id 		= $category->id;
+			} else {
+				$category_name 		= '';
+				$category_url_name 	= '';
+				$category_id 		= '';
+			}
 		}
 		
 		// Status
@@ -438,6 +445,8 @@ class Blog {
 				// Loop through and parse
 				foreach ($posts as $post) {
 					$tmp = $internal_template;
+					
+					$post->category = $this->mojo->db->where('id', (int)$post->category_id)->get('blog_categories')->row();
 					$post->author = $this->mojo->db->where('id', $post->author_id)->get('members')->row()->email;
 					
 					// Start off with the basic variables
@@ -448,7 +457,29 @@ class Blog {
 					$tmp = preg_replace("/{content}/i", $post->content, $tmp);
 					$tmp = preg_replace("/{status}/i", ucwords($post->status), $tmp);
 					$tmp = preg_replace("/{author}/i", $post->author, $tmp);
-				
+					
+					// Category
+					if ($post->category) {
+						$tmp = preg_replace("/{category_name}/i", $post->category->name, $tmp);
+						$tmp = preg_replace("/{category_url_name}/i", $post->category->url_name, $tmp);
+						$tmp = preg_replace("/{category_id}/i", $post->category_id, $tmp);
+					} else {
+						$tmp = preg_replace("/{category_name}/i", '', $tmp);
+						$tmp = preg_replace("/{category_url_name}/i", '', $tmp);
+						$tmp = preg_replace("/{category_id}/i", '', $tmp);
+					}
+					
+					// Category conditional...
+					// TRUE condition
+					if (preg_match("/\{if category\}(.*?)\{\/if\}/is", $tmp)) {
+						$tmp = preg_replace("/\{if category\}(.*?)\{\/if\}/is", (($post->category_id) ? "$1" : ""), $tmp);
+					}
+
+					// FALSE condition
+					if (preg_match("/\{if not category\}(.*?)\{\/if\}/is", $tmp)) {
+						$tmp = preg_replace("/\{if not category\}(.*?)\{\/if\}/is", ((!$post->category_id) ? "$1" : ""), $tmp);
+					}
+					
 					// Then to the date!
 					if ($date_format) {
 						$tmp = preg_replace("/{date}/i", date($date_format, strtotime($post->date)), $tmp);
@@ -513,8 +544,14 @@ class Blog {
 			
 			// Swap out the conditionals
 			foreach ($cond as $key => $val) {
+				// TRUE condition
 				if (preg_match("/\{if ".$key."\}(.*?)\{\/if\}/is", $parsed)) {
 					$parsed = preg_replace("/\{if ".$key."\}(.*?)\{\/if\}/is", (($val) ? "$1" : ""), $parsed);
+				}
+				
+				// FALSE condition
+				if (preg_match("/\{if not ".$key."\}(.*?)\{\/if\}/is", $parsed)) {
+					$parsed = preg_replace("/\{if not ".$key."\}(.*?)\{\/if\}/is", ((!$val) ? "$1" : ""), $parsed);
 				}
 			}
 			
