@@ -286,7 +286,8 @@ class Blog {
 	 *
 	 * {mojo:blog:entries 
 	 * 			page="about|home" global="yes" limit="10" entry_id="1" entry_id_segment="3" entry_url_title_segment="3" no_posts_404="yes" status="published"
-	 *			orderby="date" sort="desc" date_format="Y-m-d" no_posts="No posts!" paginate="yes" per_page="5" pagination_segment="p" paginate_once="yes"}
+	 *			orderby="date" sort="desc" date_format="Y-m-d" no_posts="No posts!" paginate="yes" per_page="5" pagination_segment="p" paginate_once="yes"
+	 *			category_segment="3"}
 	 *	   	{entries}
 	 *     		<h1>{title}</h1>
 	 *     		<p>{content}</p>
@@ -315,11 +316,41 @@ class Blog {
 		$paginate_once				= $this->_param('paginate_once');
 		$per_page 					= $this->_param('per_page');
 		$pagination_segment			= $this->_param('pagination_segment');
-		$single_entry_page			= FALSE;
+		$category_segment			= $this->_param('category_segment');
+		$cond						= array('single_entry_page' => FALSE, 'category_page' => FALSE);
 		
 		// Limit access by page
 		if (!$this->_limited_access_by_page($page)) {
 			return '';
+		}
+		
+		// Is there an entry ID in the URL?
+		if ($entry_id_segment && $this->mojo->uri->segment((int)$entry_id_segment) && $this->mojo->uri->segment((int)$entry_id_segment-1) == 'entry') {
+			$this->mojo->blog_model->where('id', $this->mojo->uri->segment((int)$entry_id_segment));
+			
+			$paginate = FALSE;
+			$cond['single_entry_page'] = TRUE;
+		} 
+		
+		// What about an entry URL title?
+		elseif ($entry_url_title_segment && $this->mojo->uri->segment((int)$entry_url_title_segment) && $this->mojo->uri->segment((int)$entry_url_title_segment-1) == 'entry') {
+			$this->mojo->blog_model->where('url_title', $this->mojo->uri->segment((int)$entry_url_title_segment));
+			
+			$paginate = FALSE;
+			$cond['single_entry_page'] = TRUE;
+		}
+		
+		// What about a category page?
+		elseif ($category_segment && $this->mojo->uri->segment((int)$category_segment) && $this->mojo->uri->segment((int)$category_segment-1) == 'category') {
+			$category = $this->mojo->blog_model->where('url_name', $this->mojo->uri->segment((int)$category_segment))->category();
+			$this->mojo->blog_model->where('category_id', (($category) ? $category->id : 0));
+			
+			$paginate = FALSE;
+			$cond['category_page'] = TRUE;
+			
+			$category_name 		= $category->name;
+			$category_url_name 	= $category->url_name;
+			$category_id 		= $category->id;
 		}
 		
 		// Status
@@ -349,26 +380,6 @@ class Blog {
 		// Entry ID
 		if ($entry_id) {
 			$this->mojo->blog_model->where('id', $entry_id);
-		}
-		
-		// Is there an entry ID in the URL?
-		if ($entry_id_segment) {
-			if ($this->mojo->uri->segment((int)$entry_id_segment) && $this->mojo->uri->segment((int)$entry_id_segment-1) == 'entry') {
-				$this->mojo->blog_model->where('id', $this->mojo->uri->segment((int)$entry_id_segment));
-				
-				$paginate = FALSE;
-				$single_entry_page = TRUE;
-			}
-		} 
-		
-		// What about an entry URL title?
-		elseif ($entry_url_title_segment) {
-			if ($this->mojo->uri->segment((int)$entry_url_title_segment) && $this->mojo->uri->segment((int)$entry_url_title_segment-1) == 'entry') {
-				$this->mojo->blog_model->where('url_title', $this->mojo->uri->segment((int)$entry_url_title_segment));
-				
-				$paginate = FALSE;
-				$single_entry_page = TRUE;
-			}
 		}
 		
 		// Paginate?
@@ -500,9 +511,18 @@ class Blog {
 				}
 			}
 			
-			// Single entry page? Swap out the conditional!
-			if (preg_match("/\{if single_entry_page\}(.*?)\{\/if\}/is", $parsed)) {
-				$parsed = preg_replace("/\{if single_entry_page\}(.*?)\{\/if\}/is", (($single_entry_page) ? "$1" : ""), $parsed);
+			// Swap out the conditionals
+			foreach ($cond as $key => $val) {
+				if (preg_match("/\{if ".$key."\}(.*?)\{\/if\}/is", $parsed)) {
+					$parsed = preg_replace("/\{if ".$key."\}(.*?)\{\/if\}/is", (($val) ? "$1" : ""), $parsed);
+				}
+			}
+			
+			// Categories stuff
+			if ($cond['category_page']) {
+				$parsed = preg_replace("/\{category_name\}/i", $category_name, $parsed);
+				$parsed = preg_replace("/\{category_url_name\}/i", $category_url_name, $parsed);
+				$parsed = preg_replace("/\{category_id\}/i", $category_id, $parsed);
 			}
 			
 			// Finally, are there any mojo:blog tags internally? Run it through MM's template
