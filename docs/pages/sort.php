@@ -1,19 +1,19 @@
 <?php
 /**
- * Taggable
+ * MojoBlog
  *
- * A powerful, easy to use folksonomy
- * engine for ExpressionEngine 2.0.
+ * A small, quick, and painfully simple 
+ * blogging system for MojoMotor 
  *
- * @author Jamie Rumbelow <http://jamierumbelow.net>
- * @copyright Copyright (c)2010 Jamie Rumbelow
- * @license http://getsparkplugs.com/taggable/docs#license
- * @version 1.4.2
- **/
+ * @package 	mojoblog
+ * @author 		Jamie Rumbelow <http://jamierumbelow.net>
+ * @version		2.0.0
+ * @copyright 	(c)2011 Jamie Rumbelow
+ */
 
 function sparkplugs_doc_sort($a, $b) {
 	$order = array(
-		'introduction.html', 'fieldtype.html', 'module.html', 'developers.html'
+		'introduction.html', 'usage.html', 'template_tags.html'
 	);
 	
 	return (array_search($a, $order) > array_search($b, $order)) ? 1 : -1;

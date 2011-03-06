@@ -625,6 +625,18 @@ class Blog {
 			$return .= $tmp;
 		}
 		
+		// Finally, are there any mojo:blog tags internally? Run it through MM's template
+		// parser so that it catches everythang. Reset tag data temporarily
+		$tag_data = $this->mojo->mojomotor_parser->tag_data;
+		$loop_count = $this->mojo->mojomotor_parser->loop_count;
+		$this->mojo->mojomotor_parser->tag_data = array();
+		$this->mojo->mojomotor_parser->loop_count = 0;
+		
+		$return = $this->mojo->mojomotor_parser->parse_template($return);
+		
+		$this->mojo->mojomotor_parser->tag_data = $tag_data;
+		$this->mojo->mojomotor_parser->loop_count = $loop_count;
+		
 		// Return the parsed template
 		return $return;
 	}

@@ -1,0 +1,306 @@
+<h3>Template Tags</h3>
+
+<p>MojoBlog contains a range of powerful template tags that make displaying entries on your website incredibly easy. The following is a complete and detailed reference of the template tags available to you.</p>
+
+<h3 id="mojoblog">&#x7B;mojo:blog:entries&#x7D;</h3>
+
+<p>The <var>entries</var> tag is the most complex tag in MojoBlog, and allows you to display, loop through and output your blog entries. It also contains functionality for pagination and category listing.</p>
+
+<br />
+
+<div>
+<h4>Generic Parameters</h4>
+
+<dl>
+  <dt>limit="x"</dt>
+  <dd>Only display <em>x</em> entries</dd>
+  
+  <dt>orderby="date"</dt>
+  <dd>Order by id, date, title and content</dd>
+  
+  <dt>sort="asc"</dt>
+  <dd>Sort <em>as</em>cendingly or <em>desc</em>endingly</dd>
+  
+  <dt>page="about|index"</dt>
+  <dd>Only output this tag only on a page, or a bar separated list of pages. Useful if you're not using a separate layout for your blog.</dd>
+  
+  <dt>global="yes"</dt>
+  <dd>Show this tag globally</dd>
+  
+  <dt>date_format="Y-m-d H:i:s"</dt>
+  <dd>The formatting for the entry date tag. <strong><a href="http://php.net/date" target="_blank">Uses PHP's date formatting</a></strong>.</dd>
+  
+  <dt>no_posts="There are no posts!"</dt>
+  <dd>Text/HTML to display when no posts exist</dd>
+</dl>
+</div>
+
+<br />
+  
+<h4>Entry/Category Parameters</h4>
+
+<dl>
+  <dt>entry_id="2"</dt>
+  <dd>A specific entry ID to show</dd>
+  
+  <dt>entry_id_segment="3"</dt>
+  <dd>The number of the URL segment that holds the entry ID</dd>
+  
+  <dt>entry_url_title_segment="3"</dt>
+  <dd>The number of the URL segment that holds the entry URL title</dd>
+  
+  <dt>no_posts_404="yes"</dt>
+  <dd>Throw a 404 if there are no posts</dd>
+  
+  <dt>category_segment="3"</dt>
+  <dd>The number of the URL segment that contains the category URL name</dd>
+</dl>
+
+<br />
+  
+<h4>Pagination Parameters</h4>
+  
+<dl>  
+  <dt>paginate="yes"</dt>
+  <dd>Enable pagination</dd>
+  
+  <dt>per_page="5"</dt>
+  <dd>How many entries to show per page</dd>
+  
+  <dt>pagination_trigger="p"</dt>
+  <dd>The trigger in the URL to define the page number</dd>
+  
+  <dt>paginate_once="yes"</dt>
+  <dd>Only ever show the pagination once</dd>
+</dl>
+
+<br />
+
+<p>While there are lot of parameters to choose from, this gives you fine-grained control over the output of the tag. In addition to these parameters, this tag supports the following variables:</p>
+
+<br />
+
+<h4>Inside the &#123;entries&#x7D;&#123;/entries&#x7D; tag</h4>
+
+<p>These variables sit inside a <var>&#123;entries&#x7D;&#123;/entries&#x7D;</var> loop to display the actual entry data.</p>
+
+<dl>
+  <dt>&#123;id&#x7D;</dt>
+  <dd>The entry ID</dd>
+  
+  <dt>&#123;title&#x7D;</dt>
+  <dd>The entry's title</dd>
+  
+  <dt>&#123;url_title&#x7D;</dt>
+  <dd>The entry's URL title</dd>
+  
+  <dt>&#123;url_title_path&#x7D;</dt>
+  <dd>A URL, generated from the current page and the entry's URL title</dd>
+  
+  <dt>&#123;content&#x7D;</dt>
+  <dd>The entry content</dd>
+  
+  <dt>&#123;status&#x7D;</dt>
+  <dd>The entry status</dd>
+  
+  <dt>&#123;author&#x7D;</dt>
+  <dd>The entry author</dd>
+  
+  <dt>&#123;category_name&#x7D;</dt>
+  <dd>This entry's category name</dd>
+  
+  <dt>&#123;category_url_name&#x7D;</dt>
+  <dd>This entry's category URL name</dd>
+  
+  <dt>&#123;category_id&#x7D;</dt>
+  <dd>This entry's category ID</dd>
+  
+  <dt>&#123;if category&#x7D;&#123;/if&#x7D; or &#123;if not category&#x7D;&#123;/if&#x7D;</dt>
+  <dd>Display content if post has a category (or not)</dd>
+  
+  <dt>&#123;if single_entry_page&#x7D;&#123;/if&#x7D; or &#123;if not single_entry_page&#x7D;&#123;/if&#x7D;</dt>
+  <dd>Display content if this is a single entry page (or not)</dd>
+</dl>
+
+<br />
+
+<h4>Category Variables</h4>
+
+<p>These variables are for category listing pages.</p>
+
+<dl>
+  <dt>&#123;category_name&#x7D;</dt>
+  <dd>The current category name</dd>
+  
+  <dt>&#123;category_url_name&#x7D;</dt>
+  <dd>The current category URL name</dd>
+  
+  <dt>&#123;category_id&#x7D;</dt>
+  <dd>The current category ID</dd>
+    
+  <dt>&#123;if category_page&#x7D;&#123;/if&#x7D; or &#123;if not category_page&#x7D;&#123;/if&#x7D;</dt>
+  <dd>Is this a category listing page?</dd>
+</dl>
+
+<br />
+
+<h4>Pagination</h4>
+
+<p>Pagination links are shown outside of the <var>&#123;entries&#x7D;</var> tag in a separate <var>&#123;pagination&#x7D;</var> tag. The <var>&#123;pagination&#x7D;</var> tag has the following variables:</p>
+
+<dl>
+        <dt>&#123;first_page_url&#x7D;</dt>
+        <dd>The URL to the first page</dd>
+
+        <dt>&#123;if prev_page&#x7D;</dt>
+        <dd>Is there a previous page?</dd>
+
+        <dt>&#123;prev_page_url&#x7D;</dt>
+        <dd>The URL to the previous page, if there is one</dd>
+
+        <dt>&#123;current_page&#x7D;</dt>
+        <dd>The current page number</dd>
+
+        <dt>&#123;total_pages&#x7D;</dt>
+        <dd>The total number of pages</dd>
+
+        <dt>&#123;if next_page&#x7D;</dt>
+        <dd>Is there a next page?</dd>
+
+        <dt>&#123;next_page_url&#x7D;</dt>
+        <dd>The URL to the next page</dd>
+
+        <dt>&#123;last_page_url&#x7D;</dt>
+        <dd>The URL to the last page</dd>
+</dl>
+
+<br />
+
+<h4>Basic Example</h4>
+
+<p>The following example is for a basic blog that shows the last ten entries.</p>
+
+<pre>
+&#123;mojo:blog:entries limit="10" orderby="date" paginate="yes"&#x7D;
+  &lt;h1>Blog&lt;/h1>
+
+  &#123;entries&#x7D;
+          &lt;h2>&#123;title&#x7D;&lt;/h2>
+          &lt;p>Author: &#123;author&#x7D;&lt;/p>
+
+          &#123;content&#x7D;
+  &#123;/entries&#x7D;
+&#123;/mojo:blog:entries&#x7D;
+</pre>
+
+<h4>+ Pagination</h4>
+<p>The next example builds upon the basic example, but adds pagination (new code in bold).</p>
+
+<pre>
+&#123;mojo:blog:entries limit="10" orderby="date" paginate="yes"&#x7D;
+  &lt;h1>Blog&lt;/h1>
+
+  &#123;entries&#x7D;
+      &lt;h2>&#123;title&#x7D;&lt;/h2>
+      &lt;p>Author: &#123;author&#x7D;&lt;/p>
+
+      &#123;content&#x7D;
+  &#123;/entries&#x7D;
+
+  <strong>&#123;pagination&#x7D;
+      &lt;p>
+        &lt;a href="&#123;first_page_url&#x7D;">First Page&lt;/a>
+        &#123;if prev_page&#x7D; - &lt;a href="&#123;prev_page_url&#x7D;">Previous Page&lt;/a>&#123;/if&#x7D; - 
+        Page &#123;current_page&#x7D; of &#123;total_pages&#x7D; - 
+        &#123;if next_page&#x7D;&lt;a href="&#123;next_page_url&#x7D;">Next Page&lt;/a> - &#123;/if&#x7D;
+        &lt;a href="&#123;last_page_url&#x7D;">Last Page&lt;/a>&lt;/p>
+  &#123;/pagination&#x7D;</strong>
+&#123;/mojo:blog:entries&#x7D;
+</pre>
+
+<h4>+ Single Entry Page</h4>
+<p>We now add support for single entry pages, all within the one tag</p>
+
+<pre>
+&#123;mojo:blog:entries limit="10" orderby="date" paginate="yes" <strong>entry_url_title_segment="3"</strong>&#x7D;
+  &lt;h1>Blog&lt;/h1>
+  
+  &#123;entries&#x7D;
+      <strong>&#123;if single_entry_page&#x7D;</strong>
+        &lt;h2>&#123;title&#x7D;&lt;/h2>
+      <strong>&#123;/if&#x7D;
+      
+      &#123;if not single_entry_page&#x7D;
+        &lt;h2>&lt;a href="&#123;url_title_path&#x7D;">&#123;title&#x7D;&lt;/a>&lt;/h2>
+      &#123;/if&#x7D;</strong>
+      
+      &lt;p>Author: &#123;author&#x7D;&lt;/p>
+
+      &#123;content&#x7D;
+  &#123;/entries&#x7D;
+
+  &#123;pagination&#x7D;
+      &lt;p>
+        &lt;a href="&#123;first_page_url&#x7D;">First Page&lt;/a>
+        &#123;if prev_page&#x7D; - &lt;a href="&#123;prev_page_url&#x7D;">Previous Page&lt;/a>&#123;/if&#x7D; - 
+        Page &#123;current_page&#x7D; of &#123;total_pages&#x7D; - 
+        &#123;if next_page&#x7D;&lt;a href="&#123;next_page_url&#x7D;">Next Page&lt;/a> - &#123;/if&#x7D;
+        &lt;a href="&#123;last_page_url&#x7D;">Last Page&lt;/a>&lt;/p>
+  &#123;/pagination&#x7D;
+&#123;/mojo:blog:entries&#x7D;
+</pre>
+
+<h4>+ Categories</h4>
+<p>We'll now add category support!</p>
+
+<pre>
+&#123;mojo:blog:entries limit="10" orderby="date" paginate="yes" entry_url_title_segment="3" <strong>category_segment="3"</strong>&#x7D;
+  &lt;h1>Blog <strong>&#123;if category_page&#x7D;entries in &#123;category_name&#x7D;&#123;/if&#x7D;</strong>&lt;/h1>
+
+  &#123;entries&#x7D;
+      &#123;if single_entry_page&#x7D;
+        &lt;h2>&#123;title&#x7D;&lt;/h2>
+      &#123;/if&#x7D;
+
+      &#123;if not single_entry_page&#x7D;
+        &lt;h2>&lt;a href="&#123;url_title_path&#x7D;">&#123;title&#x7D;&lt;/a>&lt;/h2>
+      &#123;/if&#x7D;</strong>
+
+      &lt;p>Author: &#123;author&#x7D;&lt;/p>
+      <strong>&lt;p&gt;Category: &#123;if category&#x7D;&lt;a href=&quot;&#123;mojo:site:link page="blog/category/&#123;category_url_name&#x7D;"&#x7D;&quot;&gt;&#123;category_name&#x7D;&lt;/a&gt;&#123;/if&#x7D;&#123;if not category&#x7D;No Category&#123;/if&#x7D;&lt;/p&gt;</strong>
+
+      &#123;content&#x7D;
+  &#123;/entries&#x7D;
+
+  &#123;pagination&#x7D;
+      &lt;p>
+        &lt;a href="&#123;first_page_url&#x7D;">First Page&lt;/a>
+        &#123;if prev_page&#x7D; - &lt;a href="&#123;prev_page_url&#x7D;">Previous Page&lt;/a>&#123;/if&#x7D; - 
+        Page &#123;current_page&#x7D; of &#123;total_pages&#x7D; - 
+        &#123;if next_page&#x7D;&lt;a href="&#123;next_page_url&#x7D;">Next Page&lt;/a> - &#123;/if&#x7D;
+        &lt;a href="&#123;last_page_url&#x7D;">Last Page&lt;/a>&lt;/p>
+  &#123;/pagination&#x7D;
+&#123;/mojo:blog:entries&#x7D;
+</pre>
+
+<br />
+
+<h3 id="categories">&#x7B;mojo:blog:categories&#x7D;</h3>
+
+<p>The <var>categories</var> tag allows you to loop through your blog's available catagories. It takes three optional parameters, <var>limit=""</var>, <var>orderby=""</var> and <var>sort=""</var>, all of which are self explanatory. There are four variables available, <var>&#123;id&#x7D;</var>, <var>&#123;name&#x7D;</var>, <var>&#123;url_name&#x7D;</var> and <var>&#123;entries&#x7D;</var>. Here's an example:</p>
+
+<pre>
+&lt;h2&gt;Categories&lt;/h2&gt;
+  
+&lt;ul&gt;
+  &#123;mojo:blog:categories&#x7D;
+    &lt;li&gt;&lt;a href=&quot;&#123;mojo:site:link page=&quot;blog/category/&#123;url_name&#x7D;&quot;&#x7D;&quot;&gt;&#123;name&#x7D;&lt;/a&gt; has &#123;entries&#x7D; entries.&lt;/li&gt;
+  &#123;/mojo:blog:categories&#x7D;
+&lt;/ul&gt;
+</pre>
+
+<br />
+
+<h3 id="disqus">&#x7B;mojo:blog:disqus&#x7D;</h3>
+
+<p>The <var>disqus</var> tag makes it easy to integrate the <a href="http://disqus.com">Disqus</a> commenting system. It takes one required parameter, <var>shortname=""</var>, your Disqus site shortname, and one optional parameter, <var>entry_id=""</var> which pulls in the comments for a specific entry (for use inside of <var>&#123;mojo:blog:entries&#x7D;</var>).</p>
