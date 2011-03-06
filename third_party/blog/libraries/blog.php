@@ -285,7 +285,7 @@ class Blog {
 	 * Loops through a blog's entries and displays them
 	 *
 	 * {mojo:blog:entries 
-	 * 			page="about|home" global="yes" limit="10" entry_id="1" entry_id_segment="3" entry_url_title_segment="3" no_posts_404="yes" status="published"
+	 * 			page="about|home" limit="10" entry_id="1" entry_id_segment="3" entry_url_title_segment="3" no_posts_404="yes" status="published"
 	 *			orderby="date" sort="desc" date_format="Y-m-d" no_posts="No posts!" paginate="yes" per_page="5" pagination_segment="p" paginate_once="yes"
 	 *			category_segment="3"}
 	 *	   	{entries}
@@ -301,7 +301,6 @@ class Blog {
 	public function entries($template_data) {
 		$this->template_data 		= $template_data;
 		$page 						= $this->_param('page');
-		$global 					= $this->_param('global');
 		$limit 						= $this->_param('limit');
 		$status 					= $this->_param('status');
 		$entry_id 					= $this->_param('entry_id');
@@ -320,7 +319,7 @@ class Blog {
 		$cond						= array('single_entry_page' => FALSE, 'category_page' => FALSE);
 		
 		// Limit access by page
-		if (!$this->_limited_access_by_page($page, $global)) {
+		if (!$this->_limited_access_by_page($page)) {
 			return '';
 		}
 		
