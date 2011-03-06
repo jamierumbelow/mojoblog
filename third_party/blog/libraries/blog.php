@@ -641,8 +641,8 @@ class Blog {
 	}
 	
 	/**
-	 * Outputs the URL to the RSS feed. Takes three parameters,
-	 * the required 'blog' and an optional 'limit' and 'link_page'
+	 * Outputs the URL to the RSS feed. Takes two parameters,
+	 * the both optional 'limit' and 'link_page'
 	 *
 	 * {mojo:blog:rss_url limit="15" link_page="about"}
 	 */

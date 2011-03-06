@@ -19,6 +19,7 @@
 	</li>
 	<li><a href="#categories">&#123;mojo:blog:categories&#x7D;</a></li>
 	<li><a href="#disqus">&#123;mojo:blog:disqus&#x7D;</a></li>
+	<li><a href="#rss">&#123;mojo:blog:rss_url&#x7D;</a></li>
 </ul>
 
 <h3 id="entries">&#x7B;mojo:blog:entries&#x7D;</h3>
@@ -327,4 +328,12 @@
 <pre>
 &lt;h1&gt;Comments for post #1&lt;/h1&gt;
 <strong>&#123;mojo:blog:disqus shortname=&quot;sparkplugs&quot; entry_id=&quot;1&quot;&#x7D;</strong>
+</pre>
+
+<h3 id="rss">&#x7B;mojo:blog:rss_url&#x7D;</h3>
+
+<p>Outputs the URL to your RSS feed. Takes two parameters, both optional, <var>limit=&quot;&quot;</var> and <var>link_page=&quot;&quot;</var>.</p>
+
+<pre>
+&#123;mojo:blog:rss_url limit=&quot;15&quot; link_page=&quot;about&quot;&#x7D;
 </pre>
