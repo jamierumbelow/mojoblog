@@ -2,14 +2,33 @@
 
 <p>MojoBlog contains a range of powerful template tags that make displaying entries on your website incredibly easy. The following is a complete and detailed reference of the template tags available to you.</p>
 
-<h3 id="mojoblog">&#x7B;mojo:blog:entries&#x7D;</h3>
+<br />
+
+<ul>
+	<li>
+		<a href="#entries">{mojo:blog:entries}</a>
+		<ul>
+			<li><a href="#entries-generic">Generic Parameters</a></li>
+			<li><a href="#entries-entry">Entry/Category Parameters</a></li>
+			<li><a href="#entries-pagination">Pagination Parameters</a></li>
+			<li><a href="#entries-entriesvar">Inside the &#123;entries&#x7D;&#123;/entries&#x7D; tag</a></li>
+			<li><a href="#entries-categories">Category Variables</a></li>
+			<li><a href="#entries-paginationvars">Pagination Variables</a></li>
+			<li><a href="#entries-examples">Examples</a></li>
+		</ul>
+	</li>
+	<li><a href="#categories">{mojo:blog:categories}</a></li>
+	<li><a href="#disqus">{mojo:blog:disqus}</a></li>
+</ul>
+
+<h3 id="entries">&#x7B;mojo:blog:entries&#x7D;</h3>
 
 <p>The <var>entries</var> tag is the most complex tag in MojoBlog, and allows you to display, loop through and output your blog entries. It also contains functionality for pagination and category listing.</p>
 
 <br />
 
 <div>
-<h4>Generic Parameters</h4>
+<h4 id="entries-generic">Generic Parameters</h4>
 
 <dl>
   <dt>limit="x"</dt>
@@ -37,7 +56,7 @@
 
 <br />
   
-<h4>Entry/Category Parameters</h4>
+<h4 id="entries-entry">Entry/Category Parameters</h4>
 
 <dl>
   <dt>entry_id="2"</dt>
@@ -58,7 +77,7 @@
 
 <br />
   
-<h4>Pagination Parameters</h4>
+<h4 id="entries-pagination">Pagination Parameters</h4>
   
 <dl>  
   <dt>paginate="yes"</dt>
@@ -80,7 +99,7 @@
 
 <br />
 
-<h4>Inside the &#123;entries&#x7D;&#123;/entries&#x7D; tag</h4>
+<h4 id="entries-entriesvar">Inside the &#123;entries&#x7D;&#123;/entries&#x7D; tag</h4>
 
 <p>These variables sit inside a <var>&#123;entries&#x7D;&#123;/entries&#x7D;</var> loop to display the actual entry data.</p>
 
@@ -124,7 +143,7 @@
 
 <br />
 
-<h4>Category Variables</h4>
+<h4 id="entries-categories">Category Variables</h4>
 
 <p>These variables are for category listing pages.</p>
 
@@ -144,7 +163,7 @@
 
 <br />
 
-<h4>Pagination</h4>
+<h4 id="entries-paginationvars">Pagination</h4>
 
 <p>Pagination links are shown outside of the <var>&#123;entries&#x7D;</var> tag in a separate <var>&#123;pagination&#x7D;</var> tag. The <var>&#123;pagination&#x7D;</var> tag has the following variables:</p>
 
@@ -176,7 +195,7 @@
 
 <br />
 
-<h4>Basic Example</h4>
+<h4 id="entries-examples">Basic Example</h4>
 
 <p>The following example is for a basic blog that shows the last ten entries.</p>
 
