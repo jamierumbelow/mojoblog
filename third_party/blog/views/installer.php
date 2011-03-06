@@ -18,6 +18,10 @@
 			<div class="mojo_login"> 
 				<h2><?=$title?></h2> 
 				<p><?=$message?></p>
+				
+				<br />
+				
+				<p><a href="<?=base_url()?>">Return to your site</a></p>
 			</div>
 		</div>
 	</body>
