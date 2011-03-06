@@ -6,7 +6,7 @@
 
 <ul>
 	<li>
-		<a href="#entries">{mojo:blog:entries}</a>
+		<a href="#entries">&#123;mojo:blog:entries&#x7D;</a>
 		<ul>
 			<li><a href="#entries-generic">Generic Parameters</a></li>
 			<li><a href="#entries-entry">Entry/Category Parameters</a></li>
@@ -17,8 +17,8 @@
 			<li><a href="#entries-examples">Examples</a></li>
 		</ul>
 	</li>
-	<li><a href="#categories">{mojo:blog:categories}</a></li>
-	<li><a href="#disqus">{mojo:blog:disqus}</a></li>
+	<li><a href="#categories">&#123;mojo:blog:categories&#x7D;</a></li>
+	<li><a href="#disqus">&#123;mojo:blog:disqus&#x7D;</a></li>
 </ul>
 
 <h3 id="entries">&#x7B;mojo:blog:entries&#x7D;</h3>
@@ -323,3 +323,8 @@
 <h3 id="disqus">&#x7B;mojo:blog:disqus&#x7D;</h3>
 
 <p>The <var>disqus</var> tag makes it easy to integrate the <a href="http://disqus.com">Disqus</a> commenting system. It takes one required parameter, <var>shortname=""</var>, your Disqus site shortname, and one optional parameter, <var>entry_id=""</var> which pulls in the comments for a specific entry (for use inside of <var>&#123;mojo:blog:entries&#x7D;</var>).</p>
+
+<pre>
+&lt;h1&gt;Comments for post #1&lt;/h1&gt;
+<strong>&#123;mojo:blog:disqus shortname=&quot;sparkplugs&quot; entry_id=&quot;1&quot;&#x7D;</strong>
+</pre>
