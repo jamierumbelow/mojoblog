@@ -10,6 +10,8 @@
 
 <p>Installing MojoBlog is just like any other MojoMotor addon. Simply drag the <var>blog/</var> folder found in your download into the <dfn>system/mojomotor/third_party/</dfn> folder. Ensure that your <samp>config/config.php</samp> and <samp>config/routes.php</samp> files are set to have <strong>0777</strong> permissions. Then, point your web browser to <var>http://domain.com/index.php/admin/addons/blog/install</var> and MojoBlog will install itself.</p>
 
+<p>Finally, you need to load MojoBlog's assets into each of your layouts. This is as easy as including <var>&#123;mojo:blog:init}</var> in each layout you wish to see the blog tab.</p>
+
 <p>It's that simple - MojoBlog is installed!</p>
 
 <h3 id="routes">A note on routes</h3>
