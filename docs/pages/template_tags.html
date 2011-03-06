@@ -201,7 +201,7 @@
 <p>The following example is for a basic blog that shows the last ten entries.</p>
 
 <pre>
-&#123;mojo:blog:entries limit="10" orderby="date" paginate="yes"&#x7D;
+&#123;mojo:blog:entries limit="10" orderby="date"&#x7D;
   &lt;h1>Blog&lt;/h1>
 
   &#123;entries&#x7D;
@@ -217,7 +217,7 @@
 <p>The next example builds upon the basic example, but adds pagination (new code in bold).</p>
 
 <pre>
-&#123;mojo:blog:entries limit="10" orderby="date" paginate="yes"&#x7D;
+&#123;mojo:blog:entries limit="10" orderby="date" <strong>paginate="yes"</strong>&#x7D;
   &lt;h1>Blog&lt;/h1>
 
   &#123;entries&#x7D;
