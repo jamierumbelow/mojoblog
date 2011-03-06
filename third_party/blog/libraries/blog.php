@@ -607,20 +607,26 @@ class Blog {
 		// string to return
 		$parsed = "";
 		
+		// Strip the template tags and replace with nothing
+		$divs = '';
+		$tags = array('{mojo:blog:categories}', '{/mojo:blog:categories}');
+		$parsed = str_replace($tags, $divs, $this->template_data['template']);
+		$return = "";
+		
 		foreach ($categories as $category) {
 			// Get template data and parse
-			$tmp = $this->template_data['template'];
+			$tmp = $parsed;
 			$tmp = preg_replace("/\{id\}/", $category->id, $tmp);
 			$tmp = preg_replace("/\{name\}/", $category->name, $tmp);
 			$tmp = preg_replace("/\{url_name\}/", $category->url_name, $tmp);
 			$tmp = preg_replace("/\{entries\}/", $category->entries, $tmp);
 			
 			// Append to the total parsed
-			$parsed .= $tmp;
+			$return .= $tmp;
 		}
 		
 		// Return the parsed template
-		return $parsed;
+		return $return;
 	}
 	
 	/**
