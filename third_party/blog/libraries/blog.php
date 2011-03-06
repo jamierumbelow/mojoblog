@@ -501,8 +501,8 @@ class Blog {
 					$first_page_url = site_url($this->mojo->mojomotor_parser->url_title);
 					$prev_page_url = ($page > 1) ? site_url($this->mojo->mojomotor_parser->url_title.'/p/'.(string)($page-1)) : FALSE;
 					$current_page = $page;
-					$total_pages = round($count/$per_page);
-					$next_page_url = ($page < ($count/$per_page)) ? site_url($this->mojo->mojomotor_parser->url_title.'/p/'.(string)($page+1)) : FALSE;
+					$total_pages = ceil($count/$per_page);
+					$next_page_url = ($page < $total_pages) ? site_url($this->mojo->mojomotor_parser->url_title.'/p/'.(string)($page+1)) : FALSE;
 					$last_page_url = site_url($this->mojo->mojomotor_parser->url_title.'/p/'.(string)round($count/$per_page));
 					$pagtmp = $pagtmp[1];
 					
