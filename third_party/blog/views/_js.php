@@ -6,10 +6,10 @@
 			"toolbarCanCollapse": false,
 			"toolbarStartupExpanded": true,
 			"removePlugins": "scayt,save",
-			filebrowserBrowseUrl: parent.Mojo.URL.site_path + "/editor/browse",
+			filebrowserBrowseUrl: parent.Mojo.URL.site_path + "/admin/editor/browse",
 			filebrowserWindowWidth: "780",
 			filebrowserWindowHeight: "500",
-			filebrowserUploadUrl: parent.Mojo.URL.site_path + "/editor/upload"
+			filebrowserUploadUrl: parent.Mojo.URL.site_path + "/admin/editor/upload"
 		});
 	});
 </script>
