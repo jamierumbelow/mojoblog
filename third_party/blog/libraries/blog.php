@@ -287,7 +287,7 @@ class Blog {
 	 * {mojo:blog:entries 
 	 * 			page="about|home" limit="10" entry_id="1" entry_id_segment="3" entry_url_title_segment="3" no_posts_404="yes" status="published"
 	 *			orderby="date" sort="desc" date_format="Y-m-d" no_posts="No posts!" paginate="yes" per_page="5" pagination_segment="p" paginate_once="yes"
-	 *			category_segment="3"}
+	 *			category_segment="3" excerpt_words="20"}
 	 *	   	{entries}
 	 *     		<h1>{title}</h1>
 	 *     		<p>{content}</p>
@@ -316,6 +316,7 @@ class Blog {
 		$per_page 					= $this->_param('per_page');
 		$pagination_segment			= $this->_param('pagination_segment');
 		$category_segment			= $this->_param('category_segment');
+		$excerpt_words				= $this->_param('excerpt_words');
 		$cond						= array('single_entry_page' => FALSE, 'category_page' => FALSE);
 		
 		// Limit access by page
@@ -456,6 +457,10 @@ class Blog {
 					$tmp = preg_replace("/{content}/i", $post->content, $tmp);
 					$tmp = preg_replace("/{status}/i", ucwords($post->status), $tmp);
 					$tmp = preg_replace("/{author}/i", $post->author, $tmp);
+					
+					// Excerpts
+					$excerpt_words = ($excerpt_words) ? $excerpt_words : 20;
+					$tmp = preg_replace("/{excerpt}/i", $this->_generate_excerpt($post->content, $excerpt_words), $tmp);
 					
 					// Category
 					if ($post->category) {
@@ -914,6 +919,28 @@ class Blog {
 	/* --------------------------------------------------------------
 	 * HELPER METHODS
 	 * ------------------------------------------------------------ */
+	
+	/**
+	 * Generate an excerpt
+	 */
+	protected function _generate_excerpt($string, $word_count = 20) {
+		$string = preg_replace('@<(script|style)[^>]*?>.*?</\\1>@si', '', $string);
+		$string = strip_tags($string);
+		$string = trim($string);
+		$string = preg_replace('/&[^;\s]{0,6}$/', '', $string);
+		
+		$words = preg_split("/[\n\r\t ]+/", $string, $word_count + 1, PREG_SPLIT_NO_EMPTY);
+		
+		if (count($words) > $word_count) {
+			array_pop($words);
+			$string = implode(' ', $words);
+			$string = $string . '...';
+		} else {
+			$string = implode(' ', $words);
+		}
+		
+		return $string;
+	}
 	
 	/**
 	 * Load a view
