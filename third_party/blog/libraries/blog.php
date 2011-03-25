@@ -7,7 +7,7 @@
  *
  * @package 	mojoblog
  * @author 		Jamie Rumbelow <http://jamierumbelow.net>
- * @version		2.0.0
+ * @version		2.1.0
  * @copyright 	(c)2011 Jamie Rumbelow
  */
 
@@ -19,7 +19,7 @@ class Blog {
 	
 	private $mojo;
 	private $data = array();
-	private $version = '2.0.0';
+	private $version = '2.1.0';
 	
 	/* --------------------------------------------------------------
 	 * GENERIC METHODS

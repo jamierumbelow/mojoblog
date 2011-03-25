@@ -1,5 +1,5 @@
 ==============================
-	MojoBlog Version 2.0.0
+	MojoBlog Version 2.1.0
 	http://getsparkplugs.com/mojoblog/
 ==============================
 
@@ -19,6 +19,10 @@ It's that simple - MojoBlog is installed!
 
 Changelog
 =========
+
+	Version 2.1.0
+		- Adding the {excerpt} variable
+		- Fixing an error with file URLs
 
 	Version 2.0.0
 		- Added a new MojoBar interface
