@@ -6,6 +6,7 @@
 			"toolbarCanCollapse": false,
 			"toolbarStartupExpanded": true,
 			"removePlugins": "scayt,save",
+			"language" : "en",
 			filebrowserBrowseUrl: parent.Mojo.URL.site_path + "/admin/editor/browse",
 			filebrowserWindowWidth: "780",
 			filebrowserWindowHeight: "500",
