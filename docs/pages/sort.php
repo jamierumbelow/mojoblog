@@ -7,7 +7,7 @@
  *
  * @package 	mojoblog
  * @author 		Jamie Rumbelow <http://jamierumbelow.net>
- * @version		2.1.0
+ * @version		2.1.1
  * @copyright 	(c)2011 Jamie Rumbelow
  */
 
