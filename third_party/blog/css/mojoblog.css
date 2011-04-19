@@ -26,7 +26,7 @@
 #mojoblog_install .button { background: #F5C062 url('../../../assets/img/button_back.png') repeat-x center center; }
 
 /* Editor */
-#mojoblog_content_entry .cke_skin_mojo.cke_editor_mojoblog_entry_content { border: 0; width: 500px; margin-left: 138px; }
+#mojoblog_content_entry .cke_skin_mojo.cke_editor_mojoblog_entry_content { border: 0; width: 500px; margin-left: 208px; }
 #mojoblog_content_entry .cke_skin_mojo.cke_editor_mojoblog_entry_content table tbody tr:hover td { background: 0; }
 
 /* Namespaced editor.css */
