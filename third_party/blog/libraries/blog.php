@@ -287,7 +287,7 @@ class Blog {
 	 * {mojo:blog:entries 
 	 * 			page="about|home" limit="10" entry_id="1" entry_id_segment="3" entry_url_title_segment="3" no_posts_404="yes" status="published"
 	 *			orderby="date" sort="desc" date_format="Y-m-d" no_posts="No posts!" paginate="yes" per_page="5" pagination_segment="p" paginate_once="yes"
-	 *			category_segment="3" excerpt_words="20"}
+	 *			category="cat_url_title" category_segment="3" excerpt_words="20"}
 	 *	   	{entries}
 	 *     		<h1>{title}</h1>
 	 *     		<p>{content}</p>
@@ -316,6 +316,7 @@ class Blog {
 		$per_page 					= $this->_param('per_page');
 		$pagination_segment			= $this->_param('pagination_segment');
 		$category_segment			= $this->_param('category_segment');
+		$category_url_title			= $this->_param('category_url_title');
 		$excerpt_words				= $this->_param('excerpt_words');
 		$cond						= array('single_entry_page' => FALSE, 'category_page' => FALSE);
 		
@@ -341,8 +342,14 @@ class Blog {
 		}
 		
 		// What about a category page?
-		elseif ($category_segment && $this->mojo->uri->segment((int)$category_segment) && $this->mojo->uri->segment((int)$category_segment-1) == 'category') {
-			$category = $this->mojo->blog_model->where('url_name', $this->mojo->uri->segment((int)$category_segment))->category();
+		elseif (($category_segment && $this->mojo->uri->segment((int)$category_segment) && $this->mojo->uri->segment((int)$category_segment-1) == 'category')
+				||
+				($category_url_title)) {
+			if ($category_url_title) {
+				$category = $this->mojo->blog_model->where('url_name', $category_url_title)->category();
+			} else {
+				$category = $this->mojo->blog_model->where('url_name', $this->mojo->uri->segment((int)$category_segment))->category();
+			}
 			
 			if ($category) {
 				$this->mojo->blog_model->where('category_id', $category->id);
