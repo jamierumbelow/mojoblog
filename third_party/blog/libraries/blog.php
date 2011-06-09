@@ -315,6 +315,7 @@ class Blog {
 		$paginate_once				= $this->_param('paginate_once');
 		$per_page 					= $this->_param('per_page');
 		$pagination_segment			= $this->_param('pagination_segment');
+		$category					= $this->_param('category');
 		$category_segment			= $this->_param('category_segment');
 		$category_url_title			= $this->_param('category_url_title');
 		$excerpt_words				= $this->_param('excerpt_words');
@@ -346,20 +347,20 @@ class Blog {
 				||
 				($category_url_title)) {
 			if ($category_url_title) {
-				$category = $this->mojo->blog_model->where('url_name', $category_url_title)->category();
+				$cat = $this->mojo->blog_model->where('url_name', $category_url_title)->category();
 			} else {
-				$category = $this->mojo->blog_model->where('url_name', $this->mojo->uri->segment((int)$category_segment))->category();
+				$cat = $this->mojo->blog_model->where('url_name', $this->mojo->uri->segment((int)$category_segment))->category();
 			}
 			
 			if ($category) {
-				$this->mojo->blog_model->where('category_id', $category->id);
+				$this->mojo->blog_model->where('category_id', $cat->id);
 			
 				$paginate = FALSE;
 				$cond['category_page'] = TRUE;
 			
-				$category_name 		= $category->name;
-				$category_url_name 	= $category->url_name;
-				$category_id 		= $category->id;
+				$category_name 		= $cat->name;
+				$category_url_name 	= $cat->url_name;
+				$category_id 		= $cat->id;
 			} else {
 				$category_name 		= '';
 				$category_url_name 	= '';
@@ -385,6 +386,32 @@ class Blog {
 			}
 		} else {
 			$this->mojo->blog_model->where('status', 'published');
+		}
+		
+		// Category
+		if ($category) {
+			// Get rid of 'not '
+			$not = FALSE;
+			$first = TRUE;
+			if (substr($category, 0, 4) == 'not ') { $category = substr($category, 4); $not = TRUE; }
+			
+			// Multiple categories
+			$categories = explode('|', $category);
+			
+			foreach ($categories as $category) {
+				$cat_id = $this->mojo->blog_model->isolate()->where('url_name', $category)->category()->id;
+						  $this->mojo->blog_model->unisolate();
+				
+				if ($not) {
+					$this->mojo->blog_model->where('category_id !=', $cat_id);
+				} else {
+					if ($first) {
+						$this->mojo->blog_model->where('category_id', $cat_id);
+					} else {
+						$this->mojo->blog_model->or_where('category_id', $cat_id);
+					}
+				}
+			}
 		}
 		
 		// Orderby and sort

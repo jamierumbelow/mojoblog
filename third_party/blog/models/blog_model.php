@@ -12,6 +12,7 @@
 
 class Blog_model extends CI_Model {
 	public $validation_errors = '';
+	private $_old_query_stuff = array();
 	
 	public function __construct() {
 		parent::__construct();
@@ -250,6 +251,24 @@ class Blog_model extends CI_Model {
 		}
 		
 		return $dropdown;
+	}
+	
+	public function isolate() {
+		// Cache the CodeIgniter ActiveRecord values
+		$ar_values = array(
+			'ar_select', 'ar_distinct', 'ar_from', 'ar_join', 'ar_where', 'ar_like', 
+			'ar_groupby', 'ar_having', 'ar_limit', 'ar_offset', 'ar_order', 'ar_orderby', 
+			'ar_set', 'ar_wherein', 'ar_aliased_tables', 'ar_store_array'
+		);
+		foreach ($ar_values as $val) { $this->_old_query_stuff[$val] = $this->db->$val; $this->db->$val = null; }
+		
+		// Return $this
+		return $this;
+	}
+	
+	public function unisolate() {
+		// Restore the AR values
+		foreach ($this->_old_query_stuff as $key => $val) { $this->db->$key = $val; }
 	}
 	
 	public function __call($method, $arguments) {
