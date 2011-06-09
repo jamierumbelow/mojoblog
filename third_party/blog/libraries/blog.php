@@ -383,6 +383,8 @@ class Blog {
 					$this->mojo->blog_model->or_where('status', $status);
 				}
 			}
+		} else {
+			$this->mojo->blog_model->where('status', 'published');
 		}
 		
 		// Orderby and sort
