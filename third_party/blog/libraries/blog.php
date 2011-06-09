@@ -60,7 +60,7 @@ class Blog {
 		$this->mojo->pagination->initialize($config);
 		
 		// Load the entries from the DB
-		$this->data['entries'] = $this->mojo->blog_model->limit($this->mojo->pagination->per_page, $offset)->get();
+		$this->data['entries'] = $this->mojo->blog_model->order_by('date DESC')->limit($this->mojo->pagination->per_page, $offset)->get();
 		
 		// Load the view
 		$this->_view('index');
