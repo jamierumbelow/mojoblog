@@ -392,7 +392,6 @@ class Blog {
 		if ($category) {
 			// Get rid of 'not '
 			$not = FALSE;
-			$first = TRUE;
 			if (substr($category, 0, 4) == 'not ') { $category = substr($category, 4); $not = TRUE; }
 			
 			// Multiple categories
@@ -402,11 +401,9 @@ class Blog {
 				$cat_id = $this->mojo->blog_model->isolate()->where('url_name', $category)->category()->id;
 						  $this->mojo->blog_model->unisolate();
 				
-				if ($not) {
-					$this->mojo->blog_model->where('category_id !=', $cat_id);
-				} else {
-					if ($first) {
-						$this->mojo->blog_model->where('category_id', $cat_id);
+				if ($cat_id) {
+					if ($not) {
+						$this->mojo->blog_model->where('category_id !=', $cat_id);
 					} else {
 						$this->mojo->blog_model->or_where('category_id', $cat_id);
 					}
