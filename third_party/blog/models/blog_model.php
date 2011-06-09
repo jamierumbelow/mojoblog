@@ -179,8 +179,8 @@ class Blog_model extends CI_Model {
 	
 	public function categories() {
 		return $this->db->select('blog_categories.*')
-						->select('COUNT(`mojo_blog_entries`.`id`) AS entries')
-						->join('blog_entries', 'blog_entries.category_id = mojo_blog_categories.id', 'left')
+						->select('COUNT(`' . $this->db->dbprefix . 'blog_entries' .'`.`id`) AS entries')
+						->join('blog_entries', 'blog_entries.category_id = ' . $this->db->dbprefix . 'blog_categories.id', 'left')
 						->group_by('blog_categories.id')
 						->get('blog_categories')
 						->result();
