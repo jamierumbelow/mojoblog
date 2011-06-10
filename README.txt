@@ -1,5 +1,5 @@
 ==============================
-	MojoBlog Version 2.1.0
+	MojoBlog Version 2.2.0
 	http://getsparkplugs.com/mojoblog/
 ==============================
 
@@ -19,6 +19,17 @@ It's that simple - MojoBlog is installed!
 
 Changelog
 =========
+
+	Version 2.2.0
+		- Adding the category="" parameter
+		- Updates to documentation
+		- Status parameter now defaults to published
+		- Removal of hard-coded table names
+		- Entries are now listed in date-descending order
+
+	Version 2.1.1
+		- Fixed a CSS issue with MM1.1.1
+		- Fixed an error with different language browsers
 
 	Version 2.1.0
 		- Adding the {excerpt} variable
