@@ -352,7 +352,7 @@ class Blog {
 				$cat = $this->mojo->blog_model->where('url_name', $this->mojo->uri->segment((int)$category_segment))->category();
 			}
 			
-			if ($category) {
+			if ($cat) {
 				$this->mojo->blog_model->where('category_id', $cat->id);
 			
 				$paginate = FALSE;
