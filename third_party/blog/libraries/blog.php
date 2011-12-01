@@ -390,6 +390,9 @@ class Blog {
 		
 		// Category
 		if ($category) {
+			$in = array();
+			$not_in = array();
+			
 			// Get rid of 'not '
 			$not = FALSE;
 			if (substr($category, 0, 4) == 'not ') { $category = substr($category, 4); $not = TRUE; }
@@ -403,12 +406,17 @@ class Blog {
 				
 				if ($cat_id) {
 					if ($not) {
-						$this->mojo->blog_model->where('category_id !=', $cat_id);
+						$not_in[] = $cat_id;
+						// $this->mojo->blog_model->where('category_id !=', $cat_id);
 					} else {
-						$this->mojo->blog_model->or_where('category_id', $cat_id);
+						$in[] = $cat_id;
+						// $this->mojo->blog_model->or_where('category_id', $cat_id);
 					}
 				}
 			}
+			
+			if ($in) { $this->mojo->blog_model->where_in('category_id', $in); }
+			if ($not_in) { $this->mojo->blog_model->where_not_in('category_id', $not_in); }
 		}
 		
 		// Orderby and sort
